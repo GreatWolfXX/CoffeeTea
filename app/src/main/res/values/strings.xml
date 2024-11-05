@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">FreshCart</string>
+    <string name="onboarding_title_1">Вітаємо у світі кави та чаю!</string>
+    <string name="onboarding_desc_1">Відкрийте для себе унікальні сорти кави та чаю, які порадують ваші смакові рецептори.</string>
+    <string name="onboarding_title_2">Широкий асортимент товарів</string>
+    <string name="onboarding_desc_2">Від кави в зернах до ароматизованих чаїв – у нас є все, щоб задовольнити ваші смакові бажання.</string>
+    <string name="onboarding_title_3">Досліджуйте нові смаки</string>
+    <string name="onboarding_desc_3">Спробуйте нові сорти кави та чаю, відкривайте для себе цікаві комбінації та насолоджуйтесь унікальними смаками!</string>
+    <string name="onboarding_title_4">Створюйте свій ідеальний набір</string>
+    <string name="onboarding_desc_4">Складіть власний подарунковий набір з кави, чаю та смачних аксесуарів. Ідеальний варіант для себе або близьких!</string>
+    <string name="title_next">Далі</string>
+    <string name="title_start">Почати</string>
+    <string name="title_welcome">Вітаємо</string>
+    <string name="auth_desc">Обирайте зручний спосіб входу, щоб швидко почати покупки.</string>
+    <string name="title_continue_google">Продовжити з Google</string>
+    <string name="title_create_account">Створити обліковий запис</string>
+    <string name="already_have">Вже маєте обліковий запис?\u0020</string>
+    <string name="login">Увійдіть</string>
+    <string name="login_title">З поверненням!</string>
+    <string name="login_desc">Увійдіть до свого облікового запису</string>
+    <string name="remember_me">Запам\'ятати мене</string>
+    <string name="forgot_password">Забули пароль</string>
+    <string name="dont_have">Не маєте облікового запису?\u0020</string>
+    <string name="sign_up">Зареєструйтесь</string>
+    <string name="email_address">Електронна пошта</string>
+    <string name="password_placeholder">Пароль</string>
+    <string name="repeat_password_placeholder">Повторіть пароль</string>
+    <string name="create_account">Створити обліковий запис</string>
+    <string name="create_account_desc">Швидке створення облікового запису</string>
+    <string name="signup">Зареєструватись</string>
+    <string name="title_password_recovery">Відновлення пароля</string>
+    <string name="password_recovery_desc">Введіть свою електронну адресу, і ми надішлемо вам інструкції для відновлення паролю.</string>
+    <string name="send_link">Надіслати посилання</string>
+
+
+    <string name="err_field_empty">Поле не повинно бути порожнім!</string>
+    <string name="err_password_length">Пароль повинен містити менше %1$d символів!</string>
+    <string name="err_email_valid">Введений email є недійсним!</string>
+    <string name="err_password_valid">Введений пароль повинен містити принаймні одну літеру та цифру!</string>
+    <string name="err_repeat_password_valid">Паролі повинні бути однаковими!</string>
+    <string name="err_phone_number_valid">Номер телефону повинен починатися з + і складатися тільки з цифр!</string>
+</resources>
