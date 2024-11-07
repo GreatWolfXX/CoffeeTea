@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,7 +7,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.serialization)
-    alias(libs.plugins.google.services)
 }
 
 android {
@@ -20,6 +21,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val keystoreFile = project.rootProject.file("local.properties")
+        val properties = Properties()
+        properties.load(keystoreFile.inputStream())
+
+        val supabaseAnonKey = properties.getProperty("SUPABASE_ANON_KEY") ?: ""
+        val supabaseUrl = properties.getProperty("SUPABASE_URL") ?: ""
+
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
     }
 
     buildTypes {
@@ -40,6 +51,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -72,9 +84,18 @@ dependencies {
 
     implementation(libs.google.fonts)
     implementation(libs.material.icons)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.auth)
+
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.storage)
+    implementation(libs.supabase.auth)
+
+    implementation(libs.ktor.client)
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.utils)
+
+    implementation(libs.coil)
+    implementation(libs.coil.svg)
 
     implementation(libs.splashscreen)
 }

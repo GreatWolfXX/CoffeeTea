@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.data.local.PreferencesKey
+import com.gwolf.coffeetea.data.repository.local.PreferencesKey
 import com.gwolf.coffeetea.domain.usecase.auth.SignInUseCase
 import com.gwolf.coffeetea.domain.usecase.preference.SaveBooleanPreferenceUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
@@ -12,6 +12,7 @@ import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.jan.supabase.auth.Auth
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,7 +41,8 @@ class LoginViewModel @Inject constructor(
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val saveBooleanPreferenceUseCase: SaveBooleanPreferenceUseCase,
-    private val signInUseCase: SignInUseCase
+    private val signInUseCase: SignInUseCase,
+    private val auth: Auth
 ) : ViewModel() {
 
     private val _formState = mutableStateOf(LoginUiState())

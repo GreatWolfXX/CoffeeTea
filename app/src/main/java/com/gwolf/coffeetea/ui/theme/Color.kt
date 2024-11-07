@@ -13,8 +13,15 @@ val Pink40 = Color(0xFF7D5260)
 
 val PrimaryColor = Color(0xFF0C7C66)
 val PrimaryDarkColor = Color(0xFF035747)
-val BackgroundColor = Color(0xFFF9F9F9)
+val BackgroundColor = Color(0xFFF4F5F9)
 val OnSurfaceColor = Color(0xFF1D1B20)
 val OutlineColor = Color(0xFF79747E)
 val LightRedColor = Color(0xFFFE585A)
 val LinkColor = Color(0xFF284777)
+val LoadingBackgroundColor = Color(0x801D1B20)
+val StatusBarBackgroundColor = Color(0x411D1B20)
+
+val BackgroundGradient = Brush.verticalGradient(
+    0.0f to Color(0xFFE4F5EF),
+    1f to Color(0xFFF8F6F9),
+)

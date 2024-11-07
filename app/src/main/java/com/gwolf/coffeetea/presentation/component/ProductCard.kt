@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,59 +25,70 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gwolf.coffeetea.R
+import coil.compose.rememberAsyncImagePainter
+import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
-fun ProductCard() {
+fun ProductCard(
+    product: Product
+) {
+    var count by rememberSaveable { mutableStateOf(0) }
+
     Card(
         modifier = Modifier
-            .size(
-                width = 180.dp,
-                height = 220.dp
-            ),
+            .fillMaxWidth()
+            .wrapContentHeight(),
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
     ) {
         Box {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // image
                 Image(
-                    modifier = Modifier.fillMaxWidth(),
-                    painter = painterResource(R.drawable.image_product_mock),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 130.dp),
+                    painter = rememberAsyncImagePainter(
+                        model = product.imageUrl
+                    ),
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.size(4.dp))
-                // title
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    text = "Кенія Kiambu АА Kirura",
+                    text = product.name,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
                     color = OnSurfaceColor
                 )
                 Spacer(Modifier.size(4.dp))
-                // features desc
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    text = "Фрукти, Цитрусові, Ягоди",
+                    text = product.featuresDescription.orEmpty(),
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 11.sp,
@@ -86,34 +99,44 @@ fun ProductCard() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        // price
                         Text(
                             modifier = Modifier,
-                            text = "667₴",
+                            text = "${product.price}₴",
                             fontFamily = robotoFontFamily,
                             fontWeight = FontWeight.Medium,
                             fontSize = 14.sp,
+                            lineHeight = TextUnit(20f, TextUnitType.Sp),
                             color = OnSurfaceColor
                         )
-                        // amount
                         Text(
                             modifier = Modifier,
-                            text = "0.5 кг",
+                            text = "${product.amount} ${product.unit}",
                             fontFamily = robotoFontFamily,
                             fontWeight = FontWeight.Medium,
                             fontSize = 11.sp,
+                            lineHeight = TextUnit(16f, TextUnitType.Sp),
                             color = OutlineColor
                         )
                     }
                     Spacer(Modifier.size(16.dp))
-                    // buy btn
-                    if(true) {
-                        ProductCardBuyBtn()
+                    if(count == 0) {
+                        ProductCardBuyBtn {
+                            count = count.inc()
+                        }
                     } else {
-                        ProductCardChangeCount()
+                        ProductCardChangeCount(
+                            onAdd = {
+                                count = count.inc()
+                            },
+                            onMinus = {
+                                count = count.dec()
+                            },
+                            count = count
+                        )
                     }
                 }
                 Spacer(Modifier.size(4.dp))
@@ -132,7 +155,9 @@ fun ProductCard() {
 }
 
 @Composable
-private fun ProductCardBuyBtn() {
+private fun ProductCardBuyBtn(
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .size(28.dp)
@@ -141,7 +166,7 @@ private fun ProductCardBuyBtn() {
                 shape = RoundedCornerShape(8.dp)
             )
             .clickable {
-                //click
+                onClick.invoke()
             },
         contentAlignment = Alignment.Center
     ) {
@@ -155,7 +180,11 @@ private fun ProductCardBuyBtn() {
 }
 
 @Composable
-private fun ProductCardChangeCount() {
+private fun ProductCardChangeCount(
+    onAdd: () -> Unit,
+    onMinus: () -> Unit,
+    count: Int
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -169,7 +198,7 @@ private fun ProductCardChangeCount() {
                     shape = RoundedCornerShape(8.dp)
                 )
                 .clickable {
-                    //click
+                    onMinus.invoke()
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -182,7 +211,7 @@ private fun ProductCardChangeCount() {
         }
         Text(
             modifier = Modifier,
-            text = "1",
+            text = count.toString(),
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
@@ -196,7 +225,7 @@ private fun ProductCardChangeCount() {
                     shape = RoundedCornerShape(8.dp)
                 )
                 .clickable {
-                    //click
+                    onAdd.invoke()
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -210,8 +239,8 @@ private fun ProductCardChangeCount() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun ProductCardPreview() {
-    ProductCard()
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun ProductCardPreview() {
+//    ProductCard()
+//}

@@ -4,9 +4,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-sealed class Screen(
-    val isContainsBottomNav: Boolean = false
-) {
+sealed class Screen() {
     @Serializable
     data object Welcome: Screen()
     @Serializable
@@ -18,23 +16,13 @@ sealed class Screen(
     @Serializable
     data object ForgotPassword: Screen()
 
-}
+    @Serializable
+    data object Home: Screen()
+    @Serializable
+    data object Profile: Screen()
+    @Serializable
+    data object Favorite: Screen()
+    @Serializable
+    data object Cart: Screen()
 
-//fun NavBackStackEntry?.fromRoute(): Screen {
-//    NavDestination.route?.substringBefore("?")?.substringBefore("/")
-//        ?.substringAfterLast(".")?.let {
-//            when (it) {
-//                KClass.simpleName -> return Screen.Welcome
-//                KClass.simpleName -> return Screen.Auth
-//                KClass.simpleName -> return Screen.Login
-//                KClass.simpleName -> return Screen.Registration
-//                KClass.simpleName -> return Screen.ForgotPassword
-//                KClass.simpleName -> return Screen.Home
-//                KClass.simpleName -> return Screen.Profile
-//                KClass.simpleName -> return Screen.Favorite
-//                KClass.simpleName -> return Screen.Cart
-//                else -> return Screen.Welcome
-//            }
-//        }
-//    return Screen.Welcome
-//}
+}

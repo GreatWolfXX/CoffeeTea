@@ -19,6 +19,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,28 +27,36 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gwolf.coffeetea.R
+import coil.compose.rememberAsyncImagePainter
+import com.gwolf.coffeetea.domain.model.Promotion
 import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
-fun PromotionsComponent() {
-    // temp
+fun PromotionsComponent(
+    promotionsList: List<Promotion>
+) {
     val pagerState = rememberPagerState(
-        pageCount = { 8 }
+        pageCount = { promotionsList.size }
     )
     Box {
         HorizontalPager(
+            modifier = Modifier
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(8.dp)
+                ),
             state = pagerState
         ) { position ->
-            PromotionScreen()
+            PromotionScreen(
+                promotionsList[position]
+            )
         }
         PagerIndicator(pagerState = pagerState)
     }
@@ -81,7 +90,9 @@ private fun BoxScope.PagerIndicator(
 }
 
 @Composable
-private fun PromotionScreen() {
+private fun PromotionScreen(
+    promotion: Promotion
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,7 +103,9 @@ private fun PromotionScreen() {
         ) {
             Image(
                 modifier = Modifier.fillMaxWidth(),
-                painter = painterResource(R.drawable.image_promotion_mock),
+                painter = rememberAsyncImagePainter(
+                    model = promotion.imageUrl
+                ),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
@@ -103,7 +116,7 @@ private fun PromotionScreen() {
             ) {
                 Text(
                     modifier = Modifier,
-                    text = "Знижка на перше замовлення!",
+                    text = promotion.title,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 16.sp,
@@ -112,7 +125,7 @@ private fun PromotionScreen() {
                 Spacer(Modifier.size(4.dp))
                 Text(
                     modifier = Modifier.padding(end = 120.dp),
-                    text = "Отримайте знижку 15% на переше замовлення.",
+                    text = promotion.description.orEmpty(),
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
@@ -123,8 +136,8 @@ private fun PromotionScreen() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun PromotionScreenPreview() {
-    PromotionScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun PromotionScreenPreview() {
+//    PromotionScreen()
+//}

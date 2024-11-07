@@ -39,7 +39,7 @@ import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.CustomTextInput
 import com.gwolf.coffeetea.presentation.component.CustomTextInputStyle
 import com.gwolf.coffeetea.presentation.component.TopMenu
-import com.gwolf.coffeetea.ui.theme.BackgroundColor
+import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
@@ -90,7 +90,7 @@ private fun BoxScope.ForgotPasswordContent(
         modifier = Modifier
             .fillMaxSize()
             .align(Alignment.TopCenter)
-            .background(BackgroundColor)
+            .background(BackgroundGradient)
             .padding(horizontal = 16.dp, vertical = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

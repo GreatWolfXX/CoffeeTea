@@ -5,14 +5,18 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.data.local.PreferencesKey
+import com.gwolf.coffeetea.data.repository.local.PreferencesKey
+import com.gwolf.coffeetea.domain.usecase.auth.CheckAuthUseCase
 import com.gwolf.coffeetea.domain.usecase.preference.ReadBooleanPreferenceUseCase
 import com.gwolf.coffeetea.navigation.Screen
+import com.gwolf.coffeetea.util.UiResult
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SplashViewModel @Inject constructor(
     private val readBooleanPreference: ReadBooleanPreferenceUseCase,
+    private val checkAuthUseCase: CheckAuthUseCase
 ) : ViewModel() {
 
     private val _startDestination: MutableState<Screen?> = mutableStateOf(null)
@@ -20,8 +24,20 @@ class SplashViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            readBooleanPreference.invoke(PreferencesKey.onBoardingKey).collect { result ->
-                _startDestination.value = if (result) Screen.Auth else Screen.Welcome
+            val readOnBoardingFlow = readBooleanPreference.invoke(PreferencesKey.onBoardingKey)
+            val checkAuthFlow = checkAuthUseCase.invoke()
+            readOnBoardingFlow.combine(checkAuthFlow) { readOnBoarding, checkAuth ->
+                when (checkAuth) {
+                    is UiResult.Success -> {
+                        if (readOnBoarding) Screen.Home else Screen.Welcome
+                    }
+
+                    is UiResult.Error -> {
+                        if (readOnBoarding) Screen.Auth else Screen.Welcome
+                    }
+                }
+            }.collect { startDestination ->
+                _startDestination.value = startDestination
             }
         }
     }

@@ -2,7 +2,7 @@ package com.gwolf.coffeetea.presentation.screen.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.data.local.PreferencesKey
+import com.gwolf.coffeetea.data.repository.local.PreferencesKey
 import com.gwolf.coffeetea.domain.usecase.preference.SaveBooleanPreferenceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch

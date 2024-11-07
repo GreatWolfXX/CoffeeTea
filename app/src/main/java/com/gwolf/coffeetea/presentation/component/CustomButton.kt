@@ -50,6 +50,7 @@ fun CustomButton(
                 color = PrimaryDarkColor,
                 shape = RoundedCornerShape(100.dp)
             ),
+        elevation = ButtonDefaults.elevatedButtonElevation(4.dp),
         shape = RoundedCornerShape(100.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = bgColor

@@ -33,7 +33,7 @@ import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.CustomButtonStyle
 import com.gwolf.coffeetea.presentation.component.TopMenu
-import com.gwolf.coffeetea.ui.theme.BackgroundColor
+import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
@@ -67,7 +67,7 @@ private fun BoxScope.AuthContent(
             .fillMaxWidth()
             .align(Alignment.BottomCenter)
             .background(
-                color = BackgroundColor,
+                brush = BackgroundGradient,
                 shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
             )
             .padding(start = 16.dp, top = 32.dp, end = 16.dp, bottom = 40.dp)

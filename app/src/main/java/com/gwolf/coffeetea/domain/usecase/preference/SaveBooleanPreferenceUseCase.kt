@@ -1,13 +1,13 @@
 package com.gwolf.coffeetea.domain.usecase.preference
 
 import androidx.datastore.preferences.core.Preferences
-import com.gwolf.coffeetea.domain.repository.DataStoreRepository
+import com.gwolf.coffeetea.domain.repository.local.DataStoreRepository
 import javax.inject.Inject
 
 class SaveBooleanPreferenceUseCase @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
 ) {
     suspend operator fun invoke(key: Preferences.Key<Boolean>, value: Boolean) {
-        dataStoreRepository.saveBooleanState(key, value)
+        dataStoreRepository.saveState(key, value)
     }
 }

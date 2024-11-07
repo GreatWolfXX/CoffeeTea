@@ -42,8 +42,9 @@ import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.CustomTextInput
 import com.gwolf.coffeetea.presentation.component.CustomTextInputStyle
+import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.TopMenu
-import com.gwolf.coffeetea.ui.theme.BackgroundColor
+import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
@@ -57,9 +58,9 @@ fun RegistrationScreen(
     val formState by remember { viewModel.formState }
     LaunchedEffect(formState.sigUpSuccess) {
         if (formState.sigUpSuccess) {
-//            navController.navigate(Screen.Home) {
-//                popUpTo(Screen.Auth) { inclusive = true }
-//            }
+            navController.navigate(Screen.Home) {
+                popUpTo(Screen.Auth) { inclusive = true }
+            }
         }
     }
     Box {
@@ -96,9 +97,7 @@ fun RegistrationScreen(
             }
         )
     }
-    AnimatedVisibility(formState.isLoading) {
-//        LoadingComponent()
-    }
+    LoadingComponent(formState.isLoading)
 }
 
 @Composable
@@ -117,7 +116,7 @@ private fun BoxScope.RegistrationContent(
             .fillMaxWidth()
             .align(Alignment.BottomCenter)
             .background(
-                color = BackgroundColor,
+                brush = BackgroundGradient,
                 shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
             )
             .padding(start = 16.dp, top = 32.dp, end = 16.dp, bottom = 40.dp)

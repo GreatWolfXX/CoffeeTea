@@ -44,8 +44,9 @@ import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.CustomTextInput
 import com.gwolf.coffeetea.presentation.component.CustomTextInputStyle
+import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.TopMenu
-import com.gwolf.coffeetea.ui.theme.BackgroundColor
+import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.LinkColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
@@ -62,9 +63,9 @@ fun LoginScreen(
 
     LaunchedEffect(formState.sigInSuccess) {
         if (formState.sigInSuccess) {
-//            navController.navigate(Screen.Home) {
-//                popUpTo(Screen.Auth) { inclusive = true }
-//            }
+            navController.navigate(Screen.Home) {
+                popUpTo(Screen.Auth) { inclusive = true }
+            }
         }
     }
     Box {
@@ -101,9 +102,7 @@ fun LoginScreen(
             }
         )
     }
-    AnimatedVisibility(formState.isLoading) {
-//        LoadingComponent()
-    }
+    LoadingComponent(formState.isLoading)
 }
 
 @Composable
@@ -122,7 +121,7 @@ private fun BoxScope.LoginContent(
             .fillMaxWidth()
             .align(Alignment.BottomCenter)
             .background(
-                color = BackgroundColor,
+                brush = BackgroundGradient,
                 shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
             )
             .padding(start = 16.dp, top = 32.dp, end = 16.dp, bottom = 40.dp)
@@ -181,7 +180,7 @@ private fun BoxScope.LoginContent(
                     checked = formState.isRemember,
                     onCheckedChange = setIsRememberValue,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = PrimaryDarkColor,
+                        checkedThumbColor = Color.White,
                         checkedTrackColor = PrimaryDarkColor,
                         checkedBorderColor = PrimaryDarkColor,
                         uncheckedThumbColor = OutlineColor,
