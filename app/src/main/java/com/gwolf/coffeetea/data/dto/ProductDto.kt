@@ -14,5 +14,7 @@ data class ProductDto(
     @SerialName("price") val price: Double,
     @SerialName("rating") val rating: Double?,
     @SerialName("bucket_id") val bucketId: String,
-    @SerialName("image_path") val imagePath: String
+    @SerialName("category") val category: CategoryDto? = null,
+    @SerialName("image_path") val imagePath: String,
+    var isFavorite: Boolean = false
 )

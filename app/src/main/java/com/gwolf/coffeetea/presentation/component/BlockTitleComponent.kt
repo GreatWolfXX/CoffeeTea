@@ -1,6 +1,7 @@
 package com.gwolf.coffeetea.presentation.component
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,10 +19,15 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun BlockTitleComponent(
-    @StringRes text: Int
+    @StringRes text: Int,
+    onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick.invoke()
+            },
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(

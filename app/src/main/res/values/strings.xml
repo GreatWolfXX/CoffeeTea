@@ -42,6 +42,11 @@
     <string name="title_notifications">Сповіщення</string>
     <string name="title_logout">Вийти</string>
     <string name="title_name">Моє ім\'я</string>
+    <string name="title_bought">КУПИТИ</string>
+    <string name="title_read_more">Детальніше</string>
+    <string name="title_read_less">Приховати</string>
+    <string name="title_price">Ціна</string>
+    <string name="title_no_reviews">Відгуки відсутні</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_password_length">Пароль повинен містити менше %1$d символів!</string>

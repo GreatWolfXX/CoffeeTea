@@ -25,4 +25,12 @@ sealed class Screen() {
     @Serializable
     data object Cart: Screen()
 
+    @Serializable
+    data object Category: Screen()
+
+    @Serializable
+    data class ProductInfo(
+        val productId: Int
+    ): Screen()
+
 }

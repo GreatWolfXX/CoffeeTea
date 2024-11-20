@@ -19,7 +19,6 @@ import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -102,11 +101,11 @@ private fun ProfileScreenContent(
             icon = Icons.AutoMirrored.Outlined.ListAlt,
             text = R.string.title_my_order
         ){ }
-        Spacer(modifier = Modifier.size(16.dp))
-        ProfileMenuComponent(
-            icon = Icons.Outlined.FavoriteBorder,
-            text = R.string.title_favorites
-        ){ }
+//        Spacer(modifier = Modifier.size(16.dp))
+//        ProfileMenuComponent(
+//            icon = Icons.Outlined.FavoriteBorder,
+//            text = R.string.title_favorites
+//        ){ }
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuComponent(
             icon = Icons.Outlined.Explore,

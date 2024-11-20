@@ -4,12 +4,14 @@ import android.content.Context
 import com.gwolf.coffeetea.data.repository.local.DataStoreRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.AuthRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.CategoryRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.FavoriteRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.ProductRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.ProfileRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.PromotionRepositoryImpl
 import com.gwolf.coffeetea.domain.repository.local.DataStoreRepository
 import com.gwolf.coffeetea.domain.repository.remote.AuthRepository
 import com.gwolf.coffeetea.domain.repository.remote.CategoryRepository
+import com.gwolf.coffeetea.domain.repository.remote.FavoriteRepository
 import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
 import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
 import com.gwolf.coffeetea.domain.repository.remote.PromotionRepository
@@ -53,8 +55,9 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideProductRepository(
-        postgrest: Postgrest
-    ): ProductRepository = ProductRepositoryImpl(postgrest)
+        postgrest: Postgrest,
+        auth: Auth
+    ): ProductRepository = ProductRepositoryImpl(postgrest, auth)
 
     @Provides
     @Singleton
@@ -62,4 +65,11 @@ object RepositoryModule {
         postgrest: Postgrest,
         auth: Auth
     ): ProfileRepository = ProfileRepositoryImpl(postgrest, auth)
+
+    @Provides
+    @Singleton
+    fun provideFavoriteRepository(
+        postgrest: Postgrest,
+        auth: Auth
+    ): FavoriteRepository = FavoriteRepositoryImpl(postgrest, auth)
 }

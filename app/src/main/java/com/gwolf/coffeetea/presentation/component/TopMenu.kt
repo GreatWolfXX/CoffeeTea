@@ -35,10 +35,9 @@ fun BoxScope.TopMenu(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 64.dp)
-            .align(Alignment.TopCenter),
+            .align(Alignment.TopStart),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-
         Icon(
             modifier = Modifier.clickable {
                 onClickBack.invoke()

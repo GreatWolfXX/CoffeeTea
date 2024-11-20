@@ -2,6 +2,7 @@ package com.gwolf.coffeetea.domain.usecase.database
 
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
+import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.toDomain
 import io.github.jan.supabase.storage.Storage
@@ -21,7 +22,7 @@ class GetProductsListUseCase @Inject constructor(
                 is UiResult.Success -> {
                     val data = result.data?.map { product ->
                         //Warning, maybe execute exception?
-                        val imageUrl = storage.from(product.bucketId).createSignedUrl(product.imagePath, 1.hours)
+                        val imageUrl = storage.from(product.bucketId).createSignedUrl(product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
                         return@map product.toDomain(imageUrl)
                     }
                     trySend(UiResult.Success(data = data))

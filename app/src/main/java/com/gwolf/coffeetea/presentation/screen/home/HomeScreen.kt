@@ -48,6 +48,7 @@ import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.Product
+import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.BlockTitleComponent
 import com.gwolf.coffeetea.presentation.component.CategorySmallCard
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
@@ -98,9 +99,15 @@ private fun HomeScreenContent(
             Spacer(modifier = Modifier.size(16.dp))
             PromotionsComponent(state.promotionsList)
             Spacer(modifier = Modifier.size(16.dp))
-            CategoriesList(categoriesList = state.categoriesList)
+            CategoriesList(
+                navController = navController,
+                categoriesList = state.categoriesList
+            )
             Spacer(modifier = Modifier.size(16.dp))
-            ProductsList(productsList = state.productsList)
+            ProductsList(
+                navController = navController,
+                productsList = state.productsList
+            )
         }
     }
 }
@@ -195,11 +202,14 @@ private fun SearchBarComponent() {
 
 @Composable
 private fun CategoriesList(
+    navController: NavController,
     categoriesList: List<Category>
 ) {
     BlockTitleComponent(
         text = R.string.title_categories
-    )
+    ) {
+        navController.navigate(Screen.Category)
+    }
     Spacer(modifier = Modifier.size(8.dp))
     LazyRow(
         modifier = Modifier
@@ -217,11 +227,12 @@ private fun CategoriesList(
 
 @Composable
 private fun ProductsList(
+    navController: NavController,
     productsList: List<Product>
 ) {
     BlockTitleComponent(
         text = R.string.title_popular_products
-    )
+    ) { }
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
         modifier = Modifier,
@@ -231,7 +242,9 @@ private fun ProductsList(
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
         items(productsList) { product ->
-            ProductCard(product = product)
+            ProductCard(product = product) {
+                navController.navigate(Screen.ProductInfo(productId = product.id))
+            }
         }
     }
 

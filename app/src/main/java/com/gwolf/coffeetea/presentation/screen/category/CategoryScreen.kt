@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.presentation.screen.favorite
+package com.gwolf.coffeetea.presentation.screen.category
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -33,21 +33,20 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.model.Favorite
-import com.gwolf.coffeetea.navigation.Screen
+import com.gwolf.coffeetea.domain.model.Category
+import com.gwolf.coffeetea.presentation.component.CategoryFullCard
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
-import com.gwolf.coffeetea.presentation.component.ProductCard
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteScreen(
+fun CategoryScreen(
     navController: NavController,
-    viewModel: FavoriteViewModel = hiltViewModel()
+    viewModel: CategoryViewModel = hiltViewModel()
 ) {
-    val state by viewModel.favoriteScreenState
+    val state by viewModel.categoryScreenState
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -61,7 +60,7 @@ fun FavoriteScreen(
                 title = {
                     Text(
                         modifier = Modifier.padding(start = 4.dp),
-                        text = stringResource(id = R.string.title_favorites),
+                        text = stringResource(id = R.string.title_categories),
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = 22.sp,
@@ -86,7 +85,7 @@ fun FavoriteScreen(
             if (state.error != null) {
                 Log.d("Coffee&TeaLogger", "Error: ${state.error}")
             } else {
-                FavoriteScreenContent(
+                CategoryScreenContent(
                     navController = navController,
                     state = state
                 )
@@ -97,39 +96,36 @@ fun FavoriteScreen(
 }
 
 @Composable
-private fun FavoriteScreenContent(
+private fun CategoryScreenContent(
     navController: NavController,
-    state: FavoriteUiState
+    state: CategoryUiState
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
     ) {
-        ProductsList(
-            navController = navController,
-            favoritesList = state.favoritesList
+        CategoryList(
+            state.categoriesList
         )
     }
 }
 
+
 @Composable
-private fun ProductsList(
-    navController: NavController,
-    favoritesList: List<Favorite>
+private fun CategoryList(
+    categoriesList: List<Category>
 ) {
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
         modifier = Modifier,
-        columns = GridCells.FixedSize(180.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        columns = GridCells.FixedSize(112.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
-        items(favoritesList) { favorite ->
-            ProductCard(product = favorite.product) {
-                navController.navigate(Screen.ProductInfo(productId = favorite.product.id))
-            }
+        items(categoriesList) { category ->
+            CategoryFullCard(category = category)
         }
     }
 

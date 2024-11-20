@@ -22,6 +22,6 @@ val LoadingBackgroundColor = Color(0x801D1B20)
 val StatusBarBackgroundColor = Color(0x411D1B20)
 
 val BackgroundGradient = Brush.verticalGradient(
-    0.0f to Color(0xFFE4F5EF),
+    0.0f to Color(0xFFDCFFF3),
     1f to Color(0xFFF8F6F9),
 )

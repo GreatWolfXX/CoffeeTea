@@ -19,10 +19,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.gwolf.coffeetea.presentation.screen.auth.AuthScreen
 import com.gwolf.coffeetea.presentation.screen.cart.CartScreen
+import com.gwolf.coffeetea.presentation.screen.category.CategoryScreen
 import com.gwolf.coffeetea.presentation.screen.favorite.FavoriteScreen
 import com.gwolf.coffeetea.presentation.screen.forgotpassword.ForgotPasswordScreen
 import com.gwolf.coffeetea.presentation.screen.home.HomeScreen
 import com.gwolf.coffeetea.presentation.screen.login.LoginScreen
+import com.gwolf.coffeetea.presentation.screen.productinfo.ProductInfoScreen
 import com.gwolf.coffeetea.presentation.screen.profile.ProfileScreen
 import com.gwolf.coffeetea.presentation.screen.registration.RegistrationScreen
 import com.gwolf.coffeetea.presentation.screen.welcome.WelcomeScreen
@@ -36,8 +38,6 @@ fun SetupNavGraph(
 ) {
     val animatePadding by animateDpAsState(targetValue =
         if (showBottomBar) paddingValues.calculateBottomPadding() / 1.17f else 0.dp)
-
-
 
     NavHost(
         modifier = Modifier
@@ -180,7 +180,7 @@ fun SetupNavGraph(
             }
         ) {
             FavoriteScreen(
-
+                navController = navController
             )
         }
         composable<Screen.Profile>(
@@ -197,6 +197,42 @@ fun SetupNavGraph(
             }
         ) {
             ProfileScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.Category>(
+            enterTransition = {
+                return@composable fadeIn(tween(1000))
+            },
+            exitTransition = {
+                return@composable fadeOut(tween(700))
+            },
+            popEnterTransition = {
+                return@composable slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.End, tween(700)
+                )
+            }
+        ) {
+            CategoryScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.ProductInfo>(
+            enterTransition = {
+                return@composable fadeIn(tween(1000))
+            },
+            exitTransition = {
+                return@composable fadeOut(tween(700))
+            },
+            popEnterTransition = {
+                return@composable slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.End, tween(700)
+                )
+            }
+        ) {
+            ProductInfoScreen(
                 navController = navController
             )
         }

@@ -1,7 +1,7 @@
 package com.gwolf.coffeetea.domain.usecase.database
 
-import com.gwolf.coffeetea.domain.model.Category
-import com.gwolf.coffeetea.domain.repository.remote.CategoryRepository
+import com.gwolf.coffeetea.domain.model.Product
+import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.toDomain
@@ -12,19 +12,17 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 
-class GetCategoriesListUseCase @Inject constructor(
-    private val categoryRepository: CategoryRepository,
+class GetProductByIdUseCase @Inject constructor(
+    private val productRepository: ProductRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(): Flow<UiResult<List<Category>?>> = callbackFlow {
-        categoryRepository.getCategories().collect { result ->
+    operator fun invoke(productId: Int): Flow<UiResult<Product?>> = callbackFlow {
+        productRepository.getProductById(productId).collect { result ->
             when(result) {
                 is UiResult.Success -> {
-                    val data = result.data?.map { category ->
-                        val imageUrl = storage.from(category.bucketId).createSignedUrl(category.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        return@map category.toDomain(imageUrl)
-                    }
-                    trySend(UiResult.Success(data = data))
+                    val data = result.data!!
+                    val imageUrl = storage.from(data.bucketId).createSignedUrl(data.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                    trySend(UiResult.Success(data = data.toDomain(imageUrl)))
                     close()
                 }
                 is UiResult.Error -> {

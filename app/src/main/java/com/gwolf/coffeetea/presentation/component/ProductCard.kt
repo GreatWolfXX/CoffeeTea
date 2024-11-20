@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.outlined.LocalMall
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Card
@@ -47,14 +46,18 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun ProductCard(
-    product: Product
+    product: Product,
+    onClick: () -> Unit
 ) {
     var count by rememberSaveable { mutableStateOf(0) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
+            .wrapContentHeight()
+            .clickable {
+                onClick.invoke()
+            },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
@@ -141,15 +144,15 @@ fun ProductCard(
                 }
                 Spacer(Modifier.size(4.dp))
             }
-            Icon(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.TopEnd)
-                    .size(20.dp),
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                tint = Color.White
-            )
+//            Icon(
+//                modifier = Modifier
+//                    .padding(8.dp)
+//                    .align(Alignment.TopEnd)
+//                    .size(20.dp),
+//                imageVector = if(product.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+//                contentDescription = null,
+//                tint = if(product.isFavorite) LightRedColor else Color.White
+//            )
         }
     }
 }

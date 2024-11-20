@@ -1,10 +1,12 @@
 package com.gwolf.coffeetea.util
 
 import com.gwolf.coffeetea.data.dto.CategoryDto
+import com.gwolf.coffeetea.data.dto.FavoriteDto
 import com.gwolf.coffeetea.data.dto.ProductDto
 import com.gwolf.coffeetea.data.dto.ProfileDto
 import com.gwolf.coffeetea.data.dto.PromotionDto
 import com.gwolf.coffeetea.domain.model.Category
+import com.gwolf.coffeetea.domain.model.Favorite
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.model.Profile
 import com.gwolf.coffeetea.domain.model.Promotion
@@ -19,9 +21,10 @@ fun PromotionDto.toDomain(imageUrl: String) = Promotion(
     imageUrl = imageUrl
 )
 
-fun CategoryDto.toDomain() = Category(
+fun CategoryDto.toDomain(imageUrl: String) = Category(
     id = this.id,
-    name = this.name
+    name = this.name,
+    imageUrl = imageUrl
 )
 
 fun ProductDto.toDomain(imageUrl: String) = Product(
@@ -33,7 +36,9 @@ fun ProductDto.toDomain(imageUrl: String) = Product(
     fullDescription = this.fullDescription,
     price = this.price,
     rating = this.rating,
-    imageUrl = imageUrl
+    category = this.category?.toDomain(""),
+    imageUrl = imageUrl,
+    isFavorite = this.isFavorite
 )
 
 fun ProfileDto.toDomain(imageUrl: String) = Profile(
@@ -41,4 +46,9 @@ fun ProfileDto.toDomain(imageUrl: String) = Profile(
     name = this.name,
     email = this.email,
     imageUrl = imageUrl
+)
+
+fun FavoriteDto.toDomain(productImageUrl: String) = Favorite(
+    id = this.id,
+    product = product.toDomain(productImageUrl)
 )

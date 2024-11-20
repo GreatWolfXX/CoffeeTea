@@ -15,18 +15,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gwolf.coffeetea.R
+import coil.compose.rememberAsyncImagePainter
+import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
-fun CategoryFullCard() {
+fun CategoryFullCard(
+    category: Category
+) {
     Card(
         modifier = Modifier
             .size(
@@ -34,7 +37,10 @@ fun CategoryFullCard() {
                 height = 144.dp
             ),
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -44,7 +50,9 @@ fun CategoryFullCard() {
             // image
             Image(
                 modifier = Modifier.fillMaxWidth(),
-                painter = painterResource(R.drawable.image_category_mock),
+                painter = rememberAsyncImagePainter(
+                    model = category.imageUrl
+                ),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
@@ -52,7 +60,7 @@ fun CategoryFullCard() {
             // title
             Text(
                 modifier = Modifier.padding(horizontal = 8.dp),
-                text = "Кава",
+                text = category.name,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
@@ -66,5 +74,5 @@ fun CategoryFullCard() {
 @Preview(showBackground = true)
 @Composable
 private fun CategoryFullCardPreview() {
-    CategoryFullCard()
+//    CategoryFullCard()
 }
