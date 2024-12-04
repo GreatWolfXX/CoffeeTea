@@ -23,7 +23,7 @@ class FavoriteRepositoryImpl @Inject constructor(
             val id = auth.currentUserOrNull()?.id.orEmpty()
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(FAVORITES_TABLE)
-                    .select(Columns.raw("favorite_id, products(*)")) {
+                    .select(Columns.raw("*, products(*)")) {
                         filter {
                             eq("user_id", id)
                         }
@@ -31,6 +31,45 @@ class FavoriteRepositoryImpl @Inject constructor(
                     .decodeList<FavoriteDto>()
             }
             trySend(UiResult.Success(response))
+            close()
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+            close()
+        }
+        awaitClose()
+    }
+
+    override suspend fun addFavorite(productId: Int): Flow<UiResult<Unit>> = callbackFlow {
+        try {
+            val id = auth.currentUserOrNull()?.id.orEmpty()
+            val favorite = FavoriteDto(
+                productId = productId,
+                userId = id
+            )
+            withContext(Dispatchers.IO) {
+                postgrest.from(FAVORITES_TABLE).insert(favorite)
+            }
+            trySend(UiResult.Success(Unit))
+            close()
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+            close()
+        }
+        awaitClose()
+    }
+
+    override suspend fun removeFavorite(favoriteId: Int): Flow<UiResult<Unit>> = callbackFlow {
+        try {
+            val id = auth.currentUserOrNull()?.id.orEmpty()
+            withContext(Dispatchers.IO) {
+                postgrest.from(FAVORITES_TABLE)
+                    .delete {
+                        filter {
+                            eq("favorite_id", favoriteId)
+                        }
+                    }
+            }
+            trySend(UiResult.Success(Unit))
             close()
         } catch (e: Exception) {
             trySend(UiResult.Error(exception = e))

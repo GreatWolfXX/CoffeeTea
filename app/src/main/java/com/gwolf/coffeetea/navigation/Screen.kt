@@ -33,4 +33,10 @@ sealed class Screen() {
         val productId: Int
     ): Screen()
 
+    @Serializable
+    data class SearchByCategory(
+        val categoryId: Int,
+        val categoryName: String
+    ): Screen()
+
 }

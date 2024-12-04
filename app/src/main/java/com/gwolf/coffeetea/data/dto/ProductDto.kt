@@ -16,5 +16,5 @@ data class ProductDto(
     @SerialName("bucket_id") val bucketId: String,
     @SerialName("category") val category: CategoryDto? = null,
     @SerialName("image_path") val imagePath: String,
-    var isFavorite: Boolean = false
+    @SerialName("favorite") val favorite: List<FavoriteDto> = emptyList<FavoriteDto>(),
 )

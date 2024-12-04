@@ -11,5 +11,5 @@ data class Product(
     val rating: Double?,
     val category: Category?,
     val imageUrl: String,
-    val isFavorite: Boolean
+    val favoriteId: Int = -1
 )

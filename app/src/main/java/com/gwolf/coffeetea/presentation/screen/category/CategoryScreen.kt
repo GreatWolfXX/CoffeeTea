@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Category
+import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CategoryFullCard
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
@@ -106,7 +107,8 @@ private fun CategoryScreenContent(
             .padding(horizontal = 16.dp),
     ) {
         CategoryList(
-            state.categoriesList
+            navController = navController,
+            categoriesList = state.categoriesList
         )
     }
 }
@@ -114,6 +116,7 @@ private fun CategoryScreenContent(
 
 @Composable
 private fun CategoryList(
+    navController: NavController,
     categoriesList: List<Category>
 ) {
     Spacer(modifier = Modifier.size(8.dp))
@@ -125,7 +128,9 @@ private fun CategoryList(
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
         items(categoriesList) { category ->
-            CategoryFullCard(category = category)
+            CategoryFullCard(category = category) {
+                navController.navigate(Screen.SearchByCategory(categoryId = category.id, categoryName = category.name))
+            }
         }
     }
 

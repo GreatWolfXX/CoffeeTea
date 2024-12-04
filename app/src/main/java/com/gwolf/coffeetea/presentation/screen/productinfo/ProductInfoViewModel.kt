@@ -8,7 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.gwolf.coffeetea.domain.model.Product
+import com.gwolf.coffeetea.domain.usecase.database.AddFavoriteUseCase
 import com.gwolf.coffeetea.domain.usecase.database.GetProductByIdUseCase
+import com.gwolf.coffeetea.domain.usecase.database.RemoveFavoriteUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,17 +22,84 @@ import javax.inject.Inject
 data class ProductInfoUiState(
     val product: Product? = null,
     val isLoading: Boolean = false,
+    val isFavorite: Boolean = false,
     val error: String? = null,
 )
+
+sealed class ProductInfoEvent {
+    data object AddFavorite : ProductInfoEvent()
+    data object RemoveFavorite : ProductInfoEvent()
+}
 
 @HiltViewModel
 class ProductInfoViewModel @Inject constructor(
     private val getProductByIdUseCase: GetProductByIdUseCase,
+    private val addFavoriteUseCase: AddFavoriteUseCase,
+    private val removeFavoriteUseCase: RemoveFavoriteUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val _productInfoScreenState = mutableStateOf(ProductInfoUiState())
     val productInfoScreenState: State<ProductInfoUiState> = _productInfoScreenState
+
+    fun onEvent(event: ProductInfoEvent) {
+        when(event) {
+            is ProductInfoEvent.AddFavorite -> {
+                addFavorite()
+            }
+            is ProductInfoEvent.RemoveFavorite -> {
+                removeFavorite()
+            }
+        }
+    }
+
+    private fun removeFavorite() {
+        viewModelScope.launch {
+            removeFavoriteUseCase.invoke(_productInfoScreenState.value.product?.favoriteId!!)
+                .collect { response ->
+                    when (response) {
+                        is UiResult.Success -> {
+                            _productInfoScreenState.value =
+                                _productInfoScreenState.value.copy(
+                                    isFavorite = false,
+                                )
+                        }
+
+                        is UiResult.Error -> {
+                            _productInfoScreenState.value =
+                                _productInfoScreenState.value.copy(
+                                    error = response.exception.message.toString(),
+                                    isFavorite = true
+                                )
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun addFavorite() {
+        viewModelScope.launch {
+            addFavoriteUseCase.invoke(_productInfoScreenState.value.product?.id!!)
+                .collect { response ->
+                    when (response) {
+                        is UiResult.Success -> {
+                            _productInfoScreenState.value =
+                                _productInfoScreenState.value.copy(
+                                    isFavorite = true,
+                                )
+                        }
+
+                        is UiResult.Error -> {
+                            _productInfoScreenState.value =
+                                _productInfoScreenState.value.copy(
+                                    error = response.exception.message.toString(),
+                                    isFavorite = false
+                                )
+                        }
+                    }
+                }
+        }
+    }
 
     private suspend fun getProduct(productId: Int) {
         getProductByIdUseCase.invoke(productId).collect { response ->
@@ -39,6 +108,7 @@ class ProductInfoViewModel @Inject constructor(
                     _productInfoScreenState.value =
                         _productInfoScreenState.value.copy(
                             product = response.data,
+                            isFavorite = response.data?.favoriteId != -1
                         )
                 }
 
@@ -46,7 +116,8 @@ class ProductInfoViewModel @Inject constructor(
                     _productInfoScreenState.value =
                         _productInfoScreenState.value.copy(
                             error = response.exception.message.toString(),
-                            isLoading = false
+                            isLoading = false,
+                            isFavorite = false
                         )
                 }
             }

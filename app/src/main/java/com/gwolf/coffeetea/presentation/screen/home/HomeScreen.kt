@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -34,11 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,7 +52,9 @@ import com.gwolf.coffeetea.presentation.component.BlockTitleComponent
 import com.gwolf.coffeetea.presentation.component.CategorySmallCard
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProductCard
+import com.gwolf.coffeetea.presentation.component.ProductSmallCard
 import com.gwolf.coffeetea.presentation.component.PromotionsComponent
+import com.gwolf.coffeetea.ui.theme.BackgroundColor
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
@@ -74,7 +75,8 @@ fun HomeScreen(
         } else {
             HomeScreenContent(
                 navController = navController,
-                state = state
+                state = state,
+                viewModel = viewModel
             )
         }
     }
@@ -84,7 +86,8 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     navController: NavController,
-    state: HomeUiState
+    state: HomeUiState,
+    viewModel: HomeViewModel
 ) {
     val scrollState = rememberScrollState()
 
@@ -92,7 +95,11 @@ private fun HomeScreenContent(
         modifier = Modifier
             .fillMaxSize(),
     ) {
-        SearchBarComponent()
+        SearchBarComponent(
+            state = state,
+            viewModel = viewModel,
+            navController = navController
+        )
         Column(
             modifier = Modifier.padding(horizontal = 16.dp),
         ) {
@@ -114,8 +121,11 @@ private fun HomeScreenContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchBarComponent() {
-    var searchQuery by remember { mutableStateOf("") }
+private fun SearchBarComponent(
+    state: HomeUiState,
+    viewModel: HomeViewModel,
+    navController: NavController
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val padding by animateDpAsState(targetValue = if (expanded) 0.dp else 16.dp)
 
@@ -129,8 +139,10 @@ private fun SearchBarComponent() {
             modifier = Modifier.fillMaxWidth(),
             inputField = {
                 SearchBarDefaults.InputField(
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
+                    query = state.searchText,
+                    onQueryChange = { query ->
+                        viewModel.onEvent(HomeEvent.Search(query))
+                    },
                     onSearch = { expanded = false },
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
@@ -156,7 +168,7 @@ private fun SearchBarComponent() {
                             AnimatedVisibility(expanded) {
                                 Icon(
                                     modifier = Modifier.clickable {
-                                        searchQuery = ""
+                                        viewModel.onSearchTextChange("")
                                     },
                                     imageVector = Icons.Outlined.Cancel,
                                     contentDescription = null,
@@ -176,7 +188,7 @@ private fun SearchBarComponent() {
                             Icon(
                                 modifier = Modifier.clickable {
                                     expanded = false
-                                    searchQuery = ""
+                                    viewModel.onSearchTextChange("")
                                 },
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = null,
@@ -191,11 +203,23 @@ private fun SearchBarComponent() {
             expanded = expanded,
             onExpandedChange = { expanded = it },
             colors = SearchBarDefaults.colors(
-                containerColor = Color.White
+                containerColor = BackgroundColor
             ),
             shadowElevation = 4.dp
         ) {
-
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                repeat(state.searchProductsList.size) { indexProduct ->
+                    Spacer(modifier = Modifier.size(16.dp))
+                    ProductSmallCard(state.searchProductsList[indexProduct]) { product ->
+                        navController.navigate(Screen.ProductInfo(productId = product.id))
+                    }
+                }
+            }
         }
     }
 }
@@ -220,7 +244,9 @@ private fun CategoriesList(
         items(categoriesList) { category ->
             CategorySmallCard(
                 category = category
-            )
+            ) {
+                navController.navigate(Screen.SearchByCategory(categoryId = category.id, categoryName = category.name))
+            }
         }
     }
 }
@@ -236,7 +262,7 @@ private fun ProductsList(
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
         modifier = Modifier,
-        columns = GridCells.FixedSize(180.dp),
+        columns = GridCells.FixedSize(174.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(bottom = 12.dp)

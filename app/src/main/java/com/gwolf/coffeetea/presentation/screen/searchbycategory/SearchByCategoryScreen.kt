@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.presentation.screen.favorite
+package com.gwolf.coffeetea.presentation.screen.searchbycategory
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -26,14 +28,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.model.Favorite
+import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProductCard
@@ -41,13 +41,12 @@ import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteScreen(
+fun SearchByCategoryScreen(
     navController: NavController,
-    viewModel: FavoriteViewModel = hiltViewModel()
+    viewModel: SearchByCategoryViewModel = hiltViewModel()
 ) {
-    val state by viewModel.favoriteScreenState
+    val state by viewModel.searchByCategoryScreenState
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -56,33 +55,12 @@ fun FavoriteScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopAppBar(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                title = {
-                    Text(
-                        modifier = Modifier.padding(start = 4.dp),
-                        text = stringResource(id = R.string.title_favorites),
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 22.sp,
-                        color = OnSurfaceColor
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .clickable {
-                                navController.popBackStack()
-                            },
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
-                        contentDescription = null,
-                        tint = OnSurfaceColor
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
+            if(!state.isLoading) {
+                TopMenu(
+                    navController = navController,
+                    state = state
                 )
-            )
+            }
             if (state.error != null) {
                 Log.d("Coffee&TeaLogger", "Error: ${state.error}")
             } else {
@@ -99,7 +77,7 @@ fun FavoriteScreen(
 @Composable
 private fun FavoriteScreenContent(
     navController: NavController,
-    state: FavoriteUiState
+    state: SearchByCategoryUiState
 ) {
     Column(
         modifier = Modifier
@@ -108,7 +86,7 @@ private fun FavoriteScreenContent(
     ) {
         ProductsList(
             navController = navController,
-            favoritesList = state.favoritesList
+            productsList = state.productsList
         )
     }
 }
@@ -116,7 +94,7 @@ private fun FavoriteScreenContent(
 @Composable
 private fun ProductsList(
     navController: NavController,
-    favoritesList: List<Favorite>
+    productsList: List<Product>
 ) {
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
@@ -126,12 +104,69 @@ private fun ProductsList(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
-        items(favoritesList) { favorite ->
-            ProductCard(product = favorite.product) {
-                navController.navigate(Screen.ProductInfo(productId = favorite.product.id))
+        items(productsList) { product ->
+            Log.d("Coffee&TeaLogger", "Product: ${product.category?.name}")
+            ProductCard(product = product) {
+                navController.navigate(Screen.ProductInfo(productId = product.id))
             }
         }
     }
 
     Spacer(modifier = Modifier.size(8.dp))
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopMenu(
+    state: SearchByCategoryUiState,
+    navController: NavController
+) {
+    TopAppBar(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        title = {
+            Text(
+                modifier = Modifier.padding(start = 4.dp),
+                text = state.categoryName,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 22.sp,
+                color = OnSurfaceColor
+            )
+        },
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .clickable {
+                        navController.popBackStack()
+                    },
+                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
+                contentDescription = null,
+                tint = OnSurfaceColor
+            )
+        },
+        actions = {
+            Icon(
+                modifier = Modifier
+                    .clickable {
+
+                    },
+                imageVector = Icons.Default.SwapVert,
+                contentDescription = null,
+                tint = OnSurfaceColor
+            )
+            Icon(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .clickable {
+
+                    },
+                imageVector = Icons.Default.FilterAlt,
+                contentDescription = null,
+                tint = OnSurfaceColor
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
 }

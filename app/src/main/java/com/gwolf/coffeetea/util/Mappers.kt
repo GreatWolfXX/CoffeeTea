@@ -38,7 +38,13 @@ fun ProductDto.toDomain(imageUrl: String) = Product(
     rating = this.rating,
     category = this.category?.toDomain(""),
     imageUrl = imageUrl,
-    isFavorite = this.isFavorite
+    favoriteId = this.favorite.let {
+        if (it.isNotEmpty()) {
+            it.first().favoriteId
+        } else {
+            -1
+        }
+    }
 )
 
 fun ProfileDto.toDomain(imageUrl: String) = Profile(
@@ -49,6 +55,6 @@ fun ProfileDto.toDomain(imageUrl: String) = Profile(
 )
 
 fun FavoriteDto.toDomain(productImageUrl: String) = Favorite(
-    id = this.id,
-    product = product.toDomain(productImageUrl)
+    id = this.favoriteId,
+    product = product?.toDomain(productImageUrl)!!
 )

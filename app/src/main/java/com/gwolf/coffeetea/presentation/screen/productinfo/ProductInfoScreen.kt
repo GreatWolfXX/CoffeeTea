@@ -1,6 +1,7 @@
 package com.gwolf.coffeetea.presentation.screen.productinfo
 
 import android.util.Log
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,10 +13,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -37,6 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -109,7 +111,8 @@ fun ProductInfoScreen(
             } else {
                 ProductInfoScreenContent(
                     navController = navController,
-                    state = state
+                    state = state,
+                    viewModel = viewModel
                 )
             }
         }
@@ -120,67 +123,85 @@ fun ProductInfoScreen(
 @Composable
 private fun ProductInfoScreenContent(
     navController: NavController,
-    state: ProductInfoUiState
+    state: ProductInfoUiState,
+    viewModel: ProductInfoViewModel
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 20.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
             modifier = Modifier
+                .fillMaxSize()
+                .weight(0.88f)
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Image(
-                modifier = Modifier
-                    .height(348.dp)
-                    .wrapContentWidth()
-                    .clip(RoundedCornerShape(8.dp)),
-                painter = rememberAsyncImagePainter(
-                    model = state.product?.imageUrl
-                ),
-                contentDescription = null,
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.size(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = state.product?.name.orEmpty(),
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 28.sp,
-                    lineHeight = TextUnit(36f, TextUnitType.Sp),
-                    color = OnSurfaceColor
-                )
-                Log.d("LLOGG", "test ${state.product?.isFavorite}")
-                Icon(
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp),
-                    imageVector = if(state.product?.isFavorite == true) Icons.Default.Favorite else Icons.Default.FavoriteBorder ,
+            Box {
+                Image(
+                    modifier = Modifier
+                        .height(348.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp)),
+                    painter = rememberAsyncImagePainter(
+                        model = state.product?.imageUrl
+                    ),
                     contentDescription = null,
-                    tint = if(state.product?.isFavorite == true) LightRedColor else OnSurfaceColor
+                    contentScale = ContentScale.Crop
+                )
+                Icon(
+                    modifier = Modifier
+                        .align(alignment = Alignment.BottomEnd)
+                        .padding(bottom = 8.dp, end = 8.dp)
+                        .scale(1.3f)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    if(state.isFavorite) Color.White else Color.Transparent,
+                                    Color.Transparent
+                                ),
+                                radius = 60f
+                            )
+                        )
+                        .padding(8.dp)
+                        .clickable {
+                            if(state.isFavorite) {
+                                viewModel.onEvent(ProductInfoEvent.RemoveFavorite)
+                            } else {
+                                viewModel.onEvent(ProductInfoEvent.AddFavorite)
+                            }
+                        },
+                    imageVector = if(state.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder ,
+                    contentDescription = null,
+                    tint = if(state.isFavorite) LightRedColor else Color.White
                 )
             }
-            Spacer(modifier = Modifier.size(8.dp))
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(
+                modifier = Modifier,
+                text = state.product?.name.orEmpty(),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 28.sp,
+                lineHeight = TextUnit(36f, TextUnitType.Sp),
+                color = OnSurfaceColor
+            )
+            Spacer(modifier = Modifier.size(4.dp))
+            Text(
+                modifier = Modifier,
+                text = state.product?.featuresDescription.orEmpty(),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                lineHeight = TextUnit(20f, TextUnitType.Sp),
+                color = OutlineColor
+            )
+            Spacer(modifier = Modifier.size(4.dp))
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    modifier = Modifier,
-                    text = state.product?.featuresDescription.orEmpty(),
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    lineHeight = TextUnit(20f, TextUnitType.Sp),
-                    color = OutlineColor
-                )
-                Spacer(modifier = Modifier.size(16.dp))
                 Icon(
                     modifier = Modifier,
                     imageVector = Icons.Default.Star,
@@ -210,15 +231,14 @@ private fun ProductInfoScreenContent(
                     )
                 }
             }
-            Spacer(modifier = Modifier.size(8.dp))
+            Spacer(modifier = Modifier.size(4.dp))
             val minimumLineLength = 6
             var expandedState by remember { mutableStateOf(false) }
             var showReadMoreButtonState by remember { mutableStateOf(true) }
             val maxLines = if (expandedState) 200 else minimumLineLength
             Text(
                 modifier = Modifier
-                    .heightIn(130.dp, 180.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .animateContentSize(),
                 text = state.product?.fullDescription.orEmpty(),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,
@@ -249,7 +269,15 @@ private fun ProductInfoScreenContent(
             }
         }
         Row(
-            modifier = Modifier,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                .shadow(elevation = 4.dp, shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                .weight(0.12f)
+                .background(Color.White)
+                .padding(top = 8.dp)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 24.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

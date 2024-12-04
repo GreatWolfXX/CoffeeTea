@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,12 +20,17 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun CategorySmallCard(
-    category: Category
+    category: Category,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.width(80.dp),
+        modifier = Modifier
+            .width(80.dp)
+            .clickable {
+                onClick.invoke()
+            },
         colors = CardDefaults.cardColors(PrimaryDarkColor),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(4.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Text(

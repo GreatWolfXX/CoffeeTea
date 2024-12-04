@@ -4,14 +4,17 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-07T12:53:40.784438800Z">
+        <DropdownSelection timestamp="2024-12-03T21:14:55.491953400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Artem\.android\avd\Pixel_6a_API_34.avd" />
+              <DeviceId pluginId="Default" identifier="serial=192.168.0.101:41149;connection=e50fa82a" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="ProductSmallCardPreview">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>
