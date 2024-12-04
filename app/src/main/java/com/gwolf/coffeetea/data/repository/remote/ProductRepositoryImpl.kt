@@ -41,10 +41,11 @@ class ProductRepositoryImpl @Inject constructor(
             val id = auth.currentUserOrNull()?.id.orEmpty()
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(PRODUCTS_TABLE)
-                    .select(Columns.raw("*, category: categories(category_name), favorite: favorites(favorite_id)")) {
+                    .select(Columns.raw("*, category: categories(category_name), favorite: favorites(favorite_id), cart: cart(cart_id)")) {
                         filter {
                             eq("product_id", productId)
                             eq("favorites.user_id", id)
+                            eq("cart.user_id", id)
                         }
                     }
                     .decodeSingle<ProductDto>()

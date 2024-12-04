@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.gwolf.coffeetea.domain.model.Product
-import com.gwolf.coffeetea.domain.usecase.database.GetProductsByCategoryUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsByCategoryUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel

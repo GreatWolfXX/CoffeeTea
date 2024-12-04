@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.domain.usecase.database
+package com.gwolf.coffeetea.domain.usecase.database.get
 
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.repository.remote.CategoryRepository

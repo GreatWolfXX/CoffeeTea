@@ -1,7 +1,7 @@
-package com.gwolf.coffeetea.domain.usecase.database
+package com.gwolf.coffeetea.domain.usecase.database.get
 
-import com.gwolf.coffeetea.domain.model.Favorite
-import com.gwolf.coffeetea.domain.repository.remote.FavoriteRepository
+import com.gwolf.coffeetea.domain.model.Product
+import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.toDomain
@@ -12,18 +12,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 
-class GetFavoritesListUseCase @Inject constructor(
-    private val favoriteRepository: FavoriteRepository,
+class GetProductsByCategoryUseCase @Inject constructor(
+    private val productRepository: ProductRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(): Flow<UiResult<List<Favorite>?>> = callbackFlow {
-        favoriteRepository.getFavorites().collect { result ->
+    operator fun invoke(categoryId: Int): Flow<UiResult<List<Product>?>> = callbackFlow {
+        productRepository.getProductsByCategory(categoryId).collect { result ->
             when(result) {
                 is UiResult.Success -> {
-                    val data = result.data?.map { favorite ->
+                    val data = result.data?.map { product ->
                         //Warning, maybe execute exception?
-                        val productImageUrl = storage.from(favorite.product?.bucketId!!).createSignedUrl(favorite.product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        return@map favorite.toDomain(productImageUrl)
+                        val imageUrl = storage.from(product.bucketId).createSignedUrl(product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                        return@map product.toDomain(imageUrl)
                     }
                     trySend(UiResult.Success(data = data))
                     close()

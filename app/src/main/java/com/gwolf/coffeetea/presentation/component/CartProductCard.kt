@@ -14,42 +14,56 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LocalMall
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.gwolf.coffeetea.R
+import com.gwolf.coffeetea.domain.model.Cart
 import com.gwolf.coffeetea.domain.model.Product
+import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
-fun ProductSmallCard(
-    product: Product,
-    onClick: (product: Product) -> Unit
+fun CartProductCard(
+    cart: Cart,
+    onClickDelete: () -> Unit,
+    onClick: (product: Product) -> Unit,
 ) {
+    val product = cart.product
+    var count by rememberSaveable { mutableStateOf(cart.quantity) }
+
     Card(
         modifier = Modifier
-            .height(80.dp)
+            .height(98.dp)
             .fillMaxWidth()
             .clickable {
                 onClick.invoke(product)
@@ -70,14 +84,14 @@ fun ProductSmallCard(
             Row {
                 Image(
                     modifier = Modifier
-                        .wrapContentWidth()
+                        .width(116.dp)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(8.dp)),
                     painter = rememberAsyncImagePainter(
                         model = product.imageUrl
                     ),
                     contentDescription = null,
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.size(16.dp))
                 Column(
@@ -111,50 +125,59 @@ fun ProductSmallCard(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Spacer(Modifier.size(4.dp))
-                    Row(
-                        modifier = Modifier
-                            .wrapContentWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            modifier = Modifier,
-                            text = "${product.price}₴",
-                            fontFamily = robotoFontFamily,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp,
-                            lineHeight = TextUnit(20f, TextUnitType.Sp),
-                            color = OnSurfaceColor
-                        )
-                        Spacer(Modifier.size(16.dp))
-                        Text(
-                            modifier = Modifier,
-                            text = "${product.amount} ${product.unit}",
-                            fontFamily = robotoFontFamily,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 11.sp,
-                            lineHeight = TextUnit(16f, TextUnitType.Sp),
-                            color = OutlineColor
-                        )
-                    }
+                    CartProductChangeCount(
+                        onAdd = {
+
+                        },
+                        onMinus = {
+
+                        },
+                        count = count
+                    )
                 }
             }
-            ProductCardBuyBtn {
-
+            Column(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(end = 8.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+                CartProductDeleteBtn {
+                    onClickDelete.invoke()
+                }
+                Spacer(Modifier.size(10.dp))
+                Text(
+                    modifier = Modifier,
+                    text = "${product.amount} ${product.unit}",
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 11.sp,
+                    lineHeight = TextUnit(16f, TextUnitType.Sp),
+                    color = OutlineColor
+                )
+                Text(
+                    modifier = Modifier,
+                    text = "${product.price}₴",
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
+                    lineHeight = TextUnit(24f, TextUnitType.Sp),
+                    color = OnSurfaceColor
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ProductCardBuyBtn(
+private fun CartProductDeleteBtn(
     onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
-            .padding(end = 16.dp)
             .size(28.dp)
             .background(
-                color = PrimaryDarkColor,
+                color = LightRedColor,
                 shape = RoundedCornerShape(4.dp)
             )
             .clickable {
@@ -164,30 +187,71 @@ private fun ProductCardBuyBtn(
     ) {
         Icon(
             modifier = Modifier.size(20.dp),
-            imageVector = Icons.Outlined.LocalMall,
+            imageVector = ImageVector.vectorResource(R.drawable.delete_ic),
             contentDescription = null,
             tint = Color.White
         )
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun ProductSmallCardPreview() {
-    val product = Product(
-        id = 1,
-        name = "Кенія Kiambu АА Kirura",
-        amount = 0.5,
-        unit = "кг",
-        featuresDescription = "Фрукти, Цитрусові, Ягоди",
-        fullDescription = "test",
-        price = 667.0,
-        rating = 3.0,
-        category = null,
-        imageUrl = "https://media.istockphoto.com/id/1349239413/photo/shot-of-coffee-beans-and-a-cup-of-black-coffee-on-a-wooden-table.jpg?s=612x612&w=0&k=20&c=ZFThzn27DAj2KeVlLdt3_E6RJZ2sbw2g4sDyO7mYvqk=",
-        favoriteId = -1
-    )
-    ProductSmallCard(
-        product
-    ) { }
+private fun CartProductChangeCount(
+    onAdd: () -> Unit,
+    onMinus: () -> Unit,
+    count: Int
+) {
+    Row(
+        modifier = Modifier.wrapContentWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .background(
+                    color = PrimaryDarkColor,
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .clickable {
+                    onMinus.invoke()
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier.size(20.dp),
+                imageVector = Icons.Outlined.Remove,
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
+        Spacer(Modifier.size(14.dp))
+        Text(
+            modifier = Modifier,
+            text = count.toString(),
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 14.sp,
+            color = OnSurfaceColor
+        )
+        Spacer(Modifier.size(14.dp))
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .background(
+                    color = PrimaryDarkColor,
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .clickable {
+                    onAdd.invoke()
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier.size(20.dp),
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
+    }
 }

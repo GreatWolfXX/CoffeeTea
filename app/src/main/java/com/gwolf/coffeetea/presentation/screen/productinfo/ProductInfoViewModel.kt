@@ -8,9 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.gwolf.coffeetea.domain.model.Product
-import com.gwolf.coffeetea.domain.usecase.database.AddFavoriteUseCase
-import com.gwolf.coffeetea.domain.usecase.database.GetProductByIdUseCase
-import com.gwolf.coffeetea.domain.usecase.database.RemoveFavoriteUseCase
+import com.gwolf.coffeetea.domain.usecase.database.add.AddCartProductUseCase
+import com.gwolf.coffeetea.domain.usecase.database.add.AddFavoriteUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetProductByIdUseCase
+import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveFavoriteUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,10 +24,12 @@ data class ProductInfoUiState(
     val product: Product? = null,
     val isLoading: Boolean = false,
     val isFavorite: Boolean = false,
+    val isInCart: Boolean = false,
     val error: String? = null,
 )
 
 sealed class ProductInfoEvent {
+    data object AddToCart : ProductInfoEvent()
     data object AddFavorite : ProductInfoEvent()
     data object RemoveFavorite : ProductInfoEvent()
 }
@@ -36,6 +39,7 @@ class ProductInfoViewModel @Inject constructor(
     private val getProductByIdUseCase: GetProductByIdUseCase,
     private val addFavoriteUseCase: AddFavoriteUseCase,
     private val removeFavoriteUseCase: RemoveFavoriteUseCase,
+    private val addCartProductUseCase: AddCartProductUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -44,12 +48,40 @@ class ProductInfoViewModel @Inject constructor(
 
     fun onEvent(event: ProductInfoEvent) {
         when(event) {
+            is ProductInfoEvent.AddToCart -> {
+                addToCart()
+            }
             is ProductInfoEvent.AddFavorite -> {
                 addFavorite()
             }
             is ProductInfoEvent.RemoveFavorite -> {
                 removeFavorite()
             }
+        }
+    }
+
+    private fun addToCart() {
+        viewModelScope.launch {
+            //quantity hard code
+            addCartProductUseCase.invoke(_productInfoScreenState.value.product?.id!!, 1)
+                .collect { response ->
+                    when (response) {
+                        is UiResult.Success -> {
+                            _productInfoScreenState.value =
+                                _productInfoScreenState.value.copy(
+                                    isInCart = true,
+                                )
+                        }
+
+                        is UiResult.Error -> {
+                            _productInfoScreenState.value =
+                                _productInfoScreenState.value.copy(
+                                    error = response.exception.message.toString(),
+                                    isInCart = false
+                                )
+                        }
+                    }
+                }
         }
     }
 
@@ -108,7 +140,8 @@ class ProductInfoViewModel @Inject constructor(
                     _productInfoScreenState.value =
                         _productInfoScreenState.value.copy(
                             product = response.data,
-                            isFavorite = response.data?.favoriteId != -1
+                            isFavorite = response.data?.favoriteId != -1,
+                            isInCart = response.data?.cartId != -1
                         )
                 }
 
@@ -117,7 +150,8 @@ class ProductInfoViewModel @Inject constructor(
                         _productInfoScreenState.value.copy(
                             error = response.exception.message.toString(),
                             isLoading = false,
-                            isFavorite = false
+                            isFavorite = false,
+                            isInCart = false
                         )
                 }
             }

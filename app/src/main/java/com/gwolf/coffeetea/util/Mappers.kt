@@ -1,10 +1,12 @@
 package com.gwolf.coffeetea.util
 
+import com.gwolf.coffeetea.data.dto.CartDto
 import com.gwolf.coffeetea.data.dto.CategoryDto
 import com.gwolf.coffeetea.data.dto.FavoriteDto
 import com.gwolf.coffeetea.data.dto.ProductDto
 import com.gwolf.coffeetea.data.dto.ProfileDto
 import com.gwolf.coffeetea.data.dto.PromotionDto
+import com.gwolf.coffeetea.domain.model.Cart
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.Favorite
 import com.gwolf.coffeetea.domain.model.Product
@@ -36,11 +38,18 @@ fun ProductDto.toDomain(imageUrl: String) = Product(
     fullDescription = this.fullDescription,
     price = this.price,
     rating = this.rating,
-    category = this.category?.toDomain(""),
     imageUrl = imageUrl,
+    category = this.category?.toDomain(""),
     favoriteId = this.favorite.let {
         if (it.isNotEmpty()) {
             it.first().favoriteId
+        } else {
+            -1
+        }
+    },
+    cartId = this.cart.let {
+        if (it.isNotEmpty()) {
+            it.first().cartId
         } else {
             -1
         }
@@ -56,5 +65,12 @@ fun ProfileDto.toDomain(imageUrl: String) = Profile(
 
 fun FavoriteDto.toDomain(productImageUrl: String) = Favorite(
     id = this.favoriteId,
+    product = product?.toDomain(productImageUrl)!!
+)
+
+fun CartDto.toDomain(productImageUrl: String) = Cart(
+    cartId = this.cartId,
+    productId = this.productId,
+    quantity = quantity,
     product = product?.toDomain(productImageUrl)!!
 )

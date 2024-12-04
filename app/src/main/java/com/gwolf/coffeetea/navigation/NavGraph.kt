@@ -118,7 +118,7 @@ fun SetupNavGraph(
             popEnterTransition = popEnterTransition
         ) {
             CartScreen(
-
+                navController = navController
             )
         }
         composable<Screen.Favorite>(

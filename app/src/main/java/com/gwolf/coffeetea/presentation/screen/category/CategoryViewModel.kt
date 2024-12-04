@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Category
-import com.gwolf.coffeetea.domain.usecase.database.GetCategoriesListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetCategoriesListUseCase
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async

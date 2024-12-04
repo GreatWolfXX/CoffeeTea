@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Favorite
-import com.gwolf.coffeetea.domain.usecase.database.GetFavoritesListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetFavoritesListUseCase
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async

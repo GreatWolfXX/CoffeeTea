@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.gwolf.coffeetea.R
+import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
@@ -303,9 +304,17 @@ private fun ProductInfoScreenContent(
                 )
             }
             Spacer(modifier = Modifier.size(32.dp))
+            val btnTitle = if(state.isInCart) R.string.title_to_cart else R.string.title_bought
             CustomButton(
-                text = R.string.title_bought
-            ) { }
+                text = btnTitle
+            ) {
+                if(state.isInCart) {
+                    navController.navigate(Screen.Cart)
+                } else {
+                    viewModel.onEvent(ProductInfoEvent.AddToCart)
+                }
+
+            }
         }
     }
 }

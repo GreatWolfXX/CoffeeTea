@@ -1,7 +1,7 @@
-package com.gwolf.coffeetea.domain.usecase.database
+package com.gwolf.coffeetea.domain.usecase.database.get
 
-import com.gwolf.coffeetea.domain.model.Promotion
-import com.gwolf.coffeetea.domain.repository.remote.PromotionRepository
+import com.gwolf.coffeetea.domain.model.Cart
+import com.gwolf.coffeetea.domain.repository.remote.CartRepository
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.toDomain
@@ -12,18 +12,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 
-class GetPromotionsListUseCase @Inject constructor(
-    private val promotionRepository: PromotionRepository,
+class GetCartProductsListUseCase @Inject constructor(
+    private val cartRepository: CartRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(): Flow<UiResult<List<Promotion>?>> = callbackFlow {
-        promotionRepository.getPromotions().collect { result ->
+    operator fun invoke(): Flow<UiResult<List<Cart>?>> = callbackFlow {
+        cartRepository.getCartProducts().collect { result ->
             when(result) {
                 is UiResult.Success -> {
-                    val data = result.data?.map { promotion ->
+                    val data = result.data?.map { cartProduct ->
                         //Warning, maybe execute exception?
-                        val imageUrl = storage.from(promotion.bucketId).createSignedUrl(promotion.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        return@map promotion.toDomain(imageUrl)
+                        val productImageUrl = storage.from(cartProduct.product?.bucketId!!).createSignedUrl(cartProduct.product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                        return@map cartProduct.toDomain(productImageUrl)
                     }
                     trySend(UiResult.Success(data = data))
                     close()

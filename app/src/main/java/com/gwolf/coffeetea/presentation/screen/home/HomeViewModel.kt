@@ -9,10 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.model.Promotion
-import com.gwolf.coffeetea.domain.usecase.database.GetCategoriesListUseCase
-import com.gwolf.coffeetea.domain.usecase.database.GetProductsListUseCase
-import com.gwolf.coffeetea.domain.usecase.database.GetPromotionsListUseCase
-import com.gwolf.coffeetea.domain.usecase.database.SearchProductsUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetCategoriesListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetPromotionsListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.SearchProductsUseCase
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview

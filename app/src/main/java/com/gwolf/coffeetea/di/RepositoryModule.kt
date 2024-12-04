@@ -3,6 +3,7 @@ package com.gwolf.coffeetea.di
 import android.content.Context
 import com.gwolf.coffeetea.data.repository.local.DataStoreRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.AuthRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.CartRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.CategoryRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.FavoriteRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.ProductRepositoryImpl
@@ -10,6 +11,7 @@ import com.gwolf.coffeetea.data.repository.remote.ProfileRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.PromotionRepositoryImpl
 import com.gwolf.coffeetea.domain.repository.local.DataStoreRepository
 import com.gwolf.coffeetea.domain.repository.remote.AuthRepository
+import com.gwolf.coffeetea.domain.repository.remote.CartRepository
 import com.gwolf.coffeetea.domain.repository.remote.CategoryRepository
 import com.gwolf.coffeetea.domain.repository.remote.FavoriteRepository
 import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
@@ -72,4 +74,11 @@ object RepositoryModule {
         postgrest: Postgrest,
         auth: Auth
     ): FavoriteRepository = FavoriteRepositoryImpl(postgrest, auth)
+
+    @Provides
+    @Singleton
+    fun provideCartRepository(
+        postgrest: Postgrest,
+        auth: Auth
+    ): CartRepository = CartRepositoryImpl(postgrest, auth)
 }

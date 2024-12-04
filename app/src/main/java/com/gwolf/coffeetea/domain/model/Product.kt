@@ -9,7 +9,8 @@ data class Product(
     val fullDescription: String?,
     val price: Double,
     val rating: Double?,
-    val category: Category?,
     val imageUrl: String,
-    val favoriteId: Int = -1
+    val category: Category?,
+    val favoriteId: Int = -1,
+    val cartId: Int = -1,
 )

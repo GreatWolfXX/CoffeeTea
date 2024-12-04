@@ -14,7 +14,8 @@ data class ProductDto(
     @SerialName("price") val price: Double,
     @SerialName("rating") val rating: Double?,
     @SerialName("bucket_id") val bucketId: String,
-    @SerialName("category") val category: CategoryDto? = null,
     @SerialName("image_path") val imagePath: String,
+    @SerialName("category") val category: CategoryDto? = null,
     @SerialName("favorite") val favorite: List<FavoriteDto> = emptyList<FavoriteDto>(),
+    @SerialName("cart") val cart: List<CartDto> = emptyList<CartDto>(),
 )

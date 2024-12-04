@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.domain.usecase.database
+package com.gwolf.coffeetea.domain.usecase.database.get
 
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
@@ -12,12 +12,12 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 
-class SearchProductsUseCase @Inject constructor(
+class GetProductsListUseCase @Inject constructor(
     private val productRepository: ProductRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(search: String): Flow<UiResult<List<Product>?>> = callbackFlow {
-        productRepository.searchProducts(search).collect { result ->
+    operator fun invoke(): Flow<UiResult<List<Product>?>> = callbackFlow {
+        productRepository.getProducts().collect { result ->
             when(result) {
                 is UiResult.Success -> {
                     val data = result.data?.map { product ->
