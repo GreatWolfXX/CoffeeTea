@@ -62,7 +62,7 @@ class ProductInfoViewModel @Inject constructor(
 
     private fun addToCart() {
         viewModelScope.launch {
-            //quantity hard code
+            // WARNING quantity hard code
             addCartProductUseCase.invoke(_productInfoScreenState.value.product?.id!!, 1)
                 .collect { response ->
                     when (response) {

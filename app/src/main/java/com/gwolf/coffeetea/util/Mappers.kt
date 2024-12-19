@@ -39,17 +39,17 @@ fun ProductDto.toDomain(imageUrl: String) = Product(
     price = this.price,
     rating = this.rating,
     imageUrl = imageUrl,
-    category = this.category?.toDomain(""),
+    categoryName = this.category?.name.orEmpty(),
     favoriteId = this.favorite.let {
         if (it.isNotEmpty()) {
-            it.first().favoriteId
+            it.first().id
         } else {
             -1
         }
     },
     cartId = this.cart.let {
         if (it.isNotEmpty()) {
-            it.first().cartId
+            it.first().id
         } else {
             -1
         }
@@ -60,16 +60,17 @@ fun ProfileDto.toDomain(imageUrl: String) = Profile(
     id = UUID.fromString(this.id),
     name = this.name,
     email = this.email,
+    bucketId = this.bucketId,
     imageUrl = imageUrl
 )
 
 fun FavoriteDto.toDomain(productImageUrl: String) = Favorite(
-    id = this.favoriteId,
+    id = this.id,
     product = product?.toDomain(productImageUrl)!!
 )
 
 fun CartDto.toDomain(productImageUrl: String) = Cart(
-    cartId = this.cartId,
+    cartId = this.id,
     productId = this.productId,
     quantity = quantity,
     product = product?.toDomain(productImageUrl)!!

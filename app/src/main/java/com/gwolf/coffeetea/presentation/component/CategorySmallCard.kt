@@ -20,11 +20,12 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun CategorySmallCard(
+    modifier: Modifier = Modifier,
     category: Category,
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .width(80.dp)
             .clickable {
                 onClick.invoke()

@@ -50,7 +50,8 @@
     <string name="title_cart">Кошик</string>
     <string name="title_cart_price">Разом</string>
     <string name="title_cart_buy">Оформити замовлення</string>
-    <string name="title_to_cart">Перейти до кошика</string>
+    <string name="title_go_to_cart">Перейти до кошика</string>
+    <string name="title_to_cart">До кошика</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_password_length">Пароль повинен містити менше %1$d символів!</string>

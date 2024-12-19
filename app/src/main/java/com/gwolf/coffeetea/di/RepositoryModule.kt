@@ -24,6 +24,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.storage.Storage
 import javax.inject.Singleton
 
 @Module
@@ -65,8 +66,9 @@ object RepositoryModule {
     @Singleton
     fun provideProfileRepository(
         postgrest: Postgrest,
+        storage: Storage,
         auth: Auth
-    ): ProfileRepository = ProfileRepositoryImpl(postgrest, auth)
+    ): ProfileRepository = ProfileRepositoryImpl(postgrest, storage, auth)
 
     @Provides
     @Singleton

@@ -93,6 +93,7 @@ class CartViewModel @Inject constructor(
     }
 
     init {
+        _cartScreenState.value = _cartScreenState.value.copy(isLoading = true)
         viewModelScope.launch {
             val product = async { getProducts() }
 

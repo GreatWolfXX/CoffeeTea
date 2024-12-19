@@ -55,7 +55,7 @@ fun SearchByCategoryScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(!state.isLoading) {
+            if (!state.isLoading) {
                 TopMenu(
                     navController = navController,
                     state = state
@@ -105,10 +105,20 @@ private fun ProductsList(
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
         items(productsList) { product ->
-            Log.d("Coffee&TeaLogger", "Product: ${product.category?.name}")
-            ProductCard(product = product) {
-                navController.navigate(Screen.ProductInfo(productId = product.id))
-            }
+            Log.d("Coffee&TeaLogger", "Product: ${product.categoryName}")
+            ProductCard(
+                modifier = Modifier.animateItem(),
+                product = product,
+                onClick = {
+                    navController.navigate(Screen.ProductInfo(productId = product.id))
+                },
+                onClickBuy = {
+
+                },
+                onClickToCart = {
+
+                }
+            )
         }
     }
 

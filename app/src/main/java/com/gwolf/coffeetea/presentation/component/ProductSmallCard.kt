@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,7 +35,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
@@ -44,15 +45,19 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun ProductSmallCard(
+    modifier: Modifier = Modifier,
     product: Product,
-    onClick: (product: Product) -> Unit
+    onClick: () -> Unit,
+    onClickBuy: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Card(
-        modifier = Modifier
+        modifier = modifier
             .height(80.dp)
             .fillMaxWidth()
             .clickable {
-                onClick.invoke(product)
+                onClick.invoke()
             },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -68,14 +73,15 @@ fun ProductSmallCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
             Row {
-                Image(
+                AsyncImage(
                     modifier = Modifier
                         .wrapContentWidth()
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(8.dp)),
-                    painter = rememberAsyncImagePainter(
-                        model = product.imageUrl
-                    ),
+                    model = ImageRequest.Builder(context)
+                        .data(product.imageUrl)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Fit
                 )
@@ -139,7 +145,7 @@ fun ProductSmallCard(
                 }
             }
             ProductCardBuyBtn {
-
+                onClickBuy.invoke()
             }
         }
     }
@@ -183,11 +189,14 @@ private fun ProductSmallCardPreview() {
         fullDescription = "test",
         price = 667.0,
         rating = 3.0,
-        category = null,
+        categoryName = "",
         imageUrl = "https://media.istockphoto.com/id/1349239413/photo/shot-of-coffee-beans-and-a-cup-of-black-coffee-on-a-wooden-table.jpg?s=612x612&w=0&k=20&c=ZFThzn27DAj2KeVlLdt3_E6RJZ2sbw2g4sDyO7mYvqk=",
         favoriteId = -1
     )
     ProductSmallCard(
-        product
-    ) { }
+        modifier = Modifier,
+        product,
+        onClick = { },
+        onClickBuy = { }
+    )
 }

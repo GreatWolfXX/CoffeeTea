@@ -1,6 +1,9 @@
 package com.gwolf.coffeetea.presentation.component
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,9 +26,10 @@ import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 fun BottomBar(
     navController: NavController
 ) {
+    val bottomPadding = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
     NavigationBar(
         modifier = Modifier
-            .height(80.dp)
+            .height(60.dp + bottomPadding)
             .shadow(4.dp),
         containerColor = Color.White,
         contentColor = Color.White,

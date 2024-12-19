@@ -25,7 +25,7 @@ class GetProfileUseCase @Inject constructor(
                         if (data?.bucketId.isNullOrEmpty() || data?.imagePath.isNullOrEmpty()) {
                             ""
                         } else {
-                            storage.from(data?.bucketId!!).createSignedUrl(data.imagePath!!, HOURS_EXPIRES_IMAGE_URL.hours)
+                            storage.from(data?.bucketId!!).createSignedUrl(data.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
                         }
 
                     val profile = data?.toDomain(imageUrl)

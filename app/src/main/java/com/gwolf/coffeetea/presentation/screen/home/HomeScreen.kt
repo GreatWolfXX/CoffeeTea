@@ -16,13 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -89,8 +88,6 @@ private fun HomeScreenContent(
     state: HomeUiState,
     viewModel: HomeViewModel
 ) {
-    val scrollState = rememberScrollState()
-
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -111,8 +108,10 @@ private fun HomeScreenContent(
                 categoriesList = state.categoriesList
             )
             Spacer(modifier = Modifier.size(16.dp))
+            Log.d("Coffee&TeaLogger", "Update: ${state.productsList}")
             ProductsList(
                 navController = navController,
+                viewModel = viewModel,
                 productsList = state.productsList
             )
         }
@@ -211,12 +210,25 @@ private fun SearchBarComponent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState())
             ) {
-                repeat(state.searchProductsList.size) { indexProduct ->
-                    Spacer(modifier = Modifier.size(16.dp))
-                    ProductSmallCard(state.searchProductsList[indexProduct]) { product ->
-                        navController.navigate(Screen.ProductInfo(productId = product.id))
+                LazyColumn(
+                    modifier = Modifier
+                        .wrapContentHeight(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    items(state.searchProductsList) { product ->
+                        ProductSmallCard(
+                            modifier = Modifier.animateItem(),
+                            product = product,
+                            onClick = {
+                                navController.navigate(Screen.ProductInfo(productId = product.id))
+                            },
+                            onClickBuy = {
+                                viewModel.onEvent(HomeEvent.AddToCart(product = product))
+                                navController.navigate(Screen.Cart)
+                            }
+                        )
                     }
                 }
             }
@@ -243,9 +255,15 @@ private fun CategoriesList(
     ) {
         items(categoriesList) { category ->
             CategorySmallCard(
+                modifier = Modifier.animateItem(),
                 category = category
             ) {
-                navController.navigate(Screen.SearchByCategory(categoryId = category.id, categoryName = category.name))
+                navController.navigate(
+                    Screen.SearchByCategory(
+                        categoryId = category.id,
+                        categoryName = category.name
+                    )
+                )
             }
         }
     }
@@ -254,6 +272,7 @@ private fun CategoriesList(
 @Composable
 private fun ProductsList(
     navController: NavController,
+    viewModel: HomeViewModel,
     productsList: List<Product>
 ) {
     BlockTitleComponent(
@@ -268,9 +287,19 @@ private fun ProductsList(
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
         items(productsList) { product ->
-            ProductCard(product = product) {
-                navController.navigate(Screen.ProductInfo(productId = product.id))
-            }
+            ProductCard(
+                modifier = Modifier.animateItem(),
+                product = product,
+                onClick = {
+                    navController.navigate(Screen.ProductInfo(productId = product.id))
+                },
+                onClickBuy = {
+                    viewModel.onEvent(HomeEvent.AddToCart(product))
+                },
+                onClickToCart = {
+                    navController.navigate(Screen.Cart)
+                }
+            )
         }
     }
 

@@ -1,12 +1,12 @@
 package com.gwolf.coffeetea.presentation.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,22 +18,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun CategoryFullCard(
+    modifier: Modifier = Modifier,
     category: Category,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Card(
-        modifier = Modifier
+        modifier = modifier
             .size(
                 width = 116.dp,
                 height = 144.dp
@@ -53,11 +58,14 @@ fun CategoryFullCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // image
-            Image(
-                modifier = Modifier.fillMaxWidth(),
-                painter = rememberAsyncImagePainter(
-                    model = category.imageUrl
-                ),
+            AsyncImage(
+                modifier = Modifier
+                    .height(116.dp)
+                    .fillMaxWidth(),
+                model = ImageRequest.Builder(context)
+                    .data(category.imageUrl)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )

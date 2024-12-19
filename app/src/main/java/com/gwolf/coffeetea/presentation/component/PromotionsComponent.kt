@@ -1,7 +1,7 @@
 package com.gwolf.coffeetea.presentation.component
 
+import android.content.Context
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,10 +30,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.gwolf.coffeetea.domain.model.Promotion
 import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
@@ -45,6 +47,8 @@ fun PromotionsComponent(
     val pagerState = rememberPagerState(
         pageCount = { promotionsList.size }
     )
+    val context = LocalContext.current
+
     Box {
         HorizontalPager(
             modifier = Modifier
@@ -55,7 +59,8 @@ fun PromotionsComponent(
             state = pagerState
         ) { position ->
             PromotionScreen(
-                promotionsList[position]
+                promotionsList[position],
+                context = context
             )
         }
         PagerIndicator(pagerState = pagerState)
@@ -91,7 +96,8 @@ private fun BoxScope.PagerIndicator(
 
 @Composable
 private fun PromotionScreen(
-    promotion: Promotion
+    promotion: Promotion,
+    context: Context
 ) {
     Card(
         modifier = Modifier
@@ -101,11 +107,12 @@ private fun PromotionScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            Image(
+            AsyncImage(
                 modifier = Modifier.fillMaxWidth(),
-                painter = rememberAsyncImagePainter(
-                    model = promotion.imageUrl
-                ),
+                model = ImageRequest.Builder(context)
+                    .data(promotion.imageUrl)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )

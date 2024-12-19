@@ -127,9 +127,19 @@ private fun ProductsList(
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
         items(favoritesList) { favorite ->
-            ProductCard(product = favorite.product) {
-                navController.navigate(Screen.ProductInfo(productId = favorite.product.id))
-            }
+            ProductCard(
+                modifier = Modifier.animateItem(),
+                product = favorite.product,
+                onClick = {
+                    navController.navigate(Screen.ProductInfo(productId = favorite.product.id))
+                },
+                onClickBuy = {
+
+                },
+                onClickToCart = {
+
+                }
+            )
         }
     }
 

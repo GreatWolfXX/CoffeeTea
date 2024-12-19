@@ -138,6 +138,7 @@ private fun CartScreenContent(
             ) {
                 items(state.cartProductsList) { cartProduct ->
                     CartProductCard(
+                        modifier = Modifier.animateItem(),
                         cart = cartProduct,
                         onClickDelete = {
                             viewModel.onEvent(CartEvent.RemoveFromCart(cartProduct.cartId))

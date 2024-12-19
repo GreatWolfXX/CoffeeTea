@@ -22,9 +22,14 @@ class ProductRepositoryImpl @Inject constructor(
 ) : ProductRepository {
     override suspend fun getProducts(): Flow<UiResult<List<ProductDto>?>> = callbackFlow {
         try {
+            val id = auth.currentUserOrNull()?.id.orEmpty()
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(PRODUCTS_TABLE)
-                    .select()
+                    .select(Columns.raw("*, cart: cart(*)")) {
+                        filter {
+                            eq("cart.user_id", id)
+                        }
+                    }
                     .decodeList<ProductDto>()
             }
             trySend(UiResult.Success(response))
@@ -41,7 +46,7 @@ class ProductRepositoryImpl @Inject constructor(
             val id = auth.currentUserOrNull()?.id.orEmpty()
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(PRODUCTS_TABLE)
-                    .select(Columns.raw("*, category: categories(category_name), favorite: favorites(favorite_id), cart: cart(cart_id)")) {
+                    .select(Columns.raw("*, category: categories(*), favorite: favorites(*), cart: cart(*)")) {
                         filter {
                             eq("product_id", productId)
                             eq("favorites.user_id", id)
@@ -64,10 +69,9 @@ class ProductRepositoryImpl @Inject constructor(
 
     override suspend fun getProductsByCategory(categoryId: Int): Flow<UiResult<List<ProductDto>?>> = callbackFlow {
         try {
-            val id = auth.currentUserOrNull()?.id.orEmpty()
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(PRODUCTS_TABLE)
-                    .select(Columns.raw("*, category: categories(category_name)")) {
+                    .select(Columns.raw("*, category: categories(*)")) {
                         filter {
                             eq("category_id", categoryId)
                         }
@@ -87,7 +91,7 @@ class ProductRepositoryImpl @Inject constructor(
         try {
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(PRODUCTS_TABLE)
-                    .select(Columns.raw("*, category: categories(category_name)")) {
+                    .select(Columns.raw("*, category: categories(*)")) {
                         limit(MAX_SEARCH_LIST_RESULT)
                         filter {
                             textSearch(column = "product_name", query = search, textSearchType = TextSearchType.PHRASETO)

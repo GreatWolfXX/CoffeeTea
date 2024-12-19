@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,15 +25,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,7 +41,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Cart
 import com.gwolf.coffeetea.domain.model.Product
@@ -54,15 +54,17 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun CartProductCard(
+    modifier: Modifier = Modifier,
     cart: Cart,
     onClickDelete: () -> Unit,
     onClick: (product: Product) -> Unit,
 ) {
     val product = cart.product
-    var count by rememberSaveable { mutableStateOf(cart.quantity) }
+    val count by rememberSaveable { mutableIntStateOf(cart.quantity) }
+    val context = LocalContext.current
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .height(98.dp)
             .fillMaxWidth()
             .clickable {
@@ -82,14 +84,15 @@ fun CartProductCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
             Row {
-                Image(
+                AsyncImage(
                     modifier = Modifier
                         .width(116.dp)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(8.dp)),
-                    painter = rememberAsyncImagePainter(
-                        model = product.imageUrl
-                    ),
+                    model = ImageRequest.Builder(context)
+                        .data(product.imageUrl)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )

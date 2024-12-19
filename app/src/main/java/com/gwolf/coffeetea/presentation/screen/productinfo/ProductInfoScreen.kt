@@ -1,8 +1,8 @@
 package com.gwolf.coffeetea.presentation.screen.productinfo
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,9 +39,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
@@ -71,6 +73,7 @@ fun ProductInfoScreen(
     viewModel: ProductInfoViewModel = hiltViewModel()
 ) {
     val state by viewModel.productInfoScreenState
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -85,7 +88,7 @@ fun ProductInfoScreen(
                 title = {
                     Text(
                         modifier = Modifier.padding(start = 4.dp),
-                        text = state.product?.category?.name.orEmpty(),
+                        text = state.product?.categoryName.orEmpty(),
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = 22.sp,
@@ -113,7 +116,8 @@ fun ProductInfoScreen(
                 ProductInfoScreenContent(
                     navController = navController,
                     state = state,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    context = context
                 )
             }
         }
@@ -125,7 +129,8 @@ fun ProductInfoScreen(
 private fun ProductInfoScreenContent(
     navController: NavController,
     state: ProductInfoUiState,
-    viewModel: ProductInfoViewModel
+    viewModel: ProductInfoViewModel,
+    context: Context
 ) {
     Column(
         modifier = Modifier
@@ -140,32 +145,28 @@ private fun ProductInfoScreenContent(
                 .verticalScroll(rememberScrollState())
         ) {
             Box {
-                Image(
+                AsyncImage(
                     modifier = Modifier
                         .height(348.dp)
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp)),
-                    painter = rememberAsyncImagePainter(
-                        model = state.product?.imageUrl
-                    ),
+                    model  = ImageRequest.Builder(context)
+                        .data(state.product?.imageUrl)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
                 Icon(
                     modifier = Modifier
                         .align(alignment = Alignment.BottomEnd)
-                        .padding(bottom = 8.dp, end = 8.dp)
+                        .padding(bottom = 12.dp, end = 12.dp)
                         .scale(1.3f)
+                        .clip(CircleShape)
                         .background(
-                            Brush.radialGradient(
-                                colors = listOf(
-                                    if(state.isFavorite) Color.White else Color.Transparent,
-                                    Color.Transparent
-                                ),
-                                radius = 60f
-                            )
+                            color = Color.White
                         )
-                        .padding(8.dp)
+                        .padding(4.dp)
                         .clickable {
                             if(state.isFavorite) {
                                 viewModel.onEvent(ProductInfoEvent.RemoveFavorite)
@@ -175,7 +176,7 @@ private fun ProductInfoScreenContent(
                         },
                     imageVector = if(state.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder ,
                     contentDescription = null,
-                    tint = if(state.isFavorite) LightRedColor else Color.White
+                    tint = LightRedColor
                 )
             }
             Spacer(modifier = Modifier.size(16.dp))
@@ -210,10 +211,10 @@ private fun ProductInfoScreenContent(
                     tint = PrimaryColor
                 )
                 Spacer(modifier = Modifier.size(2.dp))
-                if(state.product?.rating != null) {
+                if(state.product?.rating != 0.0) {
                     Text(
                         modifier = Modifier,
-                        text = state.product.rating.toString(),
+                        text = state.product?.rating.toString(),
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
@@ -304,7 +305,7 @@ private fun ProductInfoScreenContent(
                 )
             }
             Spacer(modifier = Modifier.size(32.dp))
-            val btnTitle = if(state.isInCart) R.string.title_to_cart else R.string.title_bought
+            val btnTitle = if(state.isInCart) R.string.title_go_to_cart else R.string.title_bought
             CustomButton(
                 text = btnTitle
             ) {

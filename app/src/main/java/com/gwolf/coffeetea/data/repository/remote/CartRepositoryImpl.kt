@@ -40,7 +40,7 @@ class CartRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override suspend fun addCart(productId: Int, quantity: Int): Flow<UiResult<Unit>> = callbackFlow {
+    override suspend fun addCart(productId: Int, quantity: Int): Flow<UiResult<Int>> = callbackFlow {
         try {
             val id = auth.currentUserOrNull()?.id.orEmpty()
             val cart = CartDto(
@@ -48,10 +48,12 @@ class CartRepositoryImpl @Inject constructor(
                 quantity = quantity,
                 userId = id
             )
-            withContext(Dispatchers.IO) {
-                postgrest.from(CART_TABLE).insert(cart)
+            val response = withContext(Dispatchers.IO) {
+                postgrest.from(CART_TABLE).insert(cart) {
+                    select()
+                }.decodeSingle<CartDto>()
             }
-            trySend(UiResult.Success(Unit))
+            trySend(UiResult.Success(response.id))
             close()
         } catch (e: Exception) {
             trySend(UiResult.Error(exception = e))

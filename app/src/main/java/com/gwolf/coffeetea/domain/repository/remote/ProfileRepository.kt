@@ -6,4 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProfileRepository {
     suspend fun getProfile(): Flow<UiResult<ProfileDto?>>
+    suspend fun uploadProfileImage(bucketId: String, byteArray: ByteArray): Flow<UiResult<String>>
+    suspend fun updateProfileImagePath(imagePath: String): Flow<UiResult<Unit>>
 }

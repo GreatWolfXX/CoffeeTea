@@ -9,10 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.model.Promotion
+import com.gwolf.coffeetea.domain.usecase.database.add.AddCartProductUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCategoriesListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetPromotionsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.SearchProductsUseCase
+import com.gwolf.coffeetea.util.ADD_TO_CART_COUNT
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
@@ -37,6 +39,7 @@ data class HomeUiState(
 
 sealed class HomeEvent {
     data class Search(val query: String) : HomeEvent()
+    data class AddToCart(val product: Product) : HomeEvent()
 }
 
 @HiltViewModel
@@ -44,7 +47,8 @@ class HomeViewModel @Inject constructor(
     private val getPromotionsListUseCase: GetPromotionsListUseCase,
     private val getCategoriesListUseCase: GetCategoriesListUseCase,
     private val getProductsListUseCase: GetProductsListUseCase,
-    private val searchProductsUseCase: SearchProductsUseCase
+    private val searchProductsUseCase: SearchProductsUseCase,
+    private val addCartProductUseCase: AddCartProductUseCase,
 ) : ViewModel() {
 
     private val _homeScreenState = mutableStateOf(HomeUiState())
@@ -57,12 +61,45 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onEvent(event: HomeEvent) {
-        when(event) {
+        when (event) {
             is HomeEvent.Search -> {
                 _homeScreenState.value = _homeScreenState.value.copy(
                     searchText = event.query
                 )
             }
+
+            is HomeEvent.AddToCart -> {
+                addToCart(event.product)
+            }
+        }
+    }
+
+    private fun addToCart(product: Product) {
+        viewModelScope.launch {
+            addCartProductUseCase.invoke(product.id, ADD_TO_CART_COUNT)
+                .collect { response ->
+                    when (response) {
+                        is UiResult.Success -> {
+                            val indexProduct = _homeScreenState.value.productsList.toMutableList().indexOfFirst {
+                                it.id == product.id
+                            }
+                            val updatedProductsList = _homeScreenState.value.productsList.toMutableList().apply {
+                                this[indexProduct] =
+                                    _homeScreenState.value.productsList[indexProduct].copy(cartId = response.data)
+                            }
+                            _homeScreenState.value = _homeScreenState.value.copy(
+                                productsList = updatedProductsList
+                            )
+                        }
+
+                        is UiResult.Error -> {
+                            _homeScreenState.value =
+                                _homeScreenState.value.copy(
+                                    error = response.exception.message.toString()
+                                )
+                        }
+                    }
+                }
         }
     }
 

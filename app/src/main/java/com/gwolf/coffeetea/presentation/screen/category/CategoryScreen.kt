@@ -128,7 +128,10 @@ private fun CategoryList(
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
         items(categoriesList) { category ->
-            CategoryFullCard(category = category) {
+            CategoryFullCard(
+                modifier = Modifier.animateItem(),
+                category = category
+            ) {
                 navController.navigate(Screen.SearchByCategory(categoryId = category.id, categoryName = category.name))
             }
         }
