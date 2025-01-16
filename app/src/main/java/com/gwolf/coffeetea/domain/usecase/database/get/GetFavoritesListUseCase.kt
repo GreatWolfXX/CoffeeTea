@@ -16,23 +16,20 @@ class GetFavoritesListUseCase @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(): Flow<UiResult<List<Favorite>?>> = callbackFlow {
-        favoriteRepository.getFavorites().collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    val data = result.data?.map { favorite ->
-                        //Warning, maybe execute exception?
-                        val productImageUrl = storage.from(favorite.product?.bucketId!!).createSignedUrl(favorite.product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        return@map favorite.toDomain(productImageUrl)
-                    }
-                    trySend(UiResult.Success(data = data))
-                    close()
+    operator fun invoke(): Flow<UiResult<List<Favorite>>> = callbackFlow {
+        try {
+            favoriteRepository.getFavorites().collect { response ->
+                val data = response.map { favorite ->
+                    val productImageUrl = storage.from(favorite.product?.bucketId!!)
+                        .createSignedUrl(favorite.product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                    return@map favorite.toDomain(productImageUrl)
                 }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
-                }
+                trySend(UiResult.Success(data = data))
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

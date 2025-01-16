@@ -16,28 +16,19 @@ class GetProfileUseCase @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(): Flow<UiResult<Profile?>> = callbackFlow {
-        profileRepository.getProfile().collect { result ->
-            when (result) {
-                is UiResult.Success -> {
-                    val data = result.data
-                    val imageUrl =
-                        if (data?.bucketId.isNullOrEmpty() || data?.imagePath.isNullOrEmpty()) {
-                            ""
-                        } else {
-                            storage.from(data?.bucketId!!).createSignedUrl(data.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        }
-
-                    val profile = data?.toDomain(imageUrl)
-                    trySend(UiResult.Success(data = profile))
-                    close()
-                }
-
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
-                }
+    operator fun invoke(): Flow<UiResult<Profile>> = callbackFlow {
+        try {
+            profileRepository.getProfile().collect { response ->
+                val imageUrl =
+                    storage.from(response.bucketId)
+                        .createSignedUrl(response.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                val profile = response.toDomain(imageUrl)
+                trySend(UiResult.Success(data = profile))
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

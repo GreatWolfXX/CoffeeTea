@@ -16,23 +16,23 @@ class GetCartProductsListUseCase @Inject constructor(
     private val cartRepository: CartRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(): Flow<UiResult<List<Cart>?>> = callbackFlow {
-        cartRepository.getCartProducts().collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    val data = result.data?.map { cartProduct ->
-                        //Warning, maybe execute exception?
-                        val productImageUrl = storage.from(cartProduct.product?.bucketId!!).createSignedUrl(cartProduct.product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        return@map cartProduct.toDomain(productImageUrl)
-                    }
-                    trySend(UiResult.Success(data = data))
-                    close()
+    operator fun invoke(): Flow<UiResult<List<Cart>>> = callbackFlow {
+        try {
+            cartRepository.getCartProducts().collect { response ->
+                val data = response.map { cartProduct ->
+                    val productImageUrl = storage.from(cartProduct.product?.bucketId!!)
+                        .createSignedUrl(
+                            cartProduct.product.imagePath,
+                            HOURS_EXPIRES_IMAGE_URL.hours
+                        )
+                    return@map cartProduct.toDomain(productImageUrl)
                 }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
-                }
+                trySend(UiResult.Success(data = data))
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

@@ -16,28 +16,33 @@ class CheckAuthUseCase @Inject constructor(
     private val auth: Auth
 ) {
     operator fun invoke(): Flow<UiResult<UserInfo?>> = callbackFlow {
-        auth.sessionStatus.collect { sessionStatus ->
-            when(sessionStatus) {
-                is SessionStatus.Authenticated -> {
-                    val userInfo = auth.currentUserOrNull()
-                    readBooleanPreferenceUseCase.invoke(PreferencesKey.rememberUserKey)
-                        .collect { rememberUser ->
-                            if (!rememberUser) {
-                                auth.signOut()
-                                trySend(UiResult.Error(exception = Exception("User not logged in!")))
-                                close()
-                            } else {
-                                trySend(UiResult.Success(data = userInfo))
-                                close()
+        try {
+            auth.sessionStatus.collect { sessionStatus ->
+                when (sessionStatus) {
+                    is SessionStatus.Authenticated -> {
+                        val userInfo = auth.currentUserOrNull()
+                        val rememberUser =
+                            readBooleanPreferenceUseCase.invoke(PreferencesKey.rememberUserKey)
+                        rememberUser
+                            .collect { isRemembered ->
+                                if (!isRemembered) {
+                                    auth.signOut()
+                                    trySend(UiResult.Error(exception = Exception("User not logged in!")))
+                                } else {
+                                    trySend(UiResult.Success(data = userInfo))
+                                }
                             }
-                        }
-                }
-                is SessionStatus.Initializing -> {}
-                else -> {
-                    trySend(UiResult.Error(exception = Exception("User not logged in!")))
-                    close()
+                    }
+                    is SessionStatus.Initializing -> {}
+                    else -> {
+                        trySend(UiResult.Error(exception = Exception("User not logged in!")))
+                    }
                 }
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

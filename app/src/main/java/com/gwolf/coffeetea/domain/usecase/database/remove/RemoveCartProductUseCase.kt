@@ -11,17 +11,14 @@ class RemoveCartProductUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
     operator fun invoke(productId: Int): Flow<UiResult<Unit>> = callbackFlow {
-        cartRepository.removeCart(productId).collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    trySend(UiResult.Success(data = Unit))
-                    close()
-                }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
-                }
+        try {
+            cartRepository.removeCart(productId).collect { response ->
+                trySend(UiResult.Success(data = response))
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

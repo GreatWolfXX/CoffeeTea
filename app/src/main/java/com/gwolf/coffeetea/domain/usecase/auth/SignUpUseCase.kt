@@ -11,15 +11,19 @@ import javax.inject.Inject
 class SignUpUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
-    operator fun invoke(email: String, password: String): Flow<UiResult<UserInfo?>> = callbackFlow {
+    operator fun invoke(email: String, password: String): Flow<UiResult<UserInfo>> = callbackFlow {
         try {
             authRepository.signUp(email, password)
                 .collect { response ->
-                    trySend(UiResult.Success(data = response))
-                    close()
+                    if (response != null) {
+                        trySend(UiResult.Success(data = response))
+                    } else {
+                        trySend(UiResult.Error(exception = Exception("Registration failed!")))
+                    }
                 }
         } catch (e: Exception) {
             trySend(UiResult.Error(exception = e))
+        } finally {
             close()
         }
         awaitClose()

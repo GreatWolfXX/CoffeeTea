@@ -16,20 +16,21 @@ class GetProductByIdUseCase @Inject constructor(
     private val productRepository: ProductRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(productId: Int): Flow<UiResult<Product?>> = callbackFlow {
-        productRepository.getProductById(productId).collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    val data = result.data!!
-                    val imageUrl = storage.from(data.bucketId).createSignedUrl(data.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                    trySend(UiResult.Success(data = data.toDomain(imageUrl)))
-                    close()
-                }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
+    operator fun invoke(productId: Int): Flow<UiResult<Product>> = callbackFlow {
+        try {
+            productRepository.getProductById(productId).collect { response ->
+                if (response != null) {
+                    val imageUrl = storage.from(response.bucketId)
+                        .createSignedUrl(response.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                    trySend(UiResult.Success(data = response.toDomain(imageUrl)))
+                } else {
+                    trySend(UiResult.Error(exception = Exception("Failed to find item by id!")))
                 }
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

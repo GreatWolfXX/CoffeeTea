@@ -16,23 +16,20 @@ class GetProductsByCategoryUseCase @Inject constructor(
     private val productRepository: ProductRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(categoryId: Int): Flow<UiResult<List<Product>?>> = callbackFlow {
-        productRepository.getProductsByCategory(categoryId).collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    val data = result.data?.map { product ->
-                        //Warning, maybe execute exception?
-                        val imageUrl = storage.from(product.bucketId).createSignedUrl(product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        return@map product.toDomain(imageUrl)
-                    }
-                    trySend(UiResult.Success(data = data))
-                    close()
+    operator fun invoke(categoryId: Int): Flow<UiResult<List<Product>>> = callbackFlow {
+        try {
+            productRepository.getProductsByCategory(categoryId).collect { response ->
+                val data = response.map { product ->
+                    val imageUrl = storage.from(product.bucketId)
+                        .createSignedUrl(product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                    return@map product.toDomain(imageUrl)
                 }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
-                }
+                trySend(UiResult.Success(data = data))
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

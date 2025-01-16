@@ -16,22 +16,20 @@ class GetCategoriesListUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(): Flow<UiResult<List<Category>?>> = callbackFlow {
-        categoryRepository.getCategories().collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    val data = result.data?.map { category ->
-                        val imageUrl = storage.from(category.bucketId).createSignedUrl(category.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        return@map category.toDomain(imageUrl)
-                    }
-                    trySend(UiResult.Success(data = data))
-                    close()
+    operator fun invoke(): Flow<UiResult<List<Category>>> = callbackFlow {
+        try {
+            categoryRepository.getCategories().collect { response ->
+                val data = response.map { category ->
+                    val imageUrl = storage.from(category.bucketId)
+                        .createSignedUrl(category.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                    return@map category.toDomain(imageUrl)
                 }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
-                }
+                trySend(UiResult.Success(data = data))
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

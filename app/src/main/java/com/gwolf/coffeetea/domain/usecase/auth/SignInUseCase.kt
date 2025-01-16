@@ -15,10 +15,10 @@ class SignInUseCase @Inject constructor(
             authRepository.signIn(email, password)
                 .collect { response ->
                     trySend(UiResult.Success(data = response))
-                    close()
                 }
         } catch (e: Exception) {
             trySend(UiResult.Error(exception = e))
+        } finally {
             close()
         }
         awaitClose()

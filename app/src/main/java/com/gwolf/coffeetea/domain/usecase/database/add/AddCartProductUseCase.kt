@@ -11,17 +11,18 @@ class AddCartProductUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
     operator fun invoke(productId: Int, quantity: Int): Flow<UiResult<Int>> = callbackFlow {
-        cartRepository.addCart(productId, quantity).collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    trySend(UiResult.Success(data = result.data))
-                    close()
-                }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
+        try {
+            cartRepository.addCart(productId, quantity).collect { response ->
+                if (response != null) {
+                    trySend(UiResult.Success(data = response))
+                } else {
+                    trySend(UiResult.Error(exception = Exception("Add item to cart failed!")))
                 }
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }

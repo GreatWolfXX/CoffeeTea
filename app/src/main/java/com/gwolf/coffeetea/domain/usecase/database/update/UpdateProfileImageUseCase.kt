@@ -14,20 +14,19 @@ class UpdateProfileImageUseCase @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(bucketId: String, imagePath: String): Flow<UiResult<String>> = callbackFlow {
-        profileRepository.updateProfileImagePath(imagePath).collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    val imageUrl = storage.from(bucketId).createSignedUrl(imagePath, DAYS_EXPIRES_IMAGE_URL.days)
+    operator fun invoke(bucketId: String, imagePath: String): Flow<UiResult<String>> =
+        callbackFlow {
+            try {
+                profileRepository.updateProfileImagePath(imagePath).collect { response ->
+                    val imageUrl = storage.from(bucketId)
+                        .createSignedUrl(imagePath, DAYS_EXPIRES_IMAGE_URL.days)
                     trySend(UiResult.Success(data = imageUrl))
-                    close()
                 }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
-                }
+            } catch (e: Exception) {
+                trySend(UiResult.Error(exception = e))
+            } finally {
+                close()
             }
+            awaitClose()
         }
-        awaitClose()
-    }
 }

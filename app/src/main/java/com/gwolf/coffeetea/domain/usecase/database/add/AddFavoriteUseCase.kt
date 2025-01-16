@@ -11,17 +11,14 @@ class AddFavoriteUseCase @Inject constructor(
     private val favoriteRepository: FavoriteRepository
 ) {
     operator fun invoke(productId: Int): Flow<UiResult<Unit>> = callbackFlow {
-        favoriteRepository.addFavorite(productId).collect { result ->
-            when(result) {
-                is UiResult.Success -> {
-                    trySend(UiResult.Success(data = Unit))
-                    close()
-                }
-                is UiResult.Error -> {
-                    trySend(result)
-                    close()
-                }
+        try {
+            favoriteRepository.addFavorite(productId).collect { response ->
+                trySend(UiResult.Success(data = response))
             }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+        } finally {
+            close()
         }
         awaitClose()
     }
