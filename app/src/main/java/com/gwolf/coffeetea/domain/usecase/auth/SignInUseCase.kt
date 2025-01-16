@@ -11,16 +11,16 @@ class SignInUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
     operator fun invoke(email: String, password: String): Flow<UiResult<Unit>> = callbackFlow {
-        authRepository.signIn(email, password)
-            .collect { response ->
-                try {
+        try {
+            authRepository.signIn(email, password)
+                .collect { response ->
                     trySend(UiResult.Success(data = response))
                     close()
-                } catch(e: Exception) {
-                    trySend(UiResult.Error(exception = e))
-                    close()
                 }
-            }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+            close()
+        }
         awaitClose()
     }
 }

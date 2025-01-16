@@ -12,16 +12,16 @@ class SignUpUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
     operator fun invoke(email: String, password: String): Flow<UiResult<UserInfo?>> = callbackFlow {
-        authRepository.signUp(email, password)
-            .collect { response ->
-                try {
+        try {
+            authRepository.signUp(email, password)
+                .collect { response ->
                     trySend(UiResult.Success(data = response))
                     close()
-                } catch(e: Exception) {
-                    trySend(UiResult.Error(exception = e))
-                    close()
                 }
-            }
+        } catch (e: Exception) {
+            trySend(UiResult.Error(exception = e))
+            close()
+        }
         awaitClose()
     }
 }
