@@ -140,8 +140,8 @@ class ProductInfoViewModel @Inject constructor(
                     _productInfoScreenState.value =
                         _productInfoScreenState.value.copy(
                             product = response.data,
-                            isFavorite = response.data?.favoriteId != -1,
-                            isInCart = response.data?.cartId != -1
+                            isFavorite = response.data.favoriteId != -1,
+                            isInCart = response.data.cartId != -1
                         )
                 }
 

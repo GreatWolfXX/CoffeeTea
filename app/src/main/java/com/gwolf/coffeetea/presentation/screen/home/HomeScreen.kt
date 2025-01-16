@@ -63,6 +63,7 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    //Endless Loading Error
     val state by viewModel.homeScreenState
     Box(
         modifier = Modifier

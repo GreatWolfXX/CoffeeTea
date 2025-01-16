@@ -126,7 +126,7 @@ class HomeViewModel @Inject constructor(
                 is UiResult.Success -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
-                            promotionsList = response.data ?: listOf<Promotion>(),
+                            promotionsList = response.data,
                         )
                 }
 
@@ -147,7 +147,7 @@ class HomeViewModel @Inject constructor(
                 is UiResult.Success -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
-                            categoriesList = response.data ?: listOf<Category>(),
+                            categoriesList = response.data,
                         )
                 }
 
@@ -168,7 +168,7 @@ class HomeViewModel @Inject constructor(
                 is UiResult.Success -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
-                            productsList = response.data ?: listOf<Product>(),
+                            productsList = response.data,
                         )
                 }
 
@@ -186,12 +186,12 @@ class HomeViewModel @Inject constructor(
     private fun getSearchProducts(search: String) {
         viewModelScope.launch {
             searchProductsUseCase.invoke(search).collect { response ->
-                Log.d("Coffee&TeaLogger", "Quary: $search Response: $response")
+                Log.d("Coffee&TeaLogger", "Query: $search Response: $response")
                 when (response) {
                     is UiResult.Success -> {
                         _homeScreenState.value =
                             _homeScreenState.value.copy(
-                                searchProductsList = response.data ?: listOf<Product>(),
+                                searchProductsList = response.data,
                             )
                     }
 

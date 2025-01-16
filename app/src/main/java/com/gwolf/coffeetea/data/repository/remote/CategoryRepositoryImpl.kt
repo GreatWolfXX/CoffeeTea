@@ -21,6 +21,7 @@ class CategoryRepositoryImpl @Inject constructor(
                 .decodeList<CategoryDto>()
         }
         trySend(response)
+        close()
         awaitClose()
     }
 }

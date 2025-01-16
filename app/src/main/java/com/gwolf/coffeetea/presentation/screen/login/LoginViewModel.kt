@@ -12,7 +12,6 @@ import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.jan.supabase.auth.Auth
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,8 +40,7 @@ class LoginViewModel @Inject constructor(
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val saveBooleanPreferenceUseCase: SaveBooleanPreferenceUseCase,
-    private val signInUseCase: SignInUseCase,
-    private val auth: Auth
+    private val signInUseCase: SignInUseCase
 ) : ViewModel() {
 
     private val _formState = mutableStateOf(LoginUiState())

@@ -31,6 +31,7 @@ class ProductRepositoryImpl @Inject constructor(
                 .decodeList<ProductDto>()
         }
         trySend(response)
+        close()
         awaitClose()
     }
 
@@ -48,6 +49,7 @@ class ProductRepositoryImpl @Inject constructor(
                 .decodeSingleOrNull<ProductDto>()
         }
         trySend(response)
+        close()
         awaitClose()
     }
 
@@ -63,6 +65,7 @@ class ProductRepositoryImpl @Inject constructor(
                     .decodeList<ProductDto>()
             }
             trySend(response)
+            close()
             awaitClose()
         }
 
@@ -83,6 +86,7 @@ class ProductRepositoryImpl @Inject constructor(
                     .decodeList<ProductDto>()
             }
             trySend(response)
+            close()
             awaitClose()
         }
 }

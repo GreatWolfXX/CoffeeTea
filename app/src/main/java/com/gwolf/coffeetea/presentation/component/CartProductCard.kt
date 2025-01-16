@@ -80,9 +80,9 @@ fun CartProductCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp),
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            horizontalArrangement = Arrangement.Absolute.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row {
                 AsyncImage(
                     modifier = Modifier
@@ -118,7 +118,7 @@ fun CartProductCard(
                     Text(
                         modifier = Modifier
                             .fillMaxWidth(0.6f),
-                        text = product.featuresDescription.orEmpty(),
+                        text = product.featuresDescription,
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 11.sp,

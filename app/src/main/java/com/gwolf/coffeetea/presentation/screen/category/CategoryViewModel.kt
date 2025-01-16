@@ -34,7 +34,7 @@ class CategoryViewModel @Inject constructor(
                 is UiResult.Success -> {
                     _categoryScreenState.value =
                         _categoryScreenState.value.copy(
-                            categoriesList = response.data ?: listOf<Category>(),
+                            categoriesList = response.data,
                         )
                 }
 

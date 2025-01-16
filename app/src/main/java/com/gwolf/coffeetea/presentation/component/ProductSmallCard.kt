@@ -107,7 +107,7 @@ fun ProductSmallCard(
                     Text(
                         modifier = Modifier
                             .fillMaxWidth(0.6f),
-                        text = product.featuresDescription.orEmpty(),
+                        text = product.featuresDescription,
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 11.sp,

@@ -94,7 +94,7 @@ fun ProductCard(
                 Spacer(Modifier.size(4.dp))
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    text = product.featuresDescription.orEmpty(),
+                    text = product.featuresDescription,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 11.sp,

@@ -21,6 +21,7 @@ class PromotionRepositoryImpl @Inject constructor(
                 .decodeList<PromotionDto>()
         }
         trySend(response)
+        close()
         awaitClose()
     }
 }

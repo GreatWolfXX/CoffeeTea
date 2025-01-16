@@ -18,6 +18,7 @@ class AuthRepositoryImpl @Inject constructor(
             this.password = password
         }
         trySend(response)
+        close()
         awaitClose()
     }
 
@@ -27,6 +28,7 @@ class AuthRepositoryImpl @Inject constructor(
             this.password = password
         }
         trySend(response)
+        close()
         awaitClose()
     }
 }

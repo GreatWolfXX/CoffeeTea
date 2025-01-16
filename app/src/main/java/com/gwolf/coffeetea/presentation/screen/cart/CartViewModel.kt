@@ -3,7 +3,6 @@ package com.gwolf.coffeetea.presentation.screen.cart
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Cart
@@ -30,15 +29,14 @@ sealed class CartEvent {
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val getCartProductsListUseCase: GetCartProductsListUseCase,
-    private val removeCartProductUseCase: RemoveCartProductUseCase,
-    savedStateHandle: SavedStateHandle,
+    private val removeCartProductUseCase: RemoveCartProductUseCase
 ) : ViewModel() {
 
     private val _cartScreenState = mutableStateOf(CartUiState())
     val cartScreenState: State<CartUiState> = _cartScreenState
 
     fun onEvent(event: CartEvent) {
-        when(event) {
+        when (event) {
             is CartEvent.RemoveFromCart -> {
                 removeFavorite(event.cartId)
             }
@@ -77,7 +75,7 @@ class CartViewModel @Inject constructor(
                 is UiResult.Success -> {
                     _cartScreenState.value =
                         _cartScreenState.value.copy(
-                            cartProductsList = response.data ?: listOf<Cart>(),
+                            cartProductsList = response.data,
                         )
                 }
 

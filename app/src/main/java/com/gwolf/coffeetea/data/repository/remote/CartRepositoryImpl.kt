@@ -30,6 +30,7 @@ class CartRepositoryImpl @Inject constructor(
                 .decodeList<CartDto>()
         }
         trySend(response)
+        close()
         awaitClose()
     }
 
@@ -46,6 +47,7 @@ class CartRepositoryImpl @Inject constructor(
             }.decodeSingleOrNull<CartDto>()
         }
         trySend(response?.id)
+        close()
         awaitClose()
     }
 
@@ -59,6 +61,7 @@ class CartRepositoryImpl @Inject constructor(
                 }
         }
         trySend(Unit)
+        close()
         awaitClose()
     }
 

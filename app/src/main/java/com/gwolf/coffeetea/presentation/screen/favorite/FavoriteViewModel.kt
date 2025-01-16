@@ -34,7 +34,7 @@ class FavoriteViewModel @Inject constructor(
                 is UiResult.Success -> {
                     _favoriteScreenState.value =
                         _favoriteScreenState.value.copy(
-                            favoritesList = response.data ?: listOf<Favorite>(),
+                            favoritesList = response.data,
                         )
                 }
 

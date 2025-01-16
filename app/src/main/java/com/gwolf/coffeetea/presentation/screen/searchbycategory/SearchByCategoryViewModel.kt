@@ -39,7 +39,7 @@ class SearchByCategoryViewModel @Inject constructor(
                 is UiResult.Success -> {
                     _searchByCategoryScreenState.value =
                         _searchByCategoryScreenState.value.copy(
-                            productsList = response.data ?: listOf<Product>(),
+                            productsList = response.data,
                         )
                 }
 

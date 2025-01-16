@@ -29,6 +29,7 @@ class FavoriteRepositoryImpl @Inject constructor(
                 .decodeList<FavoriteDto>()
         }
         trySend(response)
+        close()
         awaitClose()
     }
 
@@ -42,6 +43,7 @@ class FavoriteRepositoryImpl @Inject constructor(
             postgrest.from(FAVORITES_TABLE).insert(favorite)
         }
         trySend(Unit)
+        close()
         awaitClose()
     }
 
@@ -55,6 +57,7 @@ class FavoriteRepositoryImpl @Inject constructor(
                 }
         }
         trySend(Unit)
+        close()
         awaitClose()
     }
 }

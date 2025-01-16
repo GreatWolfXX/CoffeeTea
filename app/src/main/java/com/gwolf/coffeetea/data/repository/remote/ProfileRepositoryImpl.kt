@@ -33,6 +33,7 @@ class ProfileRepositoryImpl @Inject constructor(
                 .decodeSingleOrNull<ProfileDto>()
         }
         trySend(response)
+        close()
         awaitClose()
     }
 
@@ -45,6 +46,7 @@ class ProfileRepositoryImpl @Inject constructor(
                 upsert = true
             }
             trySend(imageProfile)
+            close()
             awaitClose()
         }
 
@@ -62,6 +64,7 @@ class ProfileRepositoryImpl @Inject constructor(
             }
         }
         trySend(Unit)
+        close()
         awaitClose()
     }
 }
