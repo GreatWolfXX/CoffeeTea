@@ -1,14 +1,14 @@
 package com.gwolf.coffeetea.di
 
 import android.content.Context
-import com.gwolf.coffeetea.data.repository.local.DataStoreRepositoryImpl
-import com.gwolf.coffeetea.data.repository.remote.AuthRepositoryImpl
-import com.gwolf.coffeetea.data.repository.remote.CartRepositoryImpl
-import com.gwolf.coffeetea.data.repository.remote.CategoryRepositoryImpl
-import com.gwolf.coffeetea.data.repository.remote.FavoriteRepositoryImpl
-import com.gwolf.coffeetea.data.repository.remote.ProductRepositoryImpl
-import com.gwolf.coffeetea.data.repository.remote.ProfileRepositoryImpl
-import com.gwolf.coffeetea.data.repository.remote.PromotionRepositoryImpl
+import com.gwolf.coffeetea.data.local.repository.DataStoreRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.AuthRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.CartRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.CategoryRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.FavoriteRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.ProductRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.ProfileRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.PromotionRepositoryImpl
 import com.gwolf.coffeetea.domain.repository.local.DataStoreRepository
 import com.gwolf.coffeetea.domain.repository.remote.AuthRepository
 import com.gwolf.coffeetea.domain.repository.remote.CartRepository

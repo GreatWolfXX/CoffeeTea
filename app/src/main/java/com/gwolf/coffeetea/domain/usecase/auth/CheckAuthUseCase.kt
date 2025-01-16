@@ -1,6 +1,6 @@
 package com.gwolf.coffeetea.domain.usecase.auth
 
-import com.gwolf.coffeetea.data.repository.local.PreferencesKey
+import com.gwolf.coffeetea.data.local.repository.PreferencesKey
 import com.gwolf.coffeetea.domain.usecase.preference.ReadBooleanPreferenceUseCase
 import com.gwolf.coffeetea.util.UiResult
 import io.github.jan.supabase.auth.Auth

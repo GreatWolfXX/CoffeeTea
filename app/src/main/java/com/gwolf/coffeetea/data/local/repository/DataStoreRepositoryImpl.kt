@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.data.repository.local
+package com.gwolf.coffeetea.data.local.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore

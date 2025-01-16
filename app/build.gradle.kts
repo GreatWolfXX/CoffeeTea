@@ -94,6 +94,12 @@ dependencies {
     implementation(libs.ktor.core)
     implementation(libs.ktor.utils)
 
+    implementation(libs.room)
+    implementation(libs.room.ktx)
+    implementation(libs.room.paging)
+    ksp(libs.room.compiler)
+
+
     implementation(libs.coil)
     implementation(libs.coil.svg)
 

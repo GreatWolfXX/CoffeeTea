@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.data.repository.local.PreferencesKey
+import com.gwolf.coffeetea.data.local.repository.PreferencesKey
 import com.gwolf.coffeetea.domain.usecase.auth.SignInUseCase
 import com.gwolf.coffeetea.domain.usecase.preference.SaveBooleanPreferenceUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase

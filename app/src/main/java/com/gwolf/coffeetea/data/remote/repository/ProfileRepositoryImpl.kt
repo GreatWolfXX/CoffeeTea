@@ -1,6 +1,6 @@
-package com.gwolf.coffeetea.data.repository.remote
+package com.gwolf.coffeetea.data.remote.repository
 
-import com.gwolf.coffeetea.data.dto.ProfileDto
+import com.gwolf.coffeetea.data.entities.ProfileEntity
 import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
 import com.gwolf.coffeetea.util.PNG_FORMAT
 import com.gwolf.coffeetea.util.PROFILE_TABLE
@@ -21,7 +21,7 @@ class ProfileRepositoryImpl @Inject constructor(
     private val storage: Storage,
     private val auth: Auth
 ) : ProfileRepository {
-    override suspend fun getProfile(): Flow<ProfileDto?> = callbackFlow {
+    override suspend fun getProfile(): Flow<ProfileEntity?> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(PROFILE_TABLE)
@@ -30,7 +30,7 @@ class ProfileRepositoryImpl @Inject constructor(
                         eq("user_id", id)
                     }
                 }
-                .decodeSingleOrNull<ProfileDto>()
+                .decodeSingleOrNull<ProfileEntity>()
         }
         trySend(response)
         close()

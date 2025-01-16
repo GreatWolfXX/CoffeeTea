@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.data.repository.remote
+package com.gwolf.coffeetea.data.remote.repository
 
 import com.gwolf.coffeetea.domain.repository.remote.AuthRepository
 import io.github.jan.supabase.auth.Auth

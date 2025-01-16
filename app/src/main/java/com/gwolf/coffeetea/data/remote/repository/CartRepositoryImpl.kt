@@ -1,6 +1,6 @@
-package com.gwolf.coffeetea.data.repository.remote
+package com.gwolf.coffeetea.data.remote.repository
 
-import com.gwolf.coffeetea.data.dto.CartDto
+import com.gwolf.coffeetea.data.entities.CartEntity
 import com.gwolf.coffeetea.domain.repository.remote.CartRepository
 import com.gwolf.coffeetea.util.CART_TABLE
 import io.github.jan.supabase.auth.Auth
@@ -18,7 +18,7 @@ class CartRepositoryImpl @Inject constructor(
     private val auth: Auth
 ) : CartRepository {
 
-    override suspend fun getCartProducts(): Flow<List<CartDto>> = callbackFlow {
+    override suspend fun getCartProducts(): Flow<List<CartEntity>> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(CART_TABLE)
@@ -27,7 +27,7 @@ class CartRepositoryImpl @Inject constructor(
                         eq("user_id", id)
                     }
                 }
-                .decodeList<CartDto>()
+                .decodeList<CartEntity>()
         }
         trySend(response)
         close()
@@ -36,7 +36,7 @@ class CartRepositoryImpl @Inject constructor(
 
     override suspend fun addCart(productId: Int, quantity: Int): Flow<Int?> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
-        val cart = CartDto(
+        val cart = CartEntity(
             productId = productId,
             quantity = quantity,
             userId = id
@@ -44,7 +44,7 @@ class CartRepositoryImpl @Inject constructor(
         val response = withContext(Dispatchers.IO) {
             postgrest.from(CART_TABLE).insert(cart) {
                 select()
-            }.decodeSingleOrNull<CartDto>()
+            }.decodeSingleOrNull<CartEntity>()
         }
         trySend(response?.id)
         close()

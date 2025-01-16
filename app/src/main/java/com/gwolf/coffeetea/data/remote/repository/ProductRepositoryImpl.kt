@@ -1,6 +1,6 @@
-package com.gwolf.coffeetea.data.repository.remote
+package com.gwolf.coffeetea.data.remote.repository
 
-import com.gwolf.coffeetea.data.dto.ProductDto
+import com.gwolf.coffeetea.data.entities.ProductEntity
 import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
 import com.gwolf.coffeetea.util.MAX_SEARCH_LIST_RESULT
 import com.gwolf.coffeetea.util.PRODUCTS_TABLE
@@ -19,7 +19,7 @@ class ProductRepositoryImpl @Inject constructor(
     private val postgrest: Postgrest,
     private val auth: Auth
 ) : ProductRepository {
-    override suspend fun getProducts(): Flow<List<ProductDto>> = callbackFlow {
+    override suspend fun getProducts(): Flow<List<ProductEntity>> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(PRODUCTS_TABLE)
@@ -28,14 +28,14 @@ class ProductRepositoryImpl @Inject constructor(
                         eq("cart.user_id", id)
                     }
                 }
-                .decodeList<ProductDto>()
+                .decodeList<ProductEntity>()
         }
         trySend(response)
         close()
         awaitClose()
     }
 
-    override suspend fun getProductById(productId: Int): Flow<ProductDto?> = callbackFlow {
+    override suspend fun getProductById(productId: Int): Flow<ProductEntity?> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(PRODUCTS_TABLE)
@@ -46,14 +46,14 @@ class ProductRepositoryImpl @Inject constructor(
                         eq("cart.user_id", id)
                     }
                 }
-                .decodeSingleOrNull<ProductDto>()
+                .decodeSingleOrNull<ProductEntity>()
         }
         trySend(response)
         close()
         awaitClose()
     }
 
-    override suspend fun getProductsByCategory(categoryId: Int): Flow<List<ProductDto>> =
+    override suspend fun getProductsByCategory(categoryId: Int): Flow<List<ProductEntity>> =
         callbackFlow {
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(PRODUCTS_TABLE)
@@ -62,14 +62,14 @@ class ProductRepositoryImpl @Inject constructor(
                             eq("category_id", categoryId)
                         }
                     }
-                    .decodeList<ProductDto>()
+                    .decodeList<ProductEntity>()
             }
             trySend(response)
             close()
             awaitClose()
         }
 
-    override suspend fun searchProducts(search: String): Flow<List<ProductDto>> =
+    override suspend fun searchProducts(search: String): Flow<List<ProductEntity>> =
         callbackFlow {
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(PRODUCTS_TABLE)
@@ -83,7 +83,7 @@ class ProductRepositoryImpl @Inject constructor(
                             )
                         }
                     }
-                    .decodeList<ProductDto>()
+                    .decodeList<ProductEntity>()
             }
             trySend(response)
             close()

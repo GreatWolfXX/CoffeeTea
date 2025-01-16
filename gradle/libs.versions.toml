@@ -20,6 +20,7 @@ splashscreen = "1.0.1"
 supabaseVersion = "3.0.1"
 ktorClient = "3.0.1"
 coil = "2.6.0"
+room = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,6 +55,11 @@ ktor-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktorC
 ktor-utils = { group = "io.ktor", name = "ktor-utils", version.ref = "ktorClient" }
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 coil-svg = { group = "io.coil-kt", name = "coil-svg", version.ref = "coil" }
+room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

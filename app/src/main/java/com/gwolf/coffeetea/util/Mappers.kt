@@ -1,11 +1,11 @@
 package com.gwolf.coffeetea.util
 
-import com.gwolf.coffeetea.data.dto.CartDto
-import com.gwolf.coffeetea.data.dto.CategoryDto
-import com.gwolf.coffeetea.data.dto.FavoriteDto
-import com.gwolf.coffeetea.data.dto.ProductDto
-import com.gwolf.coffeetea.data.dto.ProfileDto
-import com.gwolf.coffeetea.data.dto.PromotionDto
+import com.gwolf.coffeetea.data.entities.CartEntity
+import com.gwolf.coffeetea.data.entities.CategoryEntity
+import com.gwolf.coffeetea.data.entities.FavoriteEntity
+import com.gwolf.coffeetea.data.entities.ProductEntity
+import com.gwolf.coffeetea.data.entities.ProfileEntity
+import com.gwolf.coffeetea.data.entities.PromotionEntity
 import com.gwolf.coffeetea.domain.model.Cart
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.Favorite
@@ -14,7 +14,7 @@ import com.gwolf.coffeetea.domain.model.Profile
 import com.gwolf.coffeetea.domain.model.Promotion
 import java.util.UUID
 
-fun PromotionDto.toDomain(imageUrl: String) = Promotion(
+fun PromotionEntity.toDomain(imageUrl: String) = Promotion(
     id = this.id,
     title = this.title,
     description = this.description,
@@ -23,13 +23,13 @@ fun PromotionDto.toDomain(imageUrl: String) = Promotion(
     imageUrl = imageUrl
 )
 
-fun CategoryDto.toDomain(imageUrl: String) = Category(
+fun CategoryEntity.toDomain(imageUrl: String) = Category(
     id = this.id,
     name = this.name,
     imageUrl = imageUrl
 )
 
-fun ProductDto.toDomain(imageUrl: String) = Product(
+fun ProductEntity.toDomain(imageUrl: String) = Product(
     id = this.id,
     name = this.name,
     amount = this.amount,
@@ -56,7 +56,7 @@ fun ProductDto.toDomain(imageUrl: String) = Product(
     }
 )
 
-fun ProfileDto.toDomain(imageUrl: String) = Profile(
+fun ProfileEntity.toDomain(imageUrl: String) = Profile(
     id = UUID.fromString(this.id),
     name = this.name,
     email = this.email,
@@ -64,12 +64,12 @@ fun ProfileDto.toDomain(imageUrl: String) = Profile(
     imageUrl = imageUrl
 )
 
-fun FavoriteDto.toDomain(productImageUrl: String) = Favorite(
+fun FavoriteEntity.toDomain(productImageUrl: String) = Favorite(
     id = this.id,
     product = product?.toDomain(productImageUrl)!!
 )
 
-fun CartDto.toDomain(productImageUrl: String) = Cart(
+fun CartEntity.toDomain(productImageUrl: String) = Cart(
     cartId = this.id,
     productId = this.productId,
     quantity = quantity,

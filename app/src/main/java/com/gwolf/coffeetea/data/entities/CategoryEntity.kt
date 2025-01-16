@@ -1,10 +1,13 @@
-package com.gwolf.coffeetea.data.dto
+package com.gwolf.coffeetea.data.entities
 
+import androidx.room.Entity
+import com.gwolf.coffeetea.util.CATEGORIES_TABLE
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CategoryDto(
+@Entity(tableName = CATEGORIES_TABLE)
+data class CategoryEntity(
     @SerialName("category_id") val id: Int = -1,
     @SerialName("category_name") val name: String,
     @SerialName("bucket_id") val bucketId: String,

@@ -1,6 +1,6 @@
-package com.gwolf.coffeetea.data.repository.remote
+package com.gwolf.coffeetea.data.remote.repository
 
-import com.gwolf.coffeetea.data.dto.PromotionDto
+import com.gwolf.coffeetea.data.entities.PromotionEntity
 import com.gwolf.coffeetea.domain.repository.remote.PromotionRepository
 import com.gwolf.coffeetea.util.PROMOTIONS_TABLE
 import io.github.jan.supabase.postgrest.Postgrest
@@ -14,11 +14,11 @@ import javax.inject.Inject
 class PromotionRepositoryImpl @Inject constructor(
     private val postgrest: Postgrest
 ) : PromotionRepository {
-    override suspend fun getPromotions(): Flow<List<PromotionDto>> = callbackFlow {
+    override suspend fun getPromotions(): Flow<List<PromotionEntity>> = callbackFlow {
         val response = withContext(Dispatchers.IO) {
             postgrest.from(PROMOTIONS_TABLE)
                 .select()
-                .decodeList<PromotionDto>()
+                .decodeList<PromotionEntity>()
         }
         trySend(response)
         close()
