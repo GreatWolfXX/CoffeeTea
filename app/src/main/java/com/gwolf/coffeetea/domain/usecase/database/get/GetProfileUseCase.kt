@@ -19,11 +19,15 @@ class GetProfileUseCase @Inject constructor(
     operator fun invoke(): Flow<UiResult<Profile>> = callbackFlow {
         try {
             profileRepository.getProfile().collect { response ->
-                val imageUrl =
-                    storage.from(response.bucketId)
-                        .createSignedUrl(response.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                val profile = response.toDomain(imageUrl)
-                trySend(UiResult.Success(data = profile))
+                if (response != null) {
+                    val imageUrl =
+                        storage.from(response.bucketId)
+                            .createSignedUrl(response.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                    val profile = response.toDomain(imageUrl)
+                    trySend(UiResult.Success(data = profile))
+                } else {
+                    trySend(UiResult.Error(exception = Exception("Failed to retrieve user profile!")))
+                }
             }
         } catch (e: Exception) {
             trySend(UiResult.Error(exception = e))
