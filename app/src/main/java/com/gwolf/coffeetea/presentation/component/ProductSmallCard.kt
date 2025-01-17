@@ -30,7 +30,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -175,28 +174,4 @@ private fun ProductCardBuyBtn(
             tint = Color.White
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ProductSmallCardPreview() {
-    val product = Product(
-        id = 1,
-        name = "Кенія Kiambu АА Kirura",
-        amount = 0.5,
-        unit = "кг",
-        featuresDescription = "Фрукти, Цитрусові, Ягоди",
-        fullDescription = "test",
-        price = 667.0,
-        rating = 3.0,
-        categoryName = "",
-        imageUrl = "https://media.istockphoto.com/id/1349239413/photo/shot-of-coffee-beans-and-a-cup-of-black-coffee-on-a-wooden-table.jpg?s=612x612&w=0&k=20&c=ZFThzn27DAj2KeVlLdt3_E6RJZ2sbw2g4sDyO7mYvqk=",
-        favoriteId = -1
-    )
-    ProductSmallCard(
-        modifier = Modifier,
-        product,
-        onClick = { },
-        onClickBuy = { }
-    )
 }

@@ -18,7 +18,7 @@ class CartRepositoryImpl @Inject constructor(
     private val auth: Auth
 ) : CartRepository {
 
-    override suspend fun getCartProducts(): Flow<List<CartEntity>> = callbackFlow {
+    override fun getCartProducts(): Flow<List<CartEntity>> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(CART_TABLE)
@@ -34,12 +34,13 @@ class CartRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override suspend fun addCart(productId: Int, quantity: Int): Flow<Int?> = callbackFlow {
+    override fun addCart(productId: Int, quantity: Int): Flow<String?> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val cart = CartEntity(
             productId = productId,
             quantity = quantity,
-            userId = id
+            userId = id,
+            product = null
         )
         val response = withContext(Dispatchers.IO) {
             postgrest.from(CART_TABLE).insert(cart) {
@@ -51,7 +52,7 @@ class CartRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override suspend fun removeCart(cartId: Int): Flow<Unit> = callbackFlow {
+    override fun removeCart(cartId: String): Flow<Unit> = callbackFlow {
         withContext(Dispatchers.IO) {
             postgrest.from(CART_TABLE)
                 .delete {

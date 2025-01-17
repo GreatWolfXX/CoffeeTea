@@ -10,6 +10,7 @@ import com.gwolf.coffeetea.domain.model.Profile
 import com.gwolf.coffeetea.domain.usecase.database.add.AddImageProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateProfileImageUseCase
+import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.bitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -136,7 +137,7 @@ class ProfileViewModel @Inject constructor(
                 awaitAll(profile)
                 _profileScreenState.value = _profileScreenState.value.copy(isLoading = false)
             } catch (e: Exception) {
-                Log.e("Coffee&TeaLogger", "Error loading profile screen data: ${e.message}")
+                Log.e(LOGGER_TAG, "Error loading profile screen data: ${e.message}")
             }
         }
     }

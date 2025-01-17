@@ -46,6 +46,7 @@ import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
+import com.gwolf.coffeetea.util.LOGGER_TAG
 
 @Composable
 fun CartScreen(
@@ -66,7 +67,7 @@ fun CartScreen(
                 navController = navController
             )
             if (state.error != null) {
-                Log.d("Coffee&TeaLogger", "Error: ${state.error}")
+                Log.d(LOGGER_TAG, "Error: ${state.error}")
             } else {
                 CartScreenContent(
                     navController = navController,

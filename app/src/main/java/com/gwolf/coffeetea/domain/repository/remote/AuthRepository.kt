@@ -4,6 +4,6 @@ import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
-    suspend fun signIn(email: String, password: String): Flow<Unit>
-    suspend fun signUp(email: String, password: String): Flow<UserInfo?>
+    fun signIn(email: String, password: String): Flow<Unit>
+    fun signUp(email: String, password: String): Flow<UserInfo?>
 }

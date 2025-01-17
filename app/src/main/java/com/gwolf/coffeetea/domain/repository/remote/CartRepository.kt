@@ -4,7 +4,7 @@ import com.gwolf.coffeetea.data.entities.CartEntity
 import kotlinx.coroutines.flow.Flow
 
 interface CartRepository {
-    suspend fun getCartProducts(): Flow<List<CartEntity>>
-    suspend fun addCart(productId: Int, quantity: Int): Flow<Int?>
-    suspend fun removeCart(cartId: Int): Flow<Unit>
+    fun getCartProducts(): Flow<List<CartEntity>>
+    fun addCart(productId: Int, quantity: Int): Flow<String?>
+    fun removeCart(cartId: String): Flow<Unit>
 }

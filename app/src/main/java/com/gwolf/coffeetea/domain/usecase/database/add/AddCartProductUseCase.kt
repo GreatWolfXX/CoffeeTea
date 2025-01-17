@@ -10,7 +10,7 @@ import javax.inject.Inject
 class AddCartProductUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    operator fun invoke(productId: Int, quantity: Int): Flow<UiResult<Int>> = callbackFlow {
+    operator fun invoke(productId: Int, quantity: Int): Flow<UiResult<String>> = callbackFlow {
         try {
             cartRepository.addCart(productId, quantity).collect { response ->
                 if (response != null) {

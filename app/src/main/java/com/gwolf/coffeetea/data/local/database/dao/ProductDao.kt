@@ -1,21 +1,23 @@
 package com.gwolf.coffeetea.data.local.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.gwolf.coffeetea.data.entities.ProductEntity
+import androidx.room.Transaction
+import com.gwolf.coffeetea.data.local.database.entities.LocalProductEntity
 import com.gwolf.coffeetea.util.PRODUCTS_TABLE
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addProducts(products: List<ProductEntity>)
+    suspend fun addProducts(products: List<LocalProductEntity>)
 
+    @Transaction
     @Query("SELECT * FROM $PRODUCTS_TABLE")
-    fun getProducts(): Flow<List<ProductEntity>>
+    fun getProducts(): PagingSource<Int, LocalProductEntity>
 
     @Query("DELETE FROM $PRODUCTS_TABLE")
     suspend fun clearProducts()

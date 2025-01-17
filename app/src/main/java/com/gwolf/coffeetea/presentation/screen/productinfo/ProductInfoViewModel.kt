@@ -13,6 +13,7 @@ import com.gwolf.coffeetea.domain.usecase.database.add.AddFavoriteUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProductByIdUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveFavoriteUseCase
 import com.gwolf.coffeetea.navigation.Screen
+import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -140,8 +141,8 @@ class ProductInfoViewModel @Inject constructor(
                     _productInfoScreenState.value =
                         _productInfoScreenState.value.copy(
                             product = response.data,
-                            isFavorite = response.data.favoriteId != -1,
-                            isInCart = response.data.cartId != -1
+                            isFavorite = response.data.favoriteId.isNotBlank(),
+                            isInCart = response.data.cartId.isNotBlank()
                         )
                 }
 
@@ -169,7 +170,7 @@ class ProductInfoViewModel @Inject constructor(
                 awaitAll(product)
                 _productInfoScreenState.value = _productInfoScreenState.value.copy(isLoading = false)
             } catch (e: Exception) {
-                Log.e("Coffee&TeaLogger", "Error loading product info screen data: ${e.message}")
+                Log.e(LOGGER_TAG, "Error loading product info screen data: ${e.message}")
             }
         }
     }

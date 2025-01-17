@@ -10,7 +10,7 @@ import javax.inject.Inject
 class RemoveFavoriteUseCase @Inject constructor(
     private val favoriteRepository: FavoriteRepository
 ) {
-    operator fun invoke(favoriteId: Int): Flow<UiResult<Unit>> = callbackFlow {
+    operator fun invoke(favoriteId: String): Flow<UiResult<Unit>> = callbackFlow {
         try {
             favoriteRepository.removeFavorite(favoriteId).collect { response ->
                 trySend(UiResult.Success(data = response))

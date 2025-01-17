@@ -40,6 +40,7 @@ import com.gwolf.coffeetea.presentation.component.ProductCard
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
+import com.gwolf.coffeetea.util.LOGGER_TAG
 
 @Composable
 fun SearchByCategoryScreen(
@@ -62,7 +63,7 @@ fun SearchByCategoryScreen(
                 )
             }
             if (state.error != null) {
-                Log.d("Coffee&TeaLogger", "Error: ${state.error}")
+                Log.d(LOGGER_TAG, "Error: ${state.error}")
             } else {
                 FavoriteScreenContent(
                     navController = navController,
@@ -105,7 +106,7 @@ private fun ProductsList(
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
         items(productsList) { product ->
-            Log.d("Coffee&TeaLogger", "Product: ${product.categoryName}")
+            Log.d(LOGGER_TAG, "Product: ${product.categoryName}")
             ProductCard(
                 modifier = Modifier.animateItem(),
                 product = product,

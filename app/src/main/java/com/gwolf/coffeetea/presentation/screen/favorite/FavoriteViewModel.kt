@@ -5,17 +5,19 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.gwolf.coffeetea.domain.model.Favorite
 import com.gwolf.coffeetea.domain.usecase.database.get.GetFavoritesListUseCase
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class FavoriteUiState(
-    val favoritesList: List<Favorite> = listOf<Favorite>(),
+    val favoritesList: Flow<PagingData<Favorite>> = emptyFlow(),
     val isLoading: Boolean = false,
     val error: String? = null,
 )
@@ -28,37 +30,17 @@ class FavoriteViewModel @Inject constructor(
     private val _favoriteScreenState = mutableStateOf(FavoriteUiState())
     val favoriteScreenState: State<FavoriteUiState> = _favoriteScreenState
 
-    private suspend fun getProducts() {
-        getFavoritesListUseCase.invoke().collect { response ->
-            when (response) {
-                is UiResult.Success -> {
-                    _favoriteScreenState.value =
-                        _favoriteScreenState.value.copy(
-                            favoritesList = response.data,
-                        )
-                }
-
-                is UiResult.Error -> {
-                    _favoriteScreenState.value =
-                        _favoriteScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
-                        )
-                }
-            }
-        }
-    }
-
     init {
         _favoriteScreenState.value = _favoriteScreenState.value.copy(isLoading = true)
         viewModelScope.launch {
-            val productsList = async { getProducts() }
-
+            val favoritesList =  getFavoritesListUseCase.invoke().cachedIn(viewModelScope)
             try {
-                awaitAll(productsList)
-                _favoriteScreenState.value = _favoriteScreenState.value.copy(isLoading = false)
+                _favoriteScreenState.value = _favoriteScreenState.value.copy(
+                    favoritesList = favoritesList,
+                    isLoading = false
+                )
             } catch (e: Exception) {
-                Log.e("Coffee&TeaLogger", "Error loading favorite screen data: ${e.message}")
+                Log.e(LOGGER_TAG, "Error loading favorite screen data: ${e.message}")
             }
         }
     }

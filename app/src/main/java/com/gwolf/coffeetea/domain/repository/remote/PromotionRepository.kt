@@ -1,8 +1,9 @@
 package com.gwolf.coffeetea.domain.repository.remote
 
-import com.gwolf.coffeetea.data.entities.PromotionEntity
+import androidx.paging.PagingData
+import com.gwolf.coffeetea.data.local.database.entities.LocalPromotionEntity
 import kotlinx.coroutines.flow.Flow
 
 interface PromotionRepository {
-    suspend fun getPromotions(): Flow<List<PromotionEntity>>
+    fun getPromotions(): Flow<PagingData<LocalPromotionEntity>>
 }

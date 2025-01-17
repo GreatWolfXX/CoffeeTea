@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gwolf.coffeetea.domain.model.Promotion
@@ -42,13 +43,12 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun PromotionsComponent(
-    promotionsList: List<Promotion>
+    promotionsList: LazyPagingItems<Promotion>
 ) {
     val pagerState = rememberPagerState(
-        pageCount = { promotionsList.size }
+        pageCount = { promotionsList.itemCount }
     )
     val context = LocalContext.current
-
     Box {
         HorizontalPager(
             modifier = Modifier
@@ -58,10 +58,13 @@ fun PromotionsComponent(
                 ),
             state = pagerState
         ) { position ->
-            PromotionScreen(
-                promotionsList[position],
-                context = context
-            )
+            val promotion = promotionsList[position]
+            promotion?.let {
+                PromotionScreen(
+                    promotion = promotion,
+                    context = context
+                )
+            }
         }
         PagerIndicator(pagerState = pagerState)
     }

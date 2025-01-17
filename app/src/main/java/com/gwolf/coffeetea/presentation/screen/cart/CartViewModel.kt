@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Cart
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveCartProductUseCase
+import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -22,7 +23,7 @@ data class CartUiState(
 )
 
 sealed class CartEvent {
-    data class RemoveFromCart(val cartId: Int) : CartEvent()
+    data class RemoveFromCart(val cartId: String) : CartEvent()
 }
 
 
@@ -43,7 +44,7 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    private fun removeFavorite(cartId: Int) {
+    private fun removeFavorite(cartId: String) {
         viewModelScope.launch {
             removeCartProductUseCase.invoke(cartId)
                 .collect { response ->
@@ -99,7 +100,7 @@ class CartViewModel @Inject constructor(
                 awaitAll(product)
                 _cartScreenState.value = _cartScreenState.value.copy(isLoading = false)
             } catch (e: Exception) {
-                Log.e("Coffee&TeaLogger", "Error loading cart screen data: ${e.message}")
+                Log.e(LOGGER_TAG, "Error loading cart screen data: ${e.message}")
             }
         }
     }

@@ -10,9 +10,9 @@ import javax.inject.Inject
 class RemoveCartProductUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    operator fun invoke(productId: Int): Flow<UiResult<Unit>> = callbackFlow {
+    operator fun invoke(cartId: String): Flow<UiResult<Unit>> = callbackFlow {
         try {
-            cartRepository.removeCart(productId).collect { response ->
+            cartRepository.removeCart(cartId).collect { response ->
                 trySend(UiResult.Success(data = response))
             }
         } catch (e: Exception) {

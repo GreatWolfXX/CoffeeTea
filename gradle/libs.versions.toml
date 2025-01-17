@@ -20,6 +20,7 @@ splashscreen = "1.0.1"
 supabaseVersion = "3.0.1"
 ktorClient = "3.0.1"
 coil = "2.6.0"
+pagingVersion = "3.3.5"
 room = "2.6.1"
 
 [libraries]
@@ -55,6 +56,8 @@ ktor-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktorC
 ktor-utils = { group = "io.ktor", name = "ktor-utils", version.ref = "ktorClient" }
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 coil-svg = { group = "io.coil-kt", name = "coil-svg", version.ref = "coil" }
+paging = { group = "androidx.paging", name = "paging-common", version.ref = "pagingVersion" }
+paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingVersion" }
 room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }

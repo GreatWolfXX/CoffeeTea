@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Favorite
 import com.gwolf.coffeetea.navigation.Screen
@@ -40,6 +41,7 @@ import com.gwolf.coffeetea.presentation.component.ProductCard
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
+import com.gwolf.coffeetea.util.LOGGER_TAG
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +86,7 @@ fun FavoriteScreen(
                 )
             )
             if (state.error != null) {
-                Log.d("Coffee&TeaLogger", "Error: ${state.error}")
+                Log.d(LOGGER_TAG, "Error: ${state.error}")
             } else {
                 FavoriteScreenContent(
                     navController = navController,
@@ -108,7 +110,7 @@ private fun FavoriteScreenContent(
     ) {
         ProductsList(
             navController = navController,
-            favoritesList = state.favoritesList
+            favoritesList = state.favoritesList.collectAsLazyPagingItems()
         )
     }
 }
@@ -116,7 +118,7 @@ private fun FavoriteScreenContent(
 @Composable
 private fun ProductsList(
     navController: NavController,
-    favoritesList: List<Favorite>
+    favoritesList: LazyPagingItems<Favorite>
 ) {
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
@@ -126,20 +128,23 @@ private fun ProductsList(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
-        items(favoritesList) { favorite ->
-            ProductCard(
-                modifier = Modifier.animateItem(),
-                product = favorite.product,
-                onClick = {
-                    navController.navigate(Screen.ProductInfo(productId = favorite.product.id))
-                },
-                onClickBuy = {
+        items(favoritesList.itemCount) { index ->
+            val favorite = favoritesList[index]
+            favorite?.let {
+                ProductCard(
+                    modifier = Modifier.animateItem(),
+                    product = favorite.product,
+                    onClick = {
+                        navController.navigate(Screen.ProductInfo(productId = favorite.product.id))
+                    },
+                    onClickBuy = {
 
-                },
-                onClickToCart = {
+                    },
+                    onClickToCart = {
 
-                }
-            )
+                    }
+                )
+            }
         }
     }
 

@@ -110,7 +110,7 @@ fun ProductCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if(product.cartId < 0) {
+                    if(product.cartId.isBlank()) {
                         Column {
                             Text(
                                 modifier = Modifier,

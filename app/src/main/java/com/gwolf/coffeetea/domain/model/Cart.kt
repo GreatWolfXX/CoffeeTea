@@ -1,9 +1,8 @@
 package com.gwolf.coffeetea.domain.model
 
 data class Cart(
-    val cartId: Int = -1,
-    val productId: Int = -1,
-    val quantity: Int = 0,
-    val userId: String = "",
+    val cartId: String,
+    val productId: Int,
+    val quantity: Int,
     val product: Product,
 )

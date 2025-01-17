@@ -1,11 +1,13 @@
 package com.gwolf.coffeetea.domain.repository.remote
 
+import androidx.paging.PagingData
 import com.gwolf.coffeetea.data.entities.ProductEntity
+import com.gwolf.coffeetea.data.local.database.entities.LocalProductEntity
 import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
-    suspend fun getProducts(): Flow<List<ProductEntity>>
-    suspend fun getProductById(productId: Int): Flow<ProductEntity?>
-    suspend fun getProductsByCategory(categoryId: Int): Flow<List<ProductEntity>>
-    suspend fun searchProducts(search: String): Flow<List<ProductEntity>>
+    fun getProducts(): Flow<PagingData<LocalProductEntity>>
+    fun getProductById(productId: Int): Flow<ProductEntity?>
+    fun getProductsByCategory(categoryId: Int): Flow<List<ProductEntity>>
+    fun searchProducts(search: String): Flow<List<ProductEntity>>
 }

@@ -21,7 +21,7 @@ class ProfileRepositoryImpl @Inject constructor(
     private val storage: Storage,
     private val auth: Auth
 ) : ProfileRepository {
-    override suspend fun getProfile(): Flow<ProfileEntity?> = callbackFlow {
+    override fun getProfile(): Flow<ProfileEntity?> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(PROFILE_TABLE)
@@ -37,7 +37,7 @@ class ProfileRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override suspend fun uploadProfileImage(bucketId: String, byteArray: ByteArray): Flow<String> =
+    override fun uploadProfileImage(bucketId: String, byteArray: ByteArray): Flow<String> =
         callbackFlow {
             val id = auth.currentUserOrNull()?.id.orEmpty()
             val bucket = storage.from(bucketId)
@@ -50,7 +50,7 @@ class ProfileRepositoryImpl @Inject constructor(
             awaitClose()
         }
 
-    override suspend fun updateProfileImagePath(imagePath: String): Flow<Unit> = callbackFlow {
+    override fun updateProfileImagePath(imagePath: String): Flow<Unit> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         withContext(Dispatchers.IO) {
             postgrest.from(USERS_TABLE).update(

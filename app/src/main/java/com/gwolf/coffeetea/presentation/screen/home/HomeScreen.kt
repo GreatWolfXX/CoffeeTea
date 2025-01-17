@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -43,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.Product
@@ -57,6 +58,7 @@ import com.gwolf.coffeetea.ui.theme.BackgroundColor
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
+import com.gwolf.coffeetea.util.LOGGER_TAG
 
 @Composable
 fun HomeScreen(
@@ -71,7 +73,7 @@ fun HomeScreen(
             .background(BackgroundGradient)
     ) {
         if (state.error != null) {
-            Log.d("Coffee&TeaLogger", "Error: ${state.error}")
+            Log.d(LOGGER_TAG, "Error: ${state.error}")
         } else {
             HomeScreenContent(
                 navController = navController,
@@ -102,18 +104,17 @@ private fun HomeScreenContent(
             modifier = Modifier.padding(horizontal = 16.dp),
         ) {
             Spacer(modifier = Modifier.size(16.dp))
-            PromotionsComponent(state.promotionsList)
+            PromotionsComponent(state.promotionsList.collectAsLazyPagingItems())
             Spacer(modifier = Modifier.size(16.dp))
             CategoriesList(
                 navController = navController,
-                categoriesList = state.categoriesList
+                categoriesList = state.categoriesList.collectAsLazyPagingItems()
             )
             Spacer(modifier = Modifier.size(16.dp))
-            Log.d("Coffee&TeaLogger", "Update: ${state.productsList}")
             ProductsList(
                 navController = navController,
                 viewModel = viewModel,
-                productsList = state.productsList
+                productsList = state.productsList.collectAsLazyPagingItems()
             )
         }
     }
@@ -240,7 +241,7 @@ private fun SearchBarComponent(
 @Composable
 private fun CategoriesList(
     navController: NavController,
-    categoriesList: List<Category>
+    categoriesList: LazyPagingItems<Category>
 ) {
     BlockTitleComponent(
         text = R.string.title_categories
@@ -254,17 +255,20 @@ private fun CategoriesList(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(horizontal = 4.dp)
     ) {
-        items(categoriesList) { category ->
-            CategorySmallCard(
-                modifier = Modifier.animateItem(),
-                category = category
-            ) {
-                navController.navigate(
-                    Screen.SearchByCategory(
-                        categoryId = category.id,
-                        categoryName = category.name
+        items(categoriesList.itemCount) { index ->
+            val category = categoriesList[index]
+            category?.let {
+                CategorySmallCard(
+                    modifier = Modifier.animateItem(),
+                    category = category
+                ) {
+                    navController.navigate(
+                        Screen.SearchByCategory(
+                            categoryId = category.id,
+                            categoryName = category.name
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -274,7 +278,7 @@ private fun CategoriesList(
 private fun ProductsList(
     navController: NavController,
     viewModel: HomeViewModel,
-    productsList: List<Product>
+    productsList: LazyPagingItems<Product>
 ) {
     BlockTitleComponent(
         text = R.string.title_popular_products
@@ -287,20 +291,23 @@ private fun ProductsList(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
-        items(productsList) { product ->
-            ProductCard(
-                modifier = Modifier.animateItem(),
-                product = product,
-                onClick = {
-                    navController.navigate(Screen.ProductInfo(productId = product.id))
-                },
-                onClickBuy = {
-                    viewModel.onEvent(HomeEvent.AddToCart(product))
-                },
-                onClickToCart = {
-                    navController.navigate(Screen.Cart)
-                }
-            )
+        items(productsList.itemCount) { index ->
+            val product = productsList[index]
+            product?.let {
+                ProductCard(
+                    modifier = Modifier.animateItem(),
+                    product = product,
+                    onClick = {
+                        navController.navigate(Screen.ProductInfo(productId = product.id))
+                    },
+                    onClickBuy = {
+                        viewModel.onEvent(HomeEvent.AddToCart(product))
+                    },
+                    onClickToCart = {
+                        navController.navigate(Screen.Cart)
+                    }
+                )
+            }
         }
     }
 

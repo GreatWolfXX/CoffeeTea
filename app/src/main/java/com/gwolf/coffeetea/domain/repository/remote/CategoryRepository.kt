@@ -1,8 +1,9 @@
 package com.gwolf.coffeetea.domain.repository.remote
 
-import com.gwolf.coffeetea.data.entities.CategoryEntity
+import androidx.paging.PagingData
+import com.gwolf.coffeetea.data.local.database.entities.LocalCategoryEntity
 import kotlinx.coroutines.flow.Flow
 
 interface CategoryRepository {
-    suspend fun getCategories(): Flow<List<CategoryEntity>>
+    fun getCategories(): Flow<PagingData<LocalCategoryEntity>>
 }

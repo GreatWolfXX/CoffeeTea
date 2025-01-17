@@ -10,6 +10,7 @@ import androidx.navigation.toRoute
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsByCategoryUseCase
 import com.gwolf.coffeetea.navigation.Screen
+import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -68,7 +69,7 @@ class SearchByCategoryViewModel @Inject constructor(
                 awaitAll(productsList)
                 _searchByCategoryScreenState.value = _searchByCategoryScreenState.value.copy(isLoading = false)
             } catch (e: Exception) {
-                Log.e("Coffee&TeaLogger", "Error loading search by category screen data: ${e.message}")
+                Log.e(LOGGER_TAG, "Error loading search by category screen data: ${e.message}")
             }
         }
     }

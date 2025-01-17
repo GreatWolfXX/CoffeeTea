@@ -20,9 +20,9 @@ class GetCartProductsListUseCase @Inject constructor(
         try {
             cartRepository.getCartProducts().collect { response ->
                 val data = response.map { cartProduct ->
-                    val productImageUrl = storage.from(cartProduct.product?.bucketId!!)
+                    val productImageUrl = storage.from(cartProduct.product?.bucketId.orEmpty())
                         .createSignedUrl(
-                            cartProduct.product.imagePath,
+                            cartProduct.product?.imagePath.orEmpty(),
                             HOURS_EXPIRES_IMAGE_URL.hours
                         )
                     return@map cartProduct.toDomain(productImageUrl)

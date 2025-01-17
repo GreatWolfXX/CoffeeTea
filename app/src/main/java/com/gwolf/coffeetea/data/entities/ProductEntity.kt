@@ -1,12 +1,9 @@
 package com.gwolf.coffeetea.data.entities
 
-import androidx.room.Entity
-import com.gwolf.coffeetea.util.PRODUCTS_TABLE
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName = PRODUCTS_TABLE)
 data class ProductEntity(
     @SerialName("product_id") val id: Int = -1,
     @SerialName("product_name") val name: String,
@@ -18,6 +15,7 @@ data class ProductEntity(
     @SerialName("rating") val rating: Double,
     @SerialName("bucket_id") val bucketId: String,
     @SerialName("image_path") val imagePath: String,
+    @SerialName("category_id") val categoryId: Int,
     @SerialName("category") val category: CategoryEntity? = null,
     @SerialName("favorite") val favorite: List<FavoriteEntity> = emptyList<FavoriteEntity>(),
     @SerialName("cart") val cart: List<CartEntity> = emptyList<CartEntity>(),

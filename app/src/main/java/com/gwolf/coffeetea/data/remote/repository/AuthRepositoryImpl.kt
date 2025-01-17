@@ -12,7 +12,7 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val auth: Auth
 ) : AuthRepository {
-    override suspend fun signIn(email: String, password: String): Flow<Unit> = callbackFlow {
+    override fun signIn(email: String, password: String): Flow<Unit> = callbackFlow {
         val response = auth.signInWith(Email) {
             this.email = email
             this.password = password
@@ -22,7 +22,7 @@ class AuthRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override suspend fun signUp(email: String, password: String): Flow<UserInfo?> = callbackFlow {
+    override fun signUp(email: String, password: String): Flow<UserInfo?> = callbackFlow {
         val response = auth.signUpWith(Email) {
             this.email = email
             this.password = password
