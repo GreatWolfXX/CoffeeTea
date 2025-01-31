@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -42,8 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.Product
@@ -65,7 +64,6 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    //Endless Loading Error
     val state by viewModel.homeScreenState
     Box(
         modifier = Modifier
@@ -104,17 +102,17 @@ private fun HomeScreenContent(
             modifier = Modifier.padding(horizontal = 16.dp),
         ) {
             Spacer(modifier = Modifier.size(16.dp))
-            PromotionsComponent(state.promotionsList.collectAsLazyPagingItems())
+            PromotionsComponent(state.promotionsList)
             Spacer(modifier = Modifier.size(16.dp))
             CategoriesList(
                 navController = navController,
-                categoriesList = state.categoriesList.collectAsLazyPagingItems()
+                categoriesList = state.categoriesList
             )
             Spacer(modifier = Modifier.size(16.dp))
             ProductsList(
                 navController = navController,
                 viewModel = viewModel,
-                productsList = state.productsList.collectAsLazyPagingItems()
+                productsList = state.productsList
             )
         }
     }
@@ -241,7 +239,7 @@ private fun SearchBarComponent(
 @Composable
 private fun CategoriesList(
     navController: NavController,
-    categoriesList: LazyPagingItems<Category>
+    categoriesList: List<Category>
 ) {
     BlockTitleComponent(
         text = R.string.title_categories
@@ -255,20 +253,17 @@ private fun CategoriesList(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(horizontal = 4.dp)
     ) {
-        items(categoriesList.itemCount) { index ->
-            val category = categoriesList[index]
-            category?.let {
-                CategorySmallCard(
-                    modifier = Modifier.animateItem(),
-                    category = category
-                ) {
-                    navController.navigate(
-                        Screen.SearchByCategory(
-                            categoryId = category.id,
-                            categoryName = category.name
-                        )
+        items(categoriesList) { category ->
+            CategorySmallCard(
+                modifier = Modifier.animateItem(),
+                category = category
+            ) {
+                navController.navigate(
+                    Screen.SearchByCategory(
+                        categoryId = category.id,
+                        categoryName = category.name
                     )
-                }
+                )
             }
         }
     }
@@ -278,7 +273,7 @@ private fun CategoriesList(
 private fun ProductsList(
     navController: NavController,
     viewModel: HomeViewModel,
-    productsList: LazyPagingItems<Product>
+    productsList: List<Product>
 ) {
     BlockTitleComponent(
         text = R.string.title_popular_products
@@ -291,23 +286,20 @@ private fun ProductsList(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
-        items(productsList.itemCount) { index ->
-            val product = productsList[index]
-            product?.let {
-                ProductCard(
-                    modifier = Modifier.animateItem(),
-                    product = product,
-                    onClick = {
-                        navController.navigate(Screen.ProductInfo(productId = product.id))
-                    },
-                    onClickBuy = {
-                        viewModel.onEvent(HomeEvent.AddToCart(product))
-                    },
-                    onClickToCart = {
-                        navController.navigate(Screen.Cart)
-                    }
-                )
-            }
+        items(productsList) { product ->
+            ProductCard(
+                modifier = Modifier.animateItem(),
+                product = product,
+                onClick = {
+                    navController.navigate(Screen.ProductInfo(productId = product.id))
+                },
+                onClickBuy = {
+                    viewModel.onEvent(HomeEvent.AddToCart(product))
+                },
+                onClickToCart = {
+                    navController.navigate(Screen.Cart)
+                }
+            )
         }
     }
 

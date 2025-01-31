@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,8 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.navigation.Screen
@@ -110,7 +109,7 @@ private fun CategoryScreenContent(
     ) {
         CategoryList(
             navController = navController,
-            categoriesList = state.categoriesList.collectAsLazyPagingItems()
+            categoriesList = state.categoriesList
         )
     }
 }
@@ -119,7 +118,7 @@ private fun CategoryScreenContent(
 @Composable
 private fun CategoryList(
     navController: NavController,
-    categoriesList: LazyPagingItems<Category>
+    categoriesList: List<Category>
 ) {
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
@@ -129,20 +128,17 @@ private fun CategoryList(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
-        items(categoriesList.itemCount) { index ->
-            val category = categoriesList[index]
-            category?.let {
-                CategoryFullCard(
-                    modifier = Modifier.animateItem(),
-                    category = category
-                ) {
-                    navController.navigate(
-                        Screen.SearchByCategory(
-                            categoryId = category.id,
-                            categoryName = category.name
-                        )
+        items(categoriesList) { category ->
+            CategoryFullCard(
+                modifier = Modifier.animateItem(),
+                category = category
+            ) {
+                navController.navigate(
+                    Screen.SearchByCategory(
+                        categoryId = category.id,
+                        categoryName = category.name
                     )
-                }
+                )
             }
         }
     }

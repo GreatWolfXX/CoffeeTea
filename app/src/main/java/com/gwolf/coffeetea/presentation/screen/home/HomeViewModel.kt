@@ -6,8 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.model.Promotion
@@ -21,19 +19,19 @@ import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HomeUiState(
-    val promotionsList: Flow<PagingData<Promotion>> = emptyFlow(),
-    val categoriesList: Flow<PagingData<Category>> = emptyFlow(),
-    val productsList: Flow<PagingData<Product>> = emptyFlow(),
+    val promotionsList: List<Promotion> = listOf<Promotion>(),
+    val categoriesList: List<Category> = listOf<Category>(),
+    val productsList: List<Product> = listOf<Product>(),
     val searchProductsList: List<Product> = listOf<Product>(),
     val searchText: String = "",
     val isLoading: Boolean = false,
@@ -83,20 +81,20 @@ class HomeViewModel @Inject constructor(
                 .collect { response ->
                     when (response) {
                         is UiResult.Success -> {
-//                            val indexProduct =
-//                                _homeScreenState.value.productsList.toMutableList().indexOfFirst {
-//                                    it.id == product.id
-//                                }
-//                            val updatedProductsList =
-//                                _homeScreenState.value.productsList.toMutableList().apply {
-//                                    this[indexProduct] =
-//                                        _homeScreenState.value.productsList[indexProduct].copy(
-//                                            cartId = response.data
-//                                        )
-//                                }
-//                            _homeScreenState.value = _homeScreenState.value.copy(
-//                                productsList = updatedProductsList
-//                            )
+                            val indexProduct =
+                                _homeScreenState.value.productsList.toMutableList().indexOfFirst {
+                                    it.id == product.id
+                                }
+                            val updatedProductsList =
+                                _homeScreenState.value.productsList.toMutableList().apply {
+                                    this[indexProduct] =
+                                        _homeScreenState.value.productsList[indexProduct].copy(
+                                            cartId = response.data
+                                        )
+                                }
+                            _homeScreenState.value = _homeScreenState.value.copy(
+                                productsList = updatedProductsList
+                            )
                         }
 
                         is UiResult.Error -> {
@@ -127,6 +125,69 @@ class HomeViewModel @Inject constructor(
             }
     }
 
+    private suspend fun getPromotions() {
+        getPromotionsListUseCase.invoke().collect { response ->
+            when (response) {
+                is UiResult.Success -> {
+                    _homeScreenState.value =
+                        _homeScreenState.value.copy(
+                            promotionsList = response.data,
+                        )
+                }
+
+                is UiResult.Error -> {
+                    _homeScreenState.value =
+                        _homeScreenState.value.copy(
+                            error = response.exception.message.toString(),
+                            isLoading = false
+                        )
+                }
+            }
+        }
+    }
+
+    private suspend fun getCategories() {
+        getCategoriesListUseCase.invoke().collect { response ->
+            when (response) {
+                is UiResult.Success -> {
+                    _homeScreenState.value =
+                        _homeScreenState.value.copy(
+                            categoriesList = response.data,
+                        )
+                }
+
+                is UiResult.Error -> {
+                    _homeScreenState.value =
+                        _homeScreenState.value.copy(
+                            error = response.exception.message.toString(),
+                            isLoading = false
+                        )
+                }
+            }
+        }
+    }
+
+    private suspend fun getProducts() {
+        getProductsListUseCase.invoke().collect { response ->
+            when (response) {
+                is UiResult.Success -> {
+                    _homeScreenState.value =
+                        _homeScreenState.value.copy(
+                            productsList = response.data,
+                        )
+                }
+
+                is UiResult.Error -> {
+                    _homeScreenState.value =
+                        _homeScreenState.value.copy(
+                            error = response.exception.message.toString(),
+                            isLoading = false
+                        )
+                }
+            }
+        }
+    }
+
     private fun getSearchProducts(search: String) {
         viewModelScope.launch {
             searchProductsUseCase.invoke(search).collect { response ->
@@ -154,17 +215,13 @@ class HomeViewModel @Inject constructor(
     init {
         _homeScreenState.value = _homeScreenState.value.copy(isLoading = true)
         viewModelScope.launch {
-            val promotionsList = getPromotionsListUseCase.invoke().cachedIn(viewModelScope)
-            val categoriesList = getCategoriesListUseCase.invoke().cachedIn(viewModelScope)
-            val productsList = getProductsListUseCase.invoke().cachedIn(viewModelScope)
+            val promotionsList = async { getPromotions() }
+            val categoriesList = async { getCategories() }
+            val productsList = async { getProducts() }
 
             try {
-                _homeScreenState.value = _homeScreenState.value.copy(
-                    promotionsList = promotionsList,
-                    categoriesList = categoriesList,
-                    productsList = productsList,
-                    isLoading = false
-                )
+                awaitAll(promotionsList, categoriesList, productsList)
+                _homeScreenState.value = _homeScreenState.value.copy(isLoading = false)
 
                 setupSearchDebounce()
             } catch (e: Exception) {

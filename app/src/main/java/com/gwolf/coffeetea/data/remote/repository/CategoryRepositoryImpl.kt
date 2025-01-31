@@ -1,31 +1,27 @@
 package com.gwolf.coffeetea.data.remote.repository
 
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import com.gwolf.coffeetea.data.local.database.LocalDatabase
-import com.gwolf.coffeetea.data.local.database.entities.LocalCategoryEntity
-import com.gwolf.coffeetea.data.local.database.remotemediator.CategoryRemoteMediator
+import com.gwolf.coffeetea.data.entities.CategoryEntity
 import com.gwolf.coffeetea.domain.repository.remote.CategoryRepository
+import com.gwolf.coffeetea.util.CATEGORIES_TABLE
 import io.github.jan.supabase.postgrest.Postgrest
-import io.github.jan.supabase.storage.Storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CategoryRepositoryImpl @Inject constructor(
-    private val storage: Storage,
-    private val postgrest: Postgrest,
-    private val localDatabase: LocalDatabase
+    private val postgrest: Postgrest
 ) : CategoryRepository {
-    @OptIn(ExperimentalPagingApi::class)
-    override fun getCategories(): Flow<PagingData<LocalCategoryEntity>> {
-        val pagingSourceFactory = { localDatabase.categoryDao.getCategories() }
-
-        return Pager(
-            config = PagingConfig(pageSize = 20),
-            remoteMediator = CategoryRemoteMediator(storage, postgrest, localDatabase),
-            pagingSourceFactory = pagingSourceFactory
-        ).flow
+    override fun getCategories(): Flow<List<CategoryEntity>> = callbackFlow {
+        val response = withContext(Dispatchers.IO) {
+            postgrest.from(CATEGORIES_TABLE)
+                .select()
+                .decodeList<CategoryEntity>()
+        }
+        trySend(response)
+        close()
+        awaitClose()
     }
 }

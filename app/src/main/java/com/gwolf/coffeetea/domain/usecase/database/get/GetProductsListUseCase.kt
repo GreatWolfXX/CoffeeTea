@@ -1,32 +1,33 @@
 package com.gwolf.coffeetea.domain.usecase.database.get
 
-import android.util.Log
-import androidx.paging.PagingData
-import androidx.paging.map
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
-import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
+import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.toDomain
-import com.gwolf.coffeetea.util.toEntity
+import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 
 class GetProductsListUseCase @Inject constructor(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val storage: Storage
 ) {
-    operator fun invoke(): Flow<PagingData<Product>> = callbackFlow {
+    operator fun invoke(): Flow<UiResult<List<Product>>> = callbackFlow {
         try {
             productRepository.getProducts().collect { response ->
-                val data = response.map { productPagingData ->
-                    val product = productPagingData.toEntity()
-                    return@map product.toDomain(productPagingData.imageUrl)
+                val data = response.map { product ->
+                    val imageUrl = storage.from(product.bucketId)
+                        .createSignedUrl(product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                    return@map product.toDomain(imageUrl)
                 }
-                trySend(data)
+                trySend(UiResult.Success(data = data))
             }
         } catch (e: Exception) {
-            Log.d(LOGGER_TAG, "Product Paging Data Error! : $e")
+            trySend(UiResult.Error(exception = e))
         } finally {
             close()
         }

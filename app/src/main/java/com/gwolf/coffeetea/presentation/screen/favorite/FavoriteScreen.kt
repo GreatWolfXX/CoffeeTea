@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -110,7 +111,7 @@ private fun FavoriteScreenContent(
     ) {
         ProductsList(
             navController = navController,
-            favoritesList = state.favoritesList.collectAsLazyPagingItems()
+            favoritesList = state.favoritesList
         )
     }
 }
@@ -118,7 +119,7 @@ private fun FavoriteScreenContent(
 @Composable
 private fun ProductsList(
     navController: NavController,
-    favoritesList: LazyPagingItems<Favorite>
+    favoritesList: List<Favorite>
 ) {
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
@@ -128,23 +129,20 @@ private fun ProductsList(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
-        items(favoritesList.itemCount) { index ->
-            val favorite = favoritesList[index]
-            favorite?.let {
-                ProductCard(
-                    modifier = Modifier.animateItem(),
-                    product = favorite.product,
-                    onClick = {
-                        navController.navigate(Screen.ProductInfo(productId = favorite.product.id))
-                    },
-                    onClickBuy = {
+        items(favoritesList) { favorite ->
+            ProductCard(
+                modifier = Modifier.animateItem(),
+                product = favorite.product,
+                onClick = {
+                    navController.navigate(Screen.ProductInfo(productId = favorite.product.id))
+                },
+                onClickBuy = {
 
-                    },
-                    onClickToCart = {
+                },
+                onClickToCart = {
 
-                    }
-                )
-            }
+                }
+            )
         }
     }
 

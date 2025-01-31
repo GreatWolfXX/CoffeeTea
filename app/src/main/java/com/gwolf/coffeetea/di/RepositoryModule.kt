@@ -1,7 +1,6 @@
 package com.gwolf.coffeetea.di
 
 import android.content.Context
-import com.gwolf.coffeetea.data.local.database.LocalDatabase
 import com.gwolf.coffeetea.data.local.repository.DataStoreRepositoryImpl
 import com.gwolf.coffeetea.data.remote.repository.AuthRepositoryImpl
 import com.gwolf.coffeetea.data.remote.repository.CartRepositoryImpl
@@ -47,27 +46,21 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun providePromotionRepository(
-        storage: Storage,
-        postgrest: Postgrest,
-        localDatabase: LocalDatabase
-    ): PromotionRepository = PromotionRepositoryImpl(storage, postgrest, localDatabase)
+        postgrest: Postgrest
+    ): PromotionRepository = PromotionRepositoryImpl(postgrest)
 
     @Provides
     @Singleton
     fun provideCategoryRepository(
-        storage: Storage,
-        postgrest: Postgrest,
-        localDatabase: LocalDatabase
-    ): CategoryRepository = CategoryRepositoryImpl(storage, postgrest, localDatabase)
+        postgrest: Postgrest
+    ): CategoryRepository = CategoryRepositoryImpl(postgrest)
 
     @Provides
     @Singleton
     fun provideProductRepository(
         auth: Auth,
-        storage: Storage,
-        postgrest: Postgrest,
-        localDatabase: LocalDatabase
-    ): ProductRepository = ProductRepositoryImpl(auth, storage, postgrest, localDatabase)
+        postgrest: Postgrest
+    ): ProductRepository = ProductRepositoryImpl(auth, postgrest)
 
     @Provides
     @Singleton
@@ -81,10 +74,8 @@ object RepositoryModule {
     @Singleton
     fun provideFavoriteRepository(
         auth: Auth,
-        storage: Storage,
-        postgrest: Postgrest,
-        localDatabase: LocalDatabase
-    ): FavoriteRepository = FavoriteRepositoryImpl(auth, storage, postgrest, localDatabase)
+        postgrest: Postgrest
+    ): FavoriteRepository = FavoriteRepositoryImpl(auth, postgrest)
 
     @Provides
     @Singleton
