@@ -55,7 +55,9 @@ import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
+import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.connectivityState
 import com.gwolf.coffeetea.util.uriToBitmap
 
 @Composable
@@ -72,12 +74,18 @@ fun ProfileScreen(
             .background(BackgroundGradient),
         contentAlignment = Alignment.Center
     ) {
-        if (state.error != null) {
+        val connection by connectivityState()
+
+        val isConnected = connection === ConnectionState.Available
+        if (state.error != null || !isConnected) {
             Log.d(LOGGER_TAG, "Error: ${state.error}")
+            val style = if(isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+            val title = if(isConnected) R.string.title_error else R.string.title_network
+            val desc = if(isConnected) R.string.desc_error else R.string.desc_network
             ErrorOrEmptyComponent(
-                style = ErrorOrEmptyStyle.ERROR,
-                title = R.string.title_error,
-                desc = R.string.desc_error
+                style = style,
+                title = title,
+                desc = desc
             )
         } else {
             ProfileScreenContent(
