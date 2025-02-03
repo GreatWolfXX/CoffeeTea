@@ -33,8 +33,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.navigation.Screen
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProductCard
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
@@ -64,6 +67,11 @@ fun SearchByCategoryScreen(
             }
             if (state.error != null) {
                 Log.d(LOGGER_TAG, "Error: ${state.error}")
+                ErrorOrEmptyComponent(
+                    style = ErrorOrEmptyStyle.ERROR,
+                    title = R.string.title_error,
+                    desc = R.string.desc_error
+                )
             } else {
                 FavoriteScreenContent(
                     navController = navController,
@@ -85,10 +93,19 @@ private fun FavoriteScreenContent(
             .fillMaxSize()
             .padding(horizontal = 16.dp),
     ) {
-        ProductsList(
-            navController = navController,
-            productsList = state.productsList
-        )
+        if (state.productsList.isNotEmpty()) {
+            ProductsList(
+                navController = navController,
+                productsList = state.productsList
+            )
+        } else {
+            ErrorOrEmptyComponent(
+                style = ErrorOrEmptyStyle.PRODUCT_EMPTY,
+                title = R.string.title_product_empty,
+                desc = R.string.desc_product_empty
+            )
+        }
+
     }
 }
 

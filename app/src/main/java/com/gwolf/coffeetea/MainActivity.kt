@@ -1,7 +1,11 @@
 package com.gwolf.coffeetea
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowInsetsController
@@ -15,11 +19,20 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.ColorUtils
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
@@ -29,6 +42,9 @@ import androidx.navigation.compose.rememberNavController
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.navigation.SetupNavGraph
 import com.gwolf.coffeetea.presentation.component.BottomBar
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
+import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.CoffeeTeaTheme
 import com.gwolf.coffeetea.ui.theme.StatusBarBackgroundColor
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,56 +69,98 @@ class MainActivity : ComponentActivity() {
             )
         )
 
+
+
         setContent {
             CoffeeTeaTheme {
-                val screenWithoutBottomBar = listOf(
-                    Screen.Welcome,
-                    Screen.Auth,
-                    Screen.Login,
-                    Screen.Registration,
-                    Screen.ForgotPassword
-                )
+                val connectivityManager = LocalContext.current.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                var isConnected by remember { mutableStateOf(false) }
 
-                val screen by splashViewModel.startDestination
-                val navController = rememberNavController()
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val showBottomBar = navBackStackEntry?.destination?.let { destination ->
-                    !screenWithoutBottomBar.any { screen ->
-                        destination.hasRoute(screen::class)
-                    }
-                }
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    bottomBar = {
-
-                        AnimatedVisibility(
-                            visible = showBottomBar ?: false,
-                            enter = slideInVertically(
-                                initialOffsetY = { it },
-                                animationSpec = tween(durationMillis = 300)
-                            ) + fadeIn(),
-                            exit = slideOutVertically(
-                                targetOffsetY = { it },
-                                animationSpec = tween(durationMillis = 300)
-                            ) + fadeOut()
-                        ) {
-                            BottomBar(
-                                navController = navController
-                            )
+                DisposableEffect(connectivityManager) {
+                    val networkCallback = object : ConnectivityManager.NetworkCallback() {
+                        override fun onAvailable(network: Network) {
+                            isConnected = true
+                        }
+                        override fun onLost(network: Network) {
+                            isConnected = false
                         }
                     }
-                ) { innerPadding ->
-                    screen?.let {
-                        SetupNavGraph(
-                            navController = navController,
-                            startDestination = it,
-                            showBottomBar = showBottomBar ?: false,
-                            paddingValues = innerPadding
+                    val networkRequest = NetworkRequest.Builder().build()
+                    connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+                    onDispose {
+                        connectivityManager.unregisterNetworkCallback(networkCallback)
+                    }
+                }
+
+                if(isConnected) {
+                    MainContent(splashViewModel)
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(BackgroundGradient),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ErrorOrEmptyComponent(
+                            style = ErrorOrEmptyStyle.NETWORK,
+                            title = R.string.title_network,
+                            desc = R.string.desc_network
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun MainContent(splashViewModel: SplashViewModel) {
+    val screenWithoutBottomBar = listOf(
+        Screen.Welcome,
+        Screen.Auth,
+        Screen.Login,
+        Screen.Registration,
+        Screen.ForgotPassword,
+        Screen.Error
+    )
+
+    val screen by splashViewModel.startDestination
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val showBottomBar = navBackStackEntry?.destination?.let { destination ->
+        !screenWithoutBottomBar.any { screen ->
+            destination.hasRoute(screen::class)
+        }
+    }
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        bottomBar = {
+
+            AnimatedVisibility(
+                visible = showBottomBar ?: false,
+                enter = slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeIn(),
+                exit = slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeOut()
+            ) {
+                BottomBar(
+                    navController = navController
+                )
+            }
+        }
+    ) { innerPadding ->
+        screen?.let {
+            SetupNavGraph(
+                navController = navController,
+                startDestination = it,
+                showBottomBar = showBottomBar ?: false,
+                paddingValues = innerPadding
+            )
         }
     }
 }

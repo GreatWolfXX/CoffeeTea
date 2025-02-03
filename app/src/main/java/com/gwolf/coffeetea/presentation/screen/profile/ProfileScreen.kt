@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Explore
@@ -47,6 +46,8 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.navigation.Screen
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProfileMenuComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
@@ -68,10 +69,16 @@ fun ProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundGradient)
+            .background(BackgroundGradient),
+        contentAlignment = Alignment.Center
     ) {
         if (state.error != null) {
             Log.d(LOGGER_TAG, "Error: ${state.error}")
+            ErrorOrEmptyComponent(
+                style = ErrorOrEmptyStyle.ERROR,
+                title = R.string.title_error,
+                desc = R.string.desc_error
+            )
         } else {
             ProfileScreenContent(
                 navController = navController,
@@ -136,11 +143,11 @@ private fun ProfileScreenContent(
             icon = Icons.Outlined.Explore,
             text = R.string.title_address
         ) { }
-        Spacer(modifier = Modifier.size(16.dp))
-        ProfileMenuComponent(
-            icon = Icons.Outlined.AccountBalanceWallet,
-            text = R.string.title_my_cards
-        ) { }
+//        Spacer(modifier = Modifier.size(16.dp))
+//        ProfileMenuComponent(
+//            icon = Icons.Outlined.AccountBalanceWallet,
+//            text = R.string.title_my_cards
+//        ) { }
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuComponent(
             icon = Icons.Outlined.Notifications,

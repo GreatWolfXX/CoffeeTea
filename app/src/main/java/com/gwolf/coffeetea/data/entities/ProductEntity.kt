@@ -16,7 +16,7 @@ data class ProductEntity(
     @SerialName("bucket_id") val bucketId: String,
     @SerialName("image_path") val imagePath: String,
     @SerialName("category_id") val categoryId: Int,
-    @SerialName("category") val category: CategoryEntity? = null,
-    @SerialName("favorite") val favorite: List<FavoriteEntity> = emptyList<FavoriteEntity>(),
+    @SerialName("categories") val category: CategoryEntity? = null,
+    @SerialName("favorites") val favorite: List<FavoriteEntity> = emptyList<FavoriteEntity>(),
     @SerialName("cart") val cart: List<CartEntity> = emptyList<CartEntity>(),
 )

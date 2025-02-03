@@ -40,7 +40,7 @@ fun ProductEntity.toDomain(imageUrl: String) = Product(
     rating = this.rating,
     imageUrl = imageUrl,
     categoryName = this.category?.name.orEmpty(),
-    favoriteId = this.favorite.firstOrNull()?.id.let { "" },
+    favoriteId = this.favorite.firstOrNull()?.id.orEmpty(),
     cartId = this.cart.firstOrNull()?.id.let { "" }
 )
 

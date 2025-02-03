@@ -39,12 +39,11 @@ class CartRepositoryImpl @Inject constructor(
         val cart = CartEntity(
             productId = productId,
             quantity = quantity,
-            userId = id,
-            product = null
+            userId = id
         )
         val response = withContext(Dispatchers.IO) {
             postgrest.from(CART_TABLE).insert(cart) {
-                select()
+                select(Columns.raw("*, products(*)"))
             }.decodeSingleOrNull<CartEntity>()
         }
         trySend(response?.id)

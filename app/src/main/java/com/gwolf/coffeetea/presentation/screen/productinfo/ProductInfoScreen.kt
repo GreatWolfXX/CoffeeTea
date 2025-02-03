@@ -58,6 +58,8 @@ import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.LightRedColor
@@ -113,6 +115,11 @@ fun ProductInfoScreen(
             )
             if (state.error != null) {
                 Log.d(LOGGER_TAG, "Error: ${state.error}")
+                ErrorOrEmptyComponent(
+                    style = ErrorOrEmptyStyle.ERROR,
+                    title = R.string.title_error,
+                    desc = R.string.desc_error
+                )
             } else {
                 ProductInfoScreenContent(
                     navController = navController,
@@ -158,6 +165,7 @@ private fun ProductInfoScreenContent(
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
+                Log.d(LOGGER_TAG, "favorite: ${state.isFavorite}")
                 Icon(
                     modifier = Modifier
                         .align(alignment = Alignment.BottomEnd)

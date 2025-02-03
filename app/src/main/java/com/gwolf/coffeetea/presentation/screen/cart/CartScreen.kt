@@ -42,6 +42,8 @@ import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CartProductCard
 import com.gwolf.coffeetea.presentation.component.CustomButton
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
@@ -68,6 +70,11 @@ fun CartScreen(
             )
             if (state.error != null) {
                 Log.d(LOGGER_TAG, "Error: ${state.error}")
+                ErrorOrEmptyComponent(
+                    style = ErrorOrEmptyStyle.ERROR,
+                    title = R.string.title_error,
+                    desc = R.string.desc_error
+                )
             } else {
                 CartScreenContent(
                     navController = navController,
@@ -131,24 +138,32 @@ private fun CartScreenContent(
                 .weight(0.8f)
                 .padding(horizontal = 16.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 12.dp)
-            ) {
-                items(state.cartProductsList) { cartProduct ->
-                    CartProductCard(
-                        modifier = Modifier.animateItem(),
-                        cart = cartProduct,
-                        onClickDelete = {
-                            viewModel.onEvent(CartEvent.RemoveFromCart(cartProduct.cartId))
-                        },
-                        onClick = {
-                            navController.navigate(Screen.ProductInfo(productId = cartProduct.productId))
-                        }
-                    )
+            if (state.cartProductsList.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 12.dp)
+                ) {
+                    items(state.cartProductsList) { cartProduct ->
+                        CartProductCard(
+                            modifier = Modifier.animateItem(),
+                            cart = cartProduct,
+                            onClickDelete = {
+                                viewModel.onEvent(CartEvent.RemoveFromCart(cartProduct.cartId))
+                            },
+                            onClick = {
+                                navController.navigate(Screen.ProductInfo(productId = cartProduct.productId))
+                            }
+                        )
+                    }
                 }
+            } else {
+                ErrorOrEmptyComponent(
+                    style = ErrorOrEmptyStyle.PRODUCT_EMPTY,
+                    title = R.string.title_cart_empty,
+                    desc = R.string.desc_cart_empty
+                )
             }
         }
         Column(

@@ -32,11 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Favorite
 import com.gwolf.coffeetea.navigation.Screen
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProductCard
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
@@ -88,6 +88,11 @@ fun FavoriteScreen(
             )
             if (state.error != null) {
                 Log.d(LOGGER_TAG, "Error: ${state.error}")
+                ErrorOrEmptyComponent(
+                    style = ErrorOrEmptyStyle.ERROR,
+                    title = R.string.title_error,
+                    desc = R.string.desc_error
+                )
             } else {
                 FavoriteScreenContent(
                     navController = navController,
@@ -109,10 +114,18 @@ private fun FavoriteScreenContent(
             .fillMaxSize()
             .padding(horizontal = 16.dp),
     ) {
-        ProductsList(
-            navController = navController,
-            favoritesList = state.favoritesList
-        )
+        if (state.favoritesList.isNotEmpty()) {
+            ProductsList(
+                navController = navController,
+                favoritesList = state.favoritesList
+            )
+        } else {
+            ErrorOrEmptyComponent(
+                style = ErrorOrEmptyStyle.FAVORITE_EMPTY,
+                title = R.string.title_favorite_empty,
+                desc = R.string.desc_favorite_empty
+            )
+        }
     }
 }
 

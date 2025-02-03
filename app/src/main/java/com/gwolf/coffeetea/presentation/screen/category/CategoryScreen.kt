@@ -36,6 +36,8 @@ import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CategoryFullCard
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
@@ -86,6 +88,11 @@ fun CategoryScreen(
             )
             if (state.error != null) {
                 Log.d(LOGGER_TAG, "Error: ${state.error}")
+                ErrorOrEmptyComponent(
+                    style = ErrorOrEmptyStyle.ERROR,
+                    title = R.string.title_error,
+                    desc = R.string.desc_error
+                )
             } else {
                 CategoryScreenContent(
                     navController = navController,

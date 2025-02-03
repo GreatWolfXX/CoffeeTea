@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -22,6 +24,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -36,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +54,8 @@ import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.BlockTitleComponent
 import com.gwolf.coffeetea.presentation.component.CategorySmallCard
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
+import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProductCard
 import com.gwolf.coffeetea.presentation.component.ProductSmallCard
@@ -68,10 +75,16 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundGradient)
+            .background(BackgroundGradient),
+        contentAlignment = Alignment.Center
     ) {
         if (state.error != null) {
             Log.d(LOGGER_TAG, "Error: ${state.error}")
+            ErrorOrEmptyComponent(
+                style = ErrorOrEmptyStyle.ERROR,
+                title = R.string.title_error,
+                desc = R.string.desc_error
+            )
         } else {
             HomeScreenContent(
                 navController = navController,
@@ -98,10 +111,13 @@ private fun HomeScreenContent(
             viewModel = viewModel,
             navController = navController
         )
+        Spacer(modifier = Modifier.size(16.dp))
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
         ) {
-            Spacer(modifier = Modifier.size(16.dp))
             PromotionsComponent(state.promotionsList)
             Spacer(modifier = Modifier.size(16.dp))
             CategoriesList(
@@ -275,12 +291,13 @@ private fun ProductsList(
     viewModel: HomeViewModel,
     productsList: List<Product>
 ) {
+    val screenHeight = ((productsList.size + 1) / 2 * 240).dp
     BlockTitleComponent(
         text = R.string.title_popular_products
     ) { }
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
-        modifier = Modifier,
+        modifier = Modifier.height(screenHeight),
         columns = GridCells.FixedSize(174.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),

@@ -39,4 +39,6 @@ sealed class Screen() {
         val categoryName: String
     ): Screen()
 
+    @Serializable
+    data object Error: Screen()
 }
