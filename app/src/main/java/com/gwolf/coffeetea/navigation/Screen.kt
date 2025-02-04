@@ -40,5 +40,5 @@ sealed class Screen() {
     ): Screen()
 
     @Serializable
-    data object Error: Screen()
+    data object AboutMe: Screen()
 }

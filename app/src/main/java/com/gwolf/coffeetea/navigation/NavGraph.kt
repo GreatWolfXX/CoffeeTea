@@ -20,6 +20,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.gwolf.coffeetea.presentation.screen.aboutme.AboutMeScreen
 import com.gwolf.coffeetea.presentation.screen.auth.AuthScreen
 import com.gwolf.coffeetea.presentation.screen.cart.CartScreen
 import com.gwolf.coffeetea.presentation.screen.category.CategoryScreen
@@ -166,6 +167,16 @@ fun SetupNavGraph(
             popEnterTransition = popEnterTransition
         ) {
             SearchByCategoryScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.AboutMe>(
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            popEnterTransition = popEnterTransition
+        ) {
+            AboutMeScreen(
                 navController = navController
             )
         }

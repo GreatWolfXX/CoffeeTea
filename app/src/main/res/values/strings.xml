@@ -41,7 +41,7 @@
     <string name="title_my_cards">Мій гаманець</string>
     <string name="title_notifications">Сповіщення</string>
     <string name="title_logout">Вийти</string>
-    <string name="title_name">Моє ім\'я</string>
+    <string name="title_blank_name">Тут може бути ваше ім\'я</string>
     <string name="title_bought">КУПИТИ</string>
     <string name="title_read_more">Детальніше</string>
     <string name="title_read_less">Приховати</string>
@@ -63,6 +63,15 @@
     <string name="desc_error">Вибачте, щось пішло не так.\nСпробуйте перезапустити застосунок!</string>
     <string name="title_network">Відсутній інтернет зв\'язок</string>
     <string name="desc_network">Наразі відсутній інтернет зв\'язок.\nБудь ласка під\'єднайтесь до мережі!</string>
+    <string name="title_profile">Кабінет</string>
+    <string name="title_personal_info">Персональні дані</string>
+    <string name="title_contact_info">Контактні дані</string>
+    <string name="first_name_placeholder">Ім\'я</string>
+    <string name="last_name_placeholder">Прізвище</string>
+    <string name="patronymic_placeholder">По батькові</string>
+    <string name="title_password_change">Змінити пароль</string>
+    <string name="btn_save_change">Зберегти зміни</string>
+    <string name="add_phone">Додайте номер телефона</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_password_length">Пароль повинен містити менше %1$d символів!</string>

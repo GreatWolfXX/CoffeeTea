@@ -62,8 +62,7 @@ class MainActivity : ComponentActivity() {
                     Screen.Auth,
                     Screen.Login,
                     Screen.Registration,
-                    Screen.ForgotPassword,
-                    Screen.Error
+                    Screen.ForgotPassword
                 )
 
                 val screen by splashViewModel.startDestination

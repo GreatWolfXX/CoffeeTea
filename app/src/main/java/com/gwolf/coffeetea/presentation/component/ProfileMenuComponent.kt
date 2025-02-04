@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.component
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,7 +32,7 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 @Composable
 fun ProfileMenuComponent(
     icon: ImageVector,
-    @StringRes text: Int,
+    text: String,
     isVisibleArrow: Boolean = true,
     isVisibleDivider: Boolean = true,
     onClick: () -> Unit
@@ -43,6 +42,7 @@ fun ProfileMenuComponent(
             .fillMaxWidth()
             .clickable { onClick.invoke() }
     ) {
+        Spacer(modifier = Modifier.size(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -60,7 +60,7 @@ fun ProfileMenuComponent(
                 Spacer(modifier = Modifier.size(16.dp))
                 Text(
                     modifier = Modifier,
-                    text = stringResource(text),
+                    text = text,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
@@ -79,7 +79,7 @@ fun ProfileMenuComponent(
                 Spacer(modifier = Modifier)
             }
         }
-        Spacer(modifier = Modifier.size(6.dp))
+        Spacer(modifier = Modifier.size(8.dp))
         if(isVisibleDivider) {
             HorizontalDivider(color = OnSurfaceColor)
         }
@@ -91,6 +91,6 @@ fun ProfileMenuComponent(
 private fun ProfileMenuComponentPreview() {
     ProfileMenuComponent(
         icon = Icons.Outlined.AccountCircle,
-        text = R.string.title_welcome
+        text = stringResource(R.string.title_welcome)
     ) {}
 }

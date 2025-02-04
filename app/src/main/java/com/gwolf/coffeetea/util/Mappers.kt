@@ -46,7 +46,10 @@ fun ProductEntity.toDomain(imageUrl: String) = Product(
 
 fun ProfileEntity.toDomain(imageUrl: String) = Profile(
     id = UUID.fromString(this.id),
-    name = this.name,
+    firstName = this.firstName,
+    lastName = this.lastName,
+    patronymic = this.patronymic,
+    phone = this.phone,
     email = this.email,
     bucketId = this.bucketId,
     imageUrl = imageUrl

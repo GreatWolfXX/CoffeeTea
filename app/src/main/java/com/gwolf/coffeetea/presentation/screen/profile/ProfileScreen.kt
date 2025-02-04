@@ -17,14 +17,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -71,32 +75,73 @@ fun ProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundGradient),
-        contentAlignment = Alignment.Center
+            .background(BackgroundGradient)
     ) {
-        val connection by connectivityState()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TopMenu(
+                navController = navController
+            )
 
-        val isConnected = connection === ConnectionState.Available
-        if (state.error != null || !isConnected) {
-            Log.d(LOGGER_TAG, "Error: ${state.error}")
-            val style = if(isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-            val title = if(isConnected) R.string.title_error else R.string.title_network
-            val desc = if(isConnected) R.string.desc_error else R.string.desc_network
-            ErrorOrEmptyComponent(
-                style = style,
-                title = title,
-                desc = desc
-            )
-        } else {
-            ProfileScreenContent(
-                navController = navController,
-                state = state,
-                viewModel = viewModel,
-                context = context
-            )
+            val connection by connectivityState()
+
+            val isConnected = connection === ConnectionState.Available
+            if (state.error != null || !isConnected) {
+                Log.d(LOGGER_TAG, "Error: ${state.error}")
+                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isConnected) R.string.title_error else R.string.title_network
+                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
+                ErrorOrEmptyComponent(
+                    style = style,
+                    title = title,
+                    desc = desc
+                )
+            } else {
+                ProfileScreenContent(
+                    navController = navController,
+                    state = state,
+                    viewModel = viewModel,
+                    context = context
+                )
+            }
         }
     }
     LoadingComponent(state.isLoading)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopMenu(
+    navController: NavController
+) {
+    TopAppBar(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        title = {
+            Text(
+                modifier = Modifier.padding(start = 4.dp),
+                text = stringResource(R.string.title_profile),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 22.sp,
+                color = OnSurfaceColor
+            )
+        },
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .clickable {
+                        navController.popBackStack()
+                    },
+                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
+                contentDescription = null,
+                tint = OnSurfaceColor
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
 }
 
 @Composable
@@ -117,14 +162,15 @@ private fun ProfileScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 48.dp),
-        verticalArrangement = Arrangement.Center,
+            .padding(horizontal = 48.dp, vertical = 64.dp),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        val displayName = "${state.profile?.lastName} ${state.profile?.firstName}"
 
         AccountInfo(
-            name = state.profile?.name.orEmpty(),
+            displayName = displayName,
             email = state.profile?.email.orEmpty(),
             imageUrl = state.profile?.imageUrl.orEmpty(),
             context = context
@@ -134,12 +180,14 @@ private fun ProfileScreenContent(
         Spacer(modifier = Modifier.size(38.dp))
         ProfileMenuComponent(
             icon = Icons.Outlined.AccountCircle,
-            text = R.string.title_about_me
-        ) { }
+            text = stringResource(R.string.title_about_me)
+        ) {
+            navController.navigate(Screen.AboutMe)
+        }
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuComponent(
             icon = Icons.AutoMirrored.Outlined.ListAlt,
-            text = R.string.title_my_order
+            text = stringResource(R.string.title_my_order)
         ) { }
 //        Spacer(modifier = Modifier.size(16.dp))
 //        ProfileMenuComponent(
@@ -149,7 +197,7 @@ private fun ProfileScreenContent(
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuComponent(
             icon = Icons.Outlined.Explore,
-            text = R.string.title_address
+            text = stringResource(R.string.title_address)
         ) { }
 //        Spacer(modifier = Modifier.size(16.dp))
 //        ProfileMenuComponent(
@@ -159,12 +207,12 @@ private fun ProfileScreenContent(
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuComponent(
             icon = Icons.Outlined.Notifications,
-            text = R.string.title_notifications
+            text = stringResource(R.string.title_notifications)
         ) { }
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuComponent(
             icon = Icons.AutoMirrored.Outlined.Logout,
-            text = R.string.title_logout,
+            text = stringResource(R.string.title_logout),
             isVisibleArrow = false,
             isVisibleDivider = false
         ) {
@@ -176,7 +224,7 @@ private fun ProfileScreenContent(
 
 @Composable
 private fun AccountInfo(
-    name: String,
+    displayName: String,
     email: String,
     imageUrl: String,
     context: Context,
@@ -215,7 +263,7 @@ private fun AccountInfo(
     Spacer(modifier = Modifier.size(8.dp))
     Text(
         modifier = Modifier,
-        text = name.ifEmpty { stringResource(R.string.title_name) },
+        text = displayName.ifBlank { stringResource(R.string.title_blank_name) },
         fontFamily = robotoFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
