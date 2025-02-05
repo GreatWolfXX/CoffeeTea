@@ -3,6 +3,7 @@ package com.gwolf.coffeetea.data.remote.repository
 import com.gwolf.coffeetea.data.entities.ProfileEntity
 import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
 import com.gwolf.coffeetea.util.PNG_FORMAT
+import com.gwolf.coffeetea.util.PROFILES_BUCKET_ID
 import com.gwolf.coffeetea.util.PROFILE_TABLE
 import com.gwolf.coffeetea.util.PROFILE_USER_IMAGE
 import com.gwolf.coffeetea.util.USERS_TABLE
@@ -37,10 +38,10 @@ class ProfileRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override fun uploadProfileImage(bucketId: String, byteArray: ByteArray): Flow<String> =
+    override fun uploadProfileImage(byteArray: ByteArray): Flow<String> =
         callbackFlow {
             val id = auth.currentUserOrNull()?.id.orEmpty()
-            val bucket = storage.from(bucketId)
+            val bucket = storage.from(PROFILES_BUCKET_ID)
             val imageProfile = "$id/$PROFILE_USER_IMAGE$id$PNG_FORMAT"
             bucket.upload(imageProfile, data = byteArray) {
                 upsert = true
@@ -52,6 +53,7 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override fun updateProfileImagePath(imagePath: String): Flow<Unit> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
+
         withContext(Dispatchers.IO) {
             postgrest.from(USERS_TABLE).update(
                 {

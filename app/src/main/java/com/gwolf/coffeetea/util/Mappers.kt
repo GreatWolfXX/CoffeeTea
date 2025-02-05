@@ -51,7 +51,6 @@ fun ProfileEntity.toDomain(imageUrl: String) = Profile(
     patronymic = this.patronymic,
     phone = this.phone,
     email = this.email,
-    bucketId = this.bucketId,
     imageUrl = imageUrl
 )
 

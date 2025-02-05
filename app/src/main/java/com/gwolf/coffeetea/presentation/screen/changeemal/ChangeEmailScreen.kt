@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.presentation.screen.aboutme
+package com.gwolf.coffeetea.presentation.screen.changeemal
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -6,16 +6,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.MailOutline
-import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -29,32 +27,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.CustomTextInput
 import com.gwolf.coffeetea.presentation.component.CustomTextInputStyle
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
-import com.gwolf.coffeetea.presentation.component.ProfileMenuComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
+import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
-fun AboutMeScreen(
+fun ChangeEmailScreen(
     navController: NavController,
-    viewModel: AboutMeViewModel = hiltViewModel()
+    viewModel: ChangeEmailViewModel = hiltViewModel()
 ) {
-    val state by viewModel.aboutMeScreenState
+    val state by viewModel.changeEmailState
 
     Box(
         modifier = Modifier
@@ -82,7 +81,7 @@ fun AboutMeScreen(
                     desc = desc
                 )
             } else {
-                AboutMeScreenContent(
+                ChangeEmailScreenContent(
                     navController = navController,
                     state = state,
                     viewModel = viewModel
@@ -103,7 +102,7 @@ private fun TopMenu(
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),
-                text = stringResource(R.string.title_about_me),
+                text = stringResource(R.string.title_change_email),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 22.sp,
@@ -128,10 +127,10 @@ private fun TopMenu(
 }
 
 @Composable
-private fun AboutMeScreenContent(
+private fun ChangeEmailScreenContent(
     navController: NavController,
-    state: AboutMeUiState,
-    viewModel: AboutMeViewModel
+    state: ChangeEmailUiState,
+    viewModel: ChangeEmailViewModel
 ) {
     Column(
         modifier = Modifier
@@ -142,84 +141,54 @@ private fun AboutMeScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column {
-            Text(
+            Row(
                 modifier = Modifier,
-                text = stringResource(id = R.string.title_personal_info),
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 22.sp,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.size(24.dp))
-            CustomTextInput(
-                icon = Icons.Outlined.MailOutline,
-                placeholder = R.string.first_name_placeholder,
-                text = state.firstName,
-                onValueChange = { text ->
-                    viewModel.onEvent(AboutMeEvent.FirstNameChanged(text))
-                },
-                style = CustomTextInputStyle.STANDARD,
-                imeAction = ImeAction.Next,
-                isError = state.firstNameError != null,
-                errorMessage = state.firstNameError
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            CustomTextInput(
-                icon = Icons.Outlined.MailOutline,
-                placeholder = R.string.last_name_placeholder,
-                text = state.lastName,
-                onValueChange = { text ->
-                    viewModel.onEvent(AboutMeEvent.LastNameChanged(text))
-                },
-                style = CustomTextInputStyle.STANDARD,
-                imeAction = ImeAction.Next,
-                isError = state.lastNameError != null,
-                errorMessage = state.lastNameError
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            CustomTextInput(
-                icon = Icons.Outlined.MailOutline,
-                placeholder = R.string.patronymic_placeholder,
-                text = state.patronymic,
-                onValueChange = { text ->
-                    viewModel.onEvent(AboutMeEvent.PatronymicChanged(text))
-                },
-                style = CustomTextInputStyle.STANDARD,
-                imeAction = ImeAction.Next,
-                isError = state.patronymicError != null,
-                errorMessage = state.patronymicError
-            )
-            Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                modifier = Modifier,    
-                text = stringResource(id = R.string.title_contact_info),
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 22.sp,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.size(16.dp))
-            ProfileMenuComponent(
-                icon = Icons.Outlined.Email,
-                text = state.profile?.email.orEmpty()
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                navController.navigate(Screen.ChangeEmail(state.profile?.email.orEmpty()))
+                Icon(
+                    modifier = Modifier.padding(end = 16.dp),
+                    imageVector = Icons.Outlined.MailOutline,
+                    contentDescription = null,
+                    tint = OnSurfaceColor
+                )
+                Column {
+                    Text(
+                        modifier = Modifier,
+                        text = stringResource(R.string.current_email),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        lineHeight = TextUnit(20f, TextUnitType.Sp),
+                        color = OutlineColor
+                    )
+                    Text(
+                        modifier = Modifier,
+                        text = state.currentEmail,
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        lineHeight = TextUnit(20f, TextUnitType.Sp),
+                        color = OnSurfaceColor
+                    )
+                }
             }
             Spacer(modifier = Modifier.size(16.dp))
-            //WARNING Hardcode number +38
-            val phoneEntered = state.profile?.phone != null
-            ProfileMenuComponent(
-                icon = Icons.Outlined.Phone,
-                text = if(phoneEntered) "+38${state.profile?.phone}" else stringResource(R.string.add_phone)
-            ) { }
+            CustomTextInput(
+                icon = Icons.Outlined.MailOutline,
+                placeholder = R.string.new_email_placeholder,
+                text = state.email,
+                onValueChange = { text ->
+                    viewModel.onEvent(ChangeEmailEvent.EmailChanged(text))
+                },
+                style = CustomTextInputStyle.STANDARD,
+                imeAction = ImeAction.Next,
+                isError = state.emailError != null,
+                errorMessage = state.emailError
+            )
             Spacer(modifier = Modifier.size(16.dp))
-            ProfileMenuComponent(
-                icon = Icons.Outlined.Lock,
-                text = stringResource(R.string.title_password_change)
-            ) { }
         }
         CustomButton(
-            text = R.string.btn_save_change
+            text = R.string.btn_save
         )
         {
 

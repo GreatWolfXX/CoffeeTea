@@ -6,15 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Profile
-import com.gwolf.coffeetea.domain.usecase.database.add.AddImageProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
-import com.gwolf.coffeetea.domain.usecase.database.update.UpdateProfileImageUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.jan.supabase.auth.Auth
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -40,10 +37,7 @@ sealed class AboutMeEvent {
 
 @HiltViewModel
 class AboutMeViewModel @Inject constructor(
-    private val auth: Auth,
     private val getProfileUseCase: GetProfileUseCase,
-    private val addImageProfileUseCase: AddImageProfileUseCase,
-    private val updateProfileImageUseCase: UpdateProfileImageUseCase,
     private val validateTextUseCase: ValidateTextUseCase,
 ) : ViewModel() {
 

@@ -106,4 +106,5 @@ dependencies {
     implementation(libs.coil.svg)
 
     implementation(libs.splashscreen)
+    implementation(libs.ohteepee)
 }

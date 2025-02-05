@@ -3,6 +3,7 @@ package com.gwolf.coffeetea.domain.usecase.database.get
 import com.gwolf.coffeetea.domain.model.Profile
 import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
+import com.gwolf.coffeetea.util.PROFILES_BUCKET_ID
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.toDomain
 import io.github.jan.supabase.storage.Storage
@@ -20,9 +21,9 @@ class GetProfileUseCase @Inject constructor(
         try {
             profileRepository.getProfile().collect { response ->
                 if (response != null) {
-                    val imageUrl =
-                        storage.from(response.bucketId)
-                            .createSignedUrl(response.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+                    val imageUrl = if(response.imagePath.isEmpty()) "" else storage.from(PROFILES_BUCKET_ID)
+                        .createSignedUrl(response.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+
                     val profile = response.toDomain(imageUrl)
                     trySend(UiResult.Success(data = profile))
                 } else {

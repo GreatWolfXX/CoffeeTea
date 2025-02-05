@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProfileRepository {
     fun getProfile(): Flow<ProfileEntity?>
-    fun uploadProfileImage(bucketId: String, byteArray: ByteArray): Flow<String>
+    fun uploadProfileImage(byteArray: ByteArray): Flow<String>
     fun updateProfileImagePath(imagePath: String): Flow<Unit>
 }

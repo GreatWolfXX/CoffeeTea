@@ -10,10 +10,10 @@ import javax.inject.Inject
 class AddImageProfileUseCase @Inject constructor(
     private val profileRepository: ProfileRepository
 ) {
-    operator fun invoke(bucketId: String, byteArray: ByteArray): Flow<UiResult<String>> =
+    operator fun invoke(byteArray: ByteArray): Flow<UiResult<String>> =
         callbackFlow {
             try {
-                profileRepository.uploadProfileImage(bucketId, byteArray).collect { response ->
+                profileRepository.uploadProfileImage(byteArray).collect { response ->
                     trySend(UiResult.Success(data = response))
                 }
             } catch (e: Exception) {

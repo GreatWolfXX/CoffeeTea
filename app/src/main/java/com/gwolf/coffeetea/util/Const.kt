@@ -10,6 +10,7 @@ const val MAX_SEARCH_LIST_RESULT = 5L
 const val ADD_TO_CART_COUNT = 1
 const val PROFILE_IMAGE_QUALITY = 10 // 1 - 100
 
+const val PROFILES_BUCKET_ID = "profiles"
 const val USERS_TABLE = "users"
 const val PROFILE_TABLE = "user_profile"
 const val PRODUCTS_TABLE = "products"

@@ -72,6 +72,11 @@
     <string name="title_password_change">Змінити пароль</string>
     <string name="btn_save_change">Зберегти зміни</string>
     <string name="add_phone">Додайте номер телефона</string>
+    <string name="title_change_email">Змінити пошту</string>
+    <string name="current_email">Поточна пошта</string>
+    <string name="new_email">Нова пошта</string>
+    <string name="new_email_placeholder">Введіть нову пошту</string>
+    <string name="btn_save">Зберегти</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_password_length">Пароль повинен містити менше %1$d символів!</string>

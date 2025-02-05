@@ -188,7 +188,7 @@ private fun BoxScope.RegistrationContent(
             )
         }
         Spacer(modifier = Modifier.size(16.dp))
-        CustomButton(text = R.string.btn_back)
+        CustomButton(text = R.string.signup)
         {
             submit.invoke()
         }

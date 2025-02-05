@@ -64,11 +64,10 @@ class ProfileViewModel @Inject constructor(
 
     private suspend fun loadProfileImage(bitmap: Bitmap?) {
         val byteArray = bitmapToByteArray(bitmap!!)
-        val bucketId = _profileScreenState.value.profile?.bucketId.orEmpty()
-        addImageProfileUseCase.invoke(bucketId, byteArray).collect { response ->
+        addImageProfileUseCase.invoke(byteArray).collect { response ->
             when (response) {
                 is UiResult.Success -> {
-                    updateProfileImage(bucketId, response.data)
+                    updateProfileImage(response.data)
                 }
 
                 is UiResult.Error -> {
@@ -81,8 +80,8 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateProfileImage(bucketId: String, imagePath: String) {
-        updateProfileImageUseCase.invoke(bucketId, imagePath).collect { response ->
+    private suspend fun updateProfileImage(imagePath: String) {
+        updateProfileImageUseCase.invoke(imagePath).collect { response ->
             when (response) {
                 is UiResult.Success -> {
                     val profile = _profileScreenState.value.profile?.copy(

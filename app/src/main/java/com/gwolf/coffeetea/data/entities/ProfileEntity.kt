@@ -11,6 +11,5 @@ data class ProfileEntity(
     @SerialName("last_name") val lastName: String,
     @SerialName("patronymic") val patronymic: String,
     @SerialName("phone") val phone: Int?,
-    @SerialName("bucket_id") val bucketId: String,
     @SerialName("image_path") val imagePath: String
 )

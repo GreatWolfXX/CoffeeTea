@@ -167,7 +167,7 @@ private fun ProfileScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val displayName = "${state.profile?.lastName} ${state.profile?.firstName}"
+        val displayName = "${state.profile?.lastName.orEmpty()} ${state.profile?.firstName.orEmpty()}"
 
         AccountInfo(
             displayName = displayName,

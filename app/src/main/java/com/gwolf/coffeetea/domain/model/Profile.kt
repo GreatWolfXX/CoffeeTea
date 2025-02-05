@@ -9,6 +9,5 @@ data class Profile(
     val lastName: String,
     val patronymic: String,
     val phone: Int?,
-    val bucketId: String,
     val imageUrl: String
 )
