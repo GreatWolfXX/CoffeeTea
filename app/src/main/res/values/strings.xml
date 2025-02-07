@@ -77,6 +77,11 @@
     <string name="new_email">Нова пошта</string>
     <string name="new_email_placeholder">Введіть нову пошту</string>
     <string name="btn_save">Зберегти</string>
+    <string name="title_verify_email">Підтвердіть електронну пошту</string>
+    <string name="desc_verify_email">Код для підтвердження був надісланий на нову пошту.\nВведіть його нижче.</string>
+    <string name="didnt_receive_code">Не отримали код?</string>
+    <string name="resend_code">Повторно надіслати новий код</string>
+    <string name="btn_confirm">Підтвердити</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_password_length">Пароль повинен містити менше %1$d символів!</string>

@@ -185,7 +185,7 @@ private fun AboutMeScreenContent(
                     viewModel.onEvent(AboutMeEvent.PatronymicChanged(text))
                 },
                 style = CustomTextInputStyle.STANDARD,
-                imeAction = ImeAction.Next,
+                imeAction = ImeAction.Done,
                 isError = state.patronymicError != null,
                 errorMessage = state.patronymicError
             )

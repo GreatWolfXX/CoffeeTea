@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import com.gwolf.coffeetea.presentation.component.CustomTextInputStyle
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
+import com.gwolf.coffeetea.presentation.component.OtpBottomSheet
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
@@ -126,12 +128,14 @@ private fun TopMenu(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChangeEmailScreenContent(
     navController: NavController,
     state: ChangeEmailUiState,
     viewModel: ChangeEmailViewModel
 ) {
+    val sheetState = rememberModalBottomSheetState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -181,7 +185,7 @@ private fun ChangeEmailScreenContent(
                     viewModel.onEvent(ChangeEmailEvent.EmailChanged(text))
                 },
                 style = CustomTextInputStyle.STANDARD,
-                imeAction = ImeAction.Next,
+                imeAction = ImeAction.Done,
                 isError = state.emailError != null,
                 errorMessage = state.emailError
             )
@@ -191,7 +195,23 @@ private fun ChangeEmailScreenContent(
             text = R.string.btn_save
         )
         {
-
+            viewModel.onEvent(ChangeEmailEvent.Save)
+        }
+        if(state.showOtpModalSheet) {
+            OtpBottomSheet(
+                sheetState = sheetState,
+                title = R.string.title_verify_email,
+                desc = R.string.desc_verify_email,
+                isError = state.otpError != null,
+                errorMessage = state.otpError,
+                onClickConfirm = { otpToken ->
+                    viewModel.onEvent(ChangeEmailEvent.CheckOtp(otpToken))
+                },
+                onClickResendCode = {},
+                onDismiss = {
+                    viewModel.onEvent(ChangeEmailEvent.OnDismiss)
+                }
+            )
         }
     }
 }

@@ -69,4 +69,15 @@ class ProfileRepositoryImpl @Inject constructor(
         close()
         awaitClose()
     }
+
+    override fun updateEmail(newEmail: String): Flow<Unit> = callbackFlow {
+        withContext(Dispatchers.IO) {
+            auth.updateUser {
+                email = newEmail
+            }
+        }
+        trySend(Unit)
+        close()
+        awaitClose()
+    }
 }

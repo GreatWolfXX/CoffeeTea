@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-12-19T01:46:52.873139600Z">
+        <DropdownSelection timestamp="2025-02-06T21:41:01.133597400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Default" identifier="serial=192.168.0.100:40013;connection=e3512473" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=27081JEGR11709" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -34,6 +34,17 @@
       </SelectionState>
       <SelectionState runConfigName="ErrorOrEmptyComponentPreview">
         <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="OtpBottomSheetPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2025-02-06T16:44:40.332786600Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=27081JEGR11709" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>

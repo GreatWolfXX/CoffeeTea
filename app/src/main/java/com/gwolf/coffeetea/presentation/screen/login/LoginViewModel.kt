@@ -87,7 +87,7 @@ class LoginViewModel @Inject constructor(
                     }
                     is UiResult.Error -> {
                         _formState.value = _formState.value.copy(
-                            sigInError = UiText.DynamicString(result.exception.message!!),
+                            sigInError = UiText.DynamicString(result.exception.message.orEmpty()),
                             isLoading = false
                         )
                     }

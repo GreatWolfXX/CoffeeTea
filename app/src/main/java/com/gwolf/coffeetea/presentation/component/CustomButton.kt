@@ -38,6 +38,7 @@ fun CustomButton(
     icon: ImageVector? = null,
     @StringRes text: Int,
     style: CustomButtonStyle = CustomButtonStyle.STANDARD,
+    isEnabled: Boolean = true,
     onClick: () -> Unit
 ) {
     val isStandardStyle = style == CustomButtonStyle.STANDARD
@@ -56,6 +57,7 @@ fun CustomButton(
             containerColor = bgColor
         ),
         contentPadding = PaddingValues(16.dp),
+        enabled = isEnabled,
         onClick = { onClick.invoke() }
     ) {
         Row(

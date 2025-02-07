@@ -88,7 +88,7 @@ class RegistrationViewModel @Inject constructor(
                     }
                     is UiResult.Error -> {
                         _formState.value = _formState.value.copy(
-                            sigUpError = UiText.DynamicString(result.exception.message!!),
+                            sigUpError = UiText.DynamicString(result.exception.message.orEmpty()),
                             isLoading = false
                         )
                     }

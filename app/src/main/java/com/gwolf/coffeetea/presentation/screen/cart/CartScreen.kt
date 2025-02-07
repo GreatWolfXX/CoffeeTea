@@ -193,7 +193,7 @@ private fun CartScreenContent(
                     modifier = Modifier,
                     text = stringResource(R.string.title_cart_price),
                     fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Normal,
                     fontSize = 22.sp,
                     lineHeight = TextUnit(28f, TextUnitType.Sp),
                     color = OnSurfaceColor
@@ -205,7 +205,7 @@ private fun CartScreenContent(
                     modifier = Modifier,
                     text = "$price₴",
                     fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Normal,
                     fontSize = 22.sp,
                     lineHeight = TextUnit(28f, TextUnitType.Sp),
                     color = OnSurfaceColor

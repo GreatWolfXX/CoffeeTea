@@ -7,4 +7,5 @@ interface ProfileRepository {
     fun getProfile(): Flow<ProfileEntity?>
     fun uploadProfileImage(byteArray: ByteArray): Flow<String>
     fun updateProfileImagePath(imagePath: String): Flow<Unit>
+    fun updateEmail(newEmail: String): Flow<Unit>
 }

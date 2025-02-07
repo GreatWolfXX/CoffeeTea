@@ -2,6 +2,7 @@ package com.gwolf.coffeetea.data.remote.repository
 
 import com.gwolf.coffeetea.domain.repository.remote.AuthRepository
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.channels.awaitClose
@@ -27,6 +28,13 @@ class AuthRepositoryImpl @Inject constructor(
             this.email = email
             this.password = password
         }
+        trySend(response)
+        close()
+        awaitClose()
+    }
+
+    override fun verifyOtpEmail(email: String, otpToken: String): Flow<Unit> = callbackFlow  {
+        val response = auth.verifyEmailOtp(type = OtpType.Email.EMAIL_CHANGE, email = email, token = otpToken)
         trySend(response)
         close()
         awaitClose()
