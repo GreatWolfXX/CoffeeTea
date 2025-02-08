@@ -46,4 +46,7 @@ sealed class Screen() {
     data class ChangeEmail(
         val email: String
     ): Screen()
+
+    @Serializable
+    data object ChangePassword: Screen()
 }

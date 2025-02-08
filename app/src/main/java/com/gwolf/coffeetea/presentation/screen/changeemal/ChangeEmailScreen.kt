@@ -21,6 +21,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +57,12 @@ fun ChangeEmailScreen(
     viewModel: ChangeEmailViewModel = hiltViewModel()
 ) {
     val state by viewModel.changeEmailState
+
+    LaunchedEffect(state.emailChanged) {
+        if (state.emailChanged) {
+            navController.popBackStack()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -184,7 +191,7 @@ private fun ChangeEmailScreenContent(
                 onValueChange = { text ->
                     viewModel.onEvent(ChangeEmailEvent.EmailChanged(text))
                 },
-                style = CustomTextInputStyle.STANDARD,
+                style = CustomTextInputStyle.EMAIL,
                 imeAction = ImeAction.Done,
                 isError = state.emailError != null,
                 errorMessage = state.emailError

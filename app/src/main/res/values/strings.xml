@@ -82,6 +82,9 @@
     <string name="didnt_receive_code">Не отримали код?</string>
     <string name="resend_code">Повторно надіслати новий код</string>
     <string name="btn_confirm">Підтвердити</string>
+    <string name="current_password">Поточний пароль</string>
+    <string name="new_password">Новий пароль</string>
+    <string name="repeat_new_password">Повторіть новий пароль</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_password_length">Пароль повинен містити менше %1$d символів!</string>
@@ -89,4 +92,5 @@
     <string name="err_password_valid">Введений пароль повинен містити принаймні одну літеру та цифру!</string>
     <string name="err_repeat_password_valid">Паролі повинні бути однаковими!</string>
     <string name="err_phone_number_valid">Номер телефону повинен починатися з + і складатися тільки з цифр!</string>
+    <string name="err_new_password">Новий пароль повинен відрізнятись від старого!</string>
 </resources>

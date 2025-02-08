@@ -80,4 +80,15 @@ class ProfileRepositoryImpl @Inject constructor(
         close()
         awaitClose()
     }
+
+    override fun updatePassword(newPassword: String): Flow<Unit> = callbackFlow {
+        withContext(Dispatchers.IO) {
+            auth.updateUser {
+                password = newPassword
+            }
+        }
+        trySend(Unit)
+        close()
+        awaitClose()
+    }
 }

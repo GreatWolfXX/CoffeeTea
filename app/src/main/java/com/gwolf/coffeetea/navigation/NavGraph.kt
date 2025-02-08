@@ -25,6 +25,7 @@ import com.gwolf.coffeetea.presentation.screen.auth.AuthScreen
 import com.gwolf.coffeetea.presentation.screen.cart.CartScreen
 import com.gwolf.coffeetea.presentation.screen.category.CategoryScreen
 import com.gwolf.coffeetea.presentation.screen.changeemal.ChangeEmailScreen
+import com.gwolf.coffeetea.presentation.screen.changepassword.ChangePasswordScreen
 import com.gwolf.coffeetea.presentation.screen.favorite.FavoriteScreen
 import com.gwolf.coffeetea.presentation.screen.forgotpassword.ForgotPasswordScreen
 import com.gwolf.coffeetea.presentation.screen.home.HomeScreen
@@ -188,6 +189,16 @@ fun SetupNavGraph(
             popEnterTransition = popEnterTransition
         ) {
             ChangeEmailScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.ChangePassword>(
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            popEnterTransition = popEnterTransition
+        ) {
+            ChangePasswordScreen(
                 navController = navController
             )
         }

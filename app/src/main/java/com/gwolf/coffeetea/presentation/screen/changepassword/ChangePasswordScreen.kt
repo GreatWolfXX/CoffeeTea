@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.presentation.screen.aboutme
+package com.gwolf.coffeetea.presentation.screen.changepassword
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -12,16 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.MailOutline
-import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,14 +32,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.CustomTextInput
 import com.gwolf.coffeetea.presentation.component.CustomTextInputStyle
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
-import com.gwolf.coffeetea.presentation.component.ProfileMenuComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
@@ -50,11 +46,17 @@ import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
-fun AboutMeScreen(
+fun ChangePasswordScreen(
     navController: NavController,
-    viewModel: AboutMeViewModel = hiltViewModel()
+    viewModel: ChangePasswordViewModel = hiltViewModel()
 ) {
-    val state by viewModel.aboutMeScreenState
+    val state by viewModel.changePasswordState
+
+    LaunchedEffect(state.passwordChanged) {
+        if (state.passwordChanged) {
+            navController.popBackStack()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -82,7 +84,7 @@ fun AboutMeScreen(
                     desc = desc
                 )
             } else {
-                AboutMeScreenContent(
+                ChangePasswordScreenContent(
                     navController = navController,
                     state = state,
                     viewModel = viewModel
@@ -103,7 +105,7 @@ private fun TopMenu(
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),
-                text = stringResource(R.string.title_about_me),
+                text = stringResource(R.string.title_password_change),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 22.sp,
@@ -128,10 +130,10 @@ private fun TopMenu(
 }
 
 @Composable
-private fun AboutMeScreenContent(
+private fun ChangePasswordScreenContent(
     navController: NavController,
-    state: AboutMeUiState,
-    viewModel: AboutMeViewModel
+    state: ChangePasswordUiState,
+    viewModel: ChangePasswordViewModel
 ) {
     Column(
         modifier = Modifier
@@ -142,89 +144,47 @@ private fun AboutMeScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column {
-            Text(
-                modifier = Modifier,
-                text = stringResource(id = R.string.title_personal_info),
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 22.sp,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.size(16.dp))
             CustomTextInput(
                 icon = Icons.Outlined.MailOutline,
-                placeholder = R.string.first_name_placeholder,
-                text = state.firstName,
+                placeholder = R.string.new_password,
+                text = state.newPassword,
                 onValueChange = { text ->
-                    viewModel.onEvent(AboutMeEvent.FirstNameChanged(text))
+                    viewModel.onEvent(ChangePasswordEvent.NewPasswordChange(text))
                 },
-                style = CustomTextInputStyle.STANDARD,
+                style = CustomTextInputStyle.PASSWORD,
                 imeAction = ImeAction.Next,
-                isError = state.firstNameError != null,
-                errorMessage = state.firstNameError
+                isError = state.newPasswordError != null,
+                errorMessage = state.newPasswordError,
+                passwordVisible = state.passwordVisible,
+                onPasswordVisibleChanged = { passwordVisible ->
+                    viewModel.onEvent(ChangePasswordEvent.PasswordVisibleChanged(passwordVisible))
+                }
             )
-            Spacer(modifier = Modifier.size(8.dp))
+            Spacer(modifier = Modifier.size(16.dp))
             CustomTextInput(
                 icon = Icons.Outlined.MailOutline,
-                placeholder = R.string.last_name_placeholder,
-                text = state.lastName,
+                placeholder = R.string.repeat_new_password,
+                text = state.repeatNewPassword,
                 onValueChange = { text ->
-                    viewModel.onEvent(AboutMeEvent.LastNameChanged(text))
+                    viewModel.onEvent(ChangePasswordEvent.RepeatNewPasswordChange(text))
                 },
-                style = CustomTextInputStyle.STANDARD,
-                imeAction = ImeAction.Next,
-                isError = state.lastNameError != null,
-                errorMessage = state.lastNameError
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            CustomTextInput(
-                icon = Icons.Outlined.MailOutline,
-                placeholder = R.string.patronymic_placeholder,
-                text = state.patronymic,
-                onValueChange = { text ->
-                    viewModel.onEvent(AboutMeEvent.PatronymicChanged(text))
-                },
-                style = CustomTextInputStyle.STANDARD,
+                style = CustomTextInputStyle.PASSWORD,
                 imeAction = ImeAction.Done,
-                isError = state.patronymicError != null,
-                errorMessage = state.patronymicError
+                isError = state.repeatNewPasswordError != null,
+                errorMessage = state.repeatNewPasswordError,
+                passwordVisible = state.passwordVisible,
+                onPasswordVisibleChanged = { passwordVisible ->
+                    viewModel.onEvent(ChangePasswordEvent.PasswordVisibleChanged(passwordVisible))
+                }
             )
             Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                modifier = Modifier,    
-                text = stringResource(id = R.string.title_contact_info),
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 22.sp,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.size(16.dp))
-            ProfileMenuComponent(
-                icon = Icons.Outlined.Email,
-                text = state.profile?.email.orEmpty()
-            ) {
-                navController.navigate(Screen.ChangeEmail(state.profile?.email.orEmpty()))
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-            //WARNING Hardcode number +38
-            val phoneEntered = state.profile?.phone != null
-            ProfileMenuComponent(
-                icon = Icons.Outlined.Phone,
-                text = if(phoneEntered) "+38${state.profile?.phone}" else stringResource(R.string.add_phone)
-            ) { }
-            Spacer(modifier = Modifier.size(16.dp))
-            ProfileMenuComponent(
-                icon = Icons.Outlined.Lock,
-                text = stringResource(R.string.title_password_change)
-            ) {
-                navController.navigate(Screen.ChangePassword)
-            }
         }
         CustomButton(
-            text = R.string.btn_save_change
+            text = R.string.btn_save
         )
         {
-
+            viewModel.onEvent(ChangePasswordEvent.Save)
         }
     }
 }
