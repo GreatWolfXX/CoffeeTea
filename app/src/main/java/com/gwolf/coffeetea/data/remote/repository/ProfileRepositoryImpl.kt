@@ -1,7 +1,9 @@
 package com.gwolf.coffeetea.data.remote.repository
 
+import android.util.Log
 import com.gwolf.coffeetea.data.entities.ProfileEntity
 import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
+import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.PNG_FORMAT
 import com.gwolf.coffeetea.util.PROFILES_BUCKET_ID
 import com.gwolf.coffeetea.util.PROFILE_TABLE
@@ -74,6 +76,18 @@ class ProfileRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO) {
             auth.updateUser {
                 email = newEmail
+            }
+        }
+        trySend(Unit)
+        close()
+        awaitClose()
+    }
+
+    override fun updatePhone(newPhone: String): Flow<Unit> = callbackFlow {
+        Log.d(LOGGER_TAG, "phone : ${newPhone}")
+        withContext(Dispatchers.IO) {
+            auth.updateUser {
+                phone = newPhone
             }
         }
         trySend(Unit)

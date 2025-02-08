@@ -49,7 +49,7 @@ fun ProfileEntity.toDomain(imageUrl: String) = Profile(
     firstName = this.firstName,
     lastName = this.lastName,
     patronymic = this.patronymic,
-    phone = this.phone,
+    phone = if(this.phone.isNotEmpty()) "+${this.phone}" else "",
     email = this.email,
     imageUrl = imageUrl
 )

@@ -8,6 +8,6 @@ data class Profile(
     val firstName: String,
     val lastName: String,
     val patronymic: String,
-    val phone: Int?,
+    val phone: String,
     val imageUrl: String
 )

@@ -39,4 +39,11 @@ class AuthRepositoryImpl @Inject constructor(
         close()
         awaitClose()
     }
+
+    override fun verifyOtpPhone(phone: String, otpToken: String): Flow<Unit> = callbackFlow  {
+        val response = auth.verifyPhoneOtp(type = OtpType.Phone.PHONE_CHANGE, phone = phone, token = otpToken)
+        trySend(response)
+        close()
+        awaitClose()
+    }
 }

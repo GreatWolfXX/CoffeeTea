@@ -26,6 +26,7 @@ import com.gwolf.coffeetea.presentation.screen.cart.CartScreen
 import com.gwolf.coffeetea.presentation.screen.category.CategoryScreen
 import com.gwolf.coffeetea.presentation.screen.changeemal.ChangeEmailScreen
 import com.gwolf.coffeetea.presentation.screen.changepassword.ChangePasswordScreen
+import com.gwolf.coffeetea.presentation.screen.changephone.ChangePhoneScreen
 import com.gwolf.coffeetea.presentation.screen.favorite.FavoriteScreen
 import com.gwolf.coffeetea.presentation.screen.forgotpassword.ForgotPasswordScreen
 import com.gwolf.coffeetea.presentation.screen.home.HomeScreen
@@ -199,6 +200,16 @@ fun SetupNavGraph(
             popEnterTransition = popEnterTransition
         ) {
             ChangePasswordScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.ChangePhone>(
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            popEnterTransition = popEnterTransition
+        ) {
+            ChangePhoneScreen(
                 navController = navController
             )
         }

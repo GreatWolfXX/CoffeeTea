@@ -10,6 +10,6 @@ data class ProfileEntity(
     @SerialName("first_name") val firstName: String,
     @SerialName("last_name") val lastName: String,
     @SerialName("patronymic") val patronymic: String,
-    @SerialName("phone") val phone: Int?,
+    @SerialName("phone") val phone: String,
     @SerialName("image_path") val imagePath: String
 )

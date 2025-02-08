@@ -49,4 +49,9 @@ sealed class Screen() {
 
     @Serializable
     data object ChangePassword: Screen()
+
+    @Serializable
+    data class ChangePhone(
+        val phone: String
+    ): Screen()
 }

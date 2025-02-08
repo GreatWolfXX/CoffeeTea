@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gwolf.coffeetea.ui.theme.LightRedColor
+import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.UiText
@@ -46,7 +47,8 @@ enum class CustomTextInputStyle {
 
 @Composable
 fun CustomTextInput(
-    icon: ImageVector,
+    icon: ImageVector? = null,
+    prefixText: String = "",
     @StringRes placeholder: Int,
     text: String,
     isError: Boolean,
@@ -113,12 +115,23 @@ fun CustomTextInput(
                 )
             },
             prefix = {
-                Icon(
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp),
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = OutlineColor
-                )
+                if(icon != null) {
+                    Icon(
+                        modifier = Modifier.padding(start = 4.dp, end = 4.dp),
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = OutlineColor
+                    )
+                } else {
+                    Text(
+                        modifier = Modifier,
+                        text = prefixText,
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 16.sp,
+                        color = OnSurfaceColor
+                    )
+                }
             },
             trailingIcon = if(style == CustomTextInputStyle.PASSWORD) {
                 {
