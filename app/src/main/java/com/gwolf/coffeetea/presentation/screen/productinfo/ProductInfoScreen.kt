@@ -71,7 +71,6 @@ import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductInfoScreen(
     navController: NavController,
@@ -88,41 +87,19 @@ fun ProductInfoScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopAppBar(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                title = {
-                    Text(
-                        modifier = Modifier.padding(start = 4.dp),
-                        text = state.product?.categoryName.orEmpty(),
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 22.sp,
-                        color = OnSurfaceColor
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .clickable {
-                                navController.popBackStack()
-                            },
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
-                        contentDescription = null,
-                        tint = OnSurfaceColor
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+            TopMenu(
+                navController,
+                categoryName = state.product?.categoryName.orEmpty()
             )
+
             val connection by connectivityState()
 
             val isConnected = connection === ConnectionState.Available
             if (state.error != null || !isConnected) {
                 Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if(isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if(isConnected) R.string.title_error else R.string.title_network
-                val desc = if(isConnected) R.string.desc_error else R.string.desc_network
+                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isConnected) R.string.title_error else R.string.title_network
+                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
@@ -139,6 +116,41 @@ fun ProductInfoScreen(
         }
     }
     LoadingComponent(state.isLoading)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopMenu(
+    navController: NavController,
+    categoryName: String
+) {
+    TopAppBar(
+        modifier = Modifier.padding(horizontal = 8.dp),
+        title = {
+            Text(
+                modifier = Modifier.padding(start = 4.dp),
+                text = categoryName,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 22.sp,
+                color = OnSurfaceColor
+            )
+        },
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .clickable {
+                        navController.popBackStack()
+                    },
+                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
+                contentDescription = null,
+                tint = OnSurfaceColor
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
 }
 
 @Composable
@@ -166,7 +178,7 @@ private fun ProductInfoScreenContent(
                         .height(348.dp)
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp)),
-                    model  = ImageRequest.Builder(context)
+                    model = ImageRequest.Builder(context)
                         .data(state.product?.imageUrl)
                         .crossfade(true)
                         .build(),
@@ -185,13 +197,13 @@ private fun ProductInfoScreenContent(
                         )
                         .padding(4.dp)
                         .clickable {
-                            if(state.isFavorite) {
+                            if (state.isFavorite) {
                                 viewModel.onEvent(ProductInfoEvent.RemoveFavorite)
                             } else {
                                 viewModel.onEvent(ProductInfoEvent.AddFavorite)
                             }
                         },
-                    imageVector = if(state.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder ,
+                    imageVector = if (state.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = null,
                     tint = LightRedColor
                 )
@@ -228,7 +240,7 @@ private fun ProductInfoScreenContent(
                     tint = PrimaryColor
                 )
                 Spacer(modifier = Modifier.size(2.dp))
-                if(state.product?.rating != 0.0) {
+                if (state.product?.rating != 0.0) {
                     Text(
                         modifier = Modifier,
                         text = state.product?.rating.toString(),
@@ -267,8 +279,9 @@ private fun ProductInfoScreenContent(
                 lineHeight = TextUnit(20f, TextUnitType.Sp),
                 color = OutlineColor,
                 onTextLayout = { textLayoutResult: TextLayoutResult ->
-                    if (textLayoutResult.lineCount > minimumLineLength-1) {           //Adding this check to avoid ArrayIndexOutOfBounds Exception
-                        if (textLayoutResult.isLineEllipsized(minimumLineLength-1)) showReadMoreButtonState = true
+                    if (textLayoutResult.lineCount > minimumLineLength - 1) {           //Adding this check to avoid ArrayIndexOutOfBounds Exception
+                        if (textLayoutResult.isLineEllipsized(minimumLineLength - 1)) showReadMoreButtonState =
+                            true
                     }
                 }
             )
@@ -291,7 +304,10 @@ private fun ProductInfoScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-                .shadow(elevation = 4.dp, shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+                )
                 .weight(0.12f)
                 .background(Color.White)
                 .padding(top = 8.dp)
@@ -322,11 +338,11 @@ private fun ProductInfoScreenContent(
                 )
             }
             Spacer(modifier = Modifier.size(32.dp))
-            val btnTitle = if(state.isInCart) R.string.title_go_to_cart else R.string.title_bought
+            val btnTitle = if (state.isInCart) R.string.title_go_to_cart else R.string.title_bought
             CustomButton(
                 text = btnTitle
             ) {
-                if(state.isInCart) {
+                if (state.isInCart) {
                     navController.navigate(Screen.Cart)
                 } else {
                     viewModel.onEvent(ProductInfoEvent.AddToCart)

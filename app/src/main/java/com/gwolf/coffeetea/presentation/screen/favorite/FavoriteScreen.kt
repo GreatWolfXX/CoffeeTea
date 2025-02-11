@@ -46,7 +46,6 @@ import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteScreen(
     navController: NavController,
@@ -61,41 +60,16 @@ fun FavoriteScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopAppBar(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                title = {
-                    Text(
-                        modifier = Modifier.padding(start = 4.dp),
-                        text = stringResource(id = R.string.title_favorites),
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 22.sp,
-                        color = OnSurfaceColor
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .clickable {
-                                navController.popBackStack()
-                            },
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
-                        contentDescription = null,
-                        tint = OnSurfaceColor
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
+            TopMenu(navController)
+
             val connection by connectivityState()
 
             val isConnected = connection === ConnectionState.Available
             if (state.error != null || !isConnected) {
                 Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if(isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if(isConnected) R.string.title_error else R.string.title_network
-                val desc = if(isConnected) R.string.desc_error else R.string.desc_network
+                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isConnected) R.string.title_error else R.string.title_network
+                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
@@ -110,6 +84,40 @@ fun FavoriteScreen(
         }
     }
     LoadingComponent(state.isLoading)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopMenu(
+    navController: NavController
+) {
+    TopAppBar(
+        modifier = Modifier.padding(horizontal = 8.dp),
+        title = {
+            Text(
+                modifier = Modifier.padding(start = 4.dp),
+                text = stringResource(id = R.string.title_favorites),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 22.sp,
+                color = OnSurfaceColor
+            )
+        },
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .clickable {
+                        navController.popBackStack()
+                    },
+                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
+                contentDescription = null,
+                tint = OnSurfaceColor
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
 }
 
 @Composable

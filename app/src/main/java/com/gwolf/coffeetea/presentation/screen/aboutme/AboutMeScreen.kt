@@ -99,7 +99,7 @@ private fun TopMenu(
     navController: NavController
 ) {
     TopAppBar(
-        modifier = Modifier.padding(horizontal = 16.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),
@@ -225,7 +225,7 @@ private fun AboutMeScreenContent(
             text = R.string.btn_save_change
         )
         {
-
+            viewModel.onEvent(AboutMeEvent.Save)
         }
     }
 }

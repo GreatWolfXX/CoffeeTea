@@ -18,3 +18,7 @@ fun isPasswordValid(password: String): Boolean {
 fun isRepeatPasswordValid(password: String, repeatPassword: String): Boolean {
     return password == repeatPassword
 }
+
+fun isNameValid(value: String): Boolean {
+    return value.all { it.isLetter() }
+}

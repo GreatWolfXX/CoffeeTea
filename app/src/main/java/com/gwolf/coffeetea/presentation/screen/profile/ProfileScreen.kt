@@ -116,7 +116,7 @@ private fun TopMenu(
     navController: NavController
 ) {
     TopAppBar(
-        modifier = Modifier.padding(horizontal = 16.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),
@@ -162,7 +162,7 @@ private fun ProfileScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 48.dp, vertical = 64.dp),
+            .padding(horizontal = 32.dp, vertical = 64.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

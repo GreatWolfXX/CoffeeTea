@@ -10,4 +10,5 @@ interface ProfileRepository {
     fun updateEmail(newEmail: String): Flow<Unit>
     fun updatePhone(newPhone: String): Flow<Unit>
     fun updatePassword(newPassword: String): Flow<Unit>
+    fun updateNameInfo(firstName: String, lastName: String, patronymic: String): Flow<Unit>
 }

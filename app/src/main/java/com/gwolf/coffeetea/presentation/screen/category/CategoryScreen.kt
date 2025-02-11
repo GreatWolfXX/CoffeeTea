@@ -46,7 +46,6 @@ import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryScreen(
     navController: NavController,
@@ -61,33 +60,8 @@ fun CategoryScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopAppBar(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                title = {
-                    Text(
-                        modifier = Modifier.padding(start = 4.dp),
-                        text = stringResource(id = R.string.title_categories),
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 22.sp,
-                        color = OnSurfaceColor
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .clickable {
-                                navController.popBackStack()
-                            },
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
-                        contentDescription = null,
-                        tint = OnSurfaceColor
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
+           TopMenu(navController)
+
             val connection by connectivityState()
 
             val isConnected = connection === ConnectionState.Available
@@ -110,6 +84,40 @@ fun CategoryScreen(
         }
     }
     LoadingComponent(state.isLoading)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopMenu(
+    navController: NavController
+) {
+    TopAppBar(
+        modifier = Modifier.padding(horizontal = 8.dp),
+        title = {
+            Text(
+                modifier = Modifier.padding(start = 4.dp),
+                text = stringResource(id = R.string.title_categories),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 22.sp,
+                color = OnSurfaceColor
+            )
+        },
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .clickable {
+                        navController.popBackStack()
+                    },
+                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
+                contentDescription = null,
+                tint = OnSurfaceColor
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
 }
 
 @Composable

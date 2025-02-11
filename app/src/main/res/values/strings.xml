@@ -93,6 +93,7 @@
     <string name="empty_phone">Ви ще не пов\'язували свій номер телефону</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
+    <string name="err_field_must_contains_letters">Поле має містити лише літери!</string>
     <string name="err_password_length">Пароль повинен містити менше %1$d символів!</string>
     <string name="err_email_valid">Введений email є недійсним!</string>
     <string name="err_phone_valid">Введений номер телефону є недійсним!</string>

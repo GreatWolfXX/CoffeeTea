@@ -158,7 +158,7 @@ private fun TopMenu(
     navController: NavController
 ) {
     TopAppBar(
-        modifier = Modifier.padding(horizontal = 16.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),

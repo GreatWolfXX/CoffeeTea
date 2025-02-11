@@ -105,4 +105,25 @@ class ProfileRepositoryImpl @Inject constructor(
         close()
         awaitClose()
     }
+
+    override fun updateNameInfo(firstName: String, lastName: String, patronymic: String): Flow<Unit> = callbackFlow {
+        val id = auth.currentUserOrNull()?.id.orEmpty()
+
+        withContext(Dispatchers.IO) {
+            postgrest.from(USERS_TABLE).update(
+                {
+                    if(firstName.isNotBlank()) set("first_name", firstName)
+                    if(lastName.isNotBlank()) set("last_name", lastName)
+                    if(patronymic.isNotBlank()) set("patronymic", patronymic)
+                }
+            ) {
+                filter {
+                    eq("user_id", id)
+                }
+            }
+        }
+        trySend(Unit)
+        close()
+        awaitClose()
+    }
 }
