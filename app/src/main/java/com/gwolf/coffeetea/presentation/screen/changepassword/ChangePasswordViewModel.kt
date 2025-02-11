@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.usecase.update.ChangePasswordUseCase
+import com.gwolf.coffeetea.domain.usecase.database.update.ChangePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateRepeatPasswordUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG

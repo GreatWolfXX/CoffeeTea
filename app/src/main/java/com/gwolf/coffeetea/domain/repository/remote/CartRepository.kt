@@ -7,4 +7,5 @@ interface CartRepository {
     fun getCartProducts(): Flow<List<CartEntity>>
     fun addCart(productId: Int, quantity: Int): Flow<String?>
     fun removeCart(cartId: String): Flow<Unit>
+    fun updateCartProductQuantity(cartId: String, quantity: Int): Flow<Unit>
 }

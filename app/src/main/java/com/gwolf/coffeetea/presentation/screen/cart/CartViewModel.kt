@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Cart
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveCartProductUseCase
+import com.gwolf.coffeetea.domain.usecase.database.update.UpdateCartProductQuantityUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,13 +25,15 @@ data class CartUiState(
 
 sealed class CartEvent {
     data class RemoveFromCart(val cartId: String) : CartEvent()
+    data class UpdateProductQuantity(val cartId: String, val quantity: Int) : CartEvent()
 }
 
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val getCartProductsListUseCase: GetCartProductsListUseCase,
-    private val removeCartProductUseCase: RemoveCartProductUseCase
+    private val removeCartProductUseCase: RemoveCartProductUseCase,
+    private val updateCartProductQuantityUseCase: UpdateCartProductQuantityUseCase
 ) : ViewModel() {
 
     private val _cartScreenState = mutableStateOf(CartUiState())
@@ -40,6 +43,10 @@ class CartViewModel @Inject constructor(
         when (event) {
             is CartEvent.RemoveFromCart -> {
                 removeFavorite(event.cartId)
+            }
+
+            is CartEvent.UpdateProductQuantity -> {
+                updateCartProductQuantity(event.cartId, event.quantity)
             }
         }
     }
@@ -57,6 +64,26 @@ class CartViewModel @Inject constructor(
                                 _cartScreenState.value.copy(
                                     cartProductsList = cartList
                                 )
+                        }
+
+                        is UiResult.Error -> {
+                            _cartScreenState.value =
+                                _cartScreenState.value.copy(
+                                    error = response.exception.message.toString()
+                                )
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun updateCartProductQuantity(cartId: String, quantity: Int) {
+        viewModelScope.launch {
+            updateCartProductQuantityUseCase.invoke(cartId, quantity)
+                .collect { response ->
+                    when (response) {
+                        is UiResult.Success -> {
+
                         }
 
                         is UiResult.Error -> {

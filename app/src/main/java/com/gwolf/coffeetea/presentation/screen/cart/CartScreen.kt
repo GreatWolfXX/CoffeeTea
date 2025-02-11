@@ -162,6 +162,9 @@ private fun CartScreenContent(
                             },
                             onClick = {
                                 navController.navigate(Screen.ProductInfo(productId = cartProduct.productId))
+                            },
+                            saveQuantity = { count ->
+                                viewModel.onEvent(CartEvent.UpdateProductQuantity(cartProduct.cartId, count))
                             }
                         )
                     }

@@ -3,6 +3,7 @@ package com.gwolf.coffeetea.data.remote.repository
 import com.gwolf.coffeetea.data.entities.CartEntity
 import com.gwolf.coffeetea.domain.repository.remote.CartRepository
 import com.gwolf.coffeetea.util.CART_TABLE
+import com.gwolf.coffeetea.util.USERS_TABLE
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
@@ -59,6 +60,23 @@ class CartRepositoryImpl @Inject constructor(
                         eq("cart_id", cartId)
                     }
                 }
+        }
+        trySend(Unit)
+        close()
+        awaitClose()
+    }
+
+    override fun updateCartProductQuantity(cartId: String, quantity: Int): Flow<Unit> = callbackFlow {
+        withContext(Dispatchers.IO) {
+            postgrest.from(CART_TABLE).update(
+                {
+                    set("quantity", quantity)
+                }
+            ) {
+                filter {
+                    eq("cart_id", cartId)
+                }
+            }
         }
         trySend(Unit)
         close()

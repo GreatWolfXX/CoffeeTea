@@ -3,6 +3,7 @@ package com.gwolf.coffeetea.domain.model
 data class Product(
     val id: Int,
     val name: String,
+    val stockQuantity: Int,
     val amount: Double,
     val unit: String,
     val featuresDescription: String,

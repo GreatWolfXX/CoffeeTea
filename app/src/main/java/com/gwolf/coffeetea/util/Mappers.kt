@@ -32,6 +32,7 @@ fun CategoryEntity.toDomain(imageUrl: String) = Category(
 fun ProductEntity.toDomain(imageUrl: String) = Product(
     id = this.id,
     name = this.name,
+    stockQuantity = this.stockQuantity,
     amount = this.amount,
     unit = this.unit,
     featuresDescription = this.featuresDescription,
@@ -41,7 +42,7 @@ fun ProductEntity.toDomain(imageUrl: String) = Product(
     imageUrl = imageUrl,
     categoryName = this.category?.name.orEmpty(),
     favoriteId = this.favorite.firstOrNull()?.id.orEmpty(),
-    cartId = this.cart.firstOrNull()?.id.let { "" }
+    cartId = this.cart.firstOrNull()?.id.orEmpty()
 )
 
 fun ProfileEntity.toDomain(imageUrl: String) = Profile(

@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.gwolf.coffeetea.domain.usecase.auth.VerifyOtpEmailUseCase
-import com.gwolf.coffeetea.domain.usecase.update.ChangeEmailUseCase
+import com.gwolf.coffeetea.domain.usecase.database.update.ChangeEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.LOGGER_TAG

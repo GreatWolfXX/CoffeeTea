@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.model.Profile
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
-import com.gwolf.coffeetea.domain.usecase.update.UpdateNameInfoUseCase
+import com.gwolf.coffeetea.domain.usecase.database.update.UpdateNameInfoUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult

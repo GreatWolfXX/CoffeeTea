@@ -1,18 +1,18 @@
-package com.gwolf.coffeetea.domain.usecase.update
+package com.gwolf.coffeetea.domain.usecase.database.update
 
-import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
+import com.gwolf.coffeetea.domain.repository.remote.CartRepository
 import com.gwolf.coffeetea.util.UiResult
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
-class ChangeEmailUseCase @Inject constructor(
-    private val profileRepository: ProfileRepository
+class UpdateCartProductQuantityUseCase @Inject constructor(
+    private val cartRepository: CartRepository
 ) {
-    operator fun invoke(newEmail: String): Flow<UiResult<Unit>> = callbackFlow {
+    operator fun invoke(cartId: String, quantity: Int): Flow<UiResult<Unit>> = callbackFlow {
         try {
-            profileRepository.updateEmail(newEmail)
+            cartRepository.updateCartProductQuantity(cartId, quantity)
                 .collect { response ->
                     trySend(UiResult.Success(data = response))
                 }

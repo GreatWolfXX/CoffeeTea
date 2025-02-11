@@ -1,6 +1,7 @@
 package com.gwolf.coffeetea.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,9 +25,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,6 +54,7 @@ import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
+import kotlinx.coroutines.delay
 
 @Composable
 fun CartProductCard(
@@ -58,10 +62,20 @@ fun CartProductCard(
     cart: Cart,
     onClickDelete: () -> Unit,
     onClick: (product: Product) -> Unit,
+    saveQuantity: (quantity: Int) -> Unit
 ) {
+    var quantity by rememberSaveable { mutableIntStateOf(cart.quantity) }
+    var lastSentQuantity by rememberSaveable { mutableIntStateOf(cart.quantity) }
     val product = cart.product
-    val count by rememberSaveable { mutableIntStateOf(cart.quantity) }
     val context = LocalContext.current
+
+    LaunchedEffect(quantity) {
+        delay(1000)
+        if (quantity != lastSentQuantity) {
+            saveQuantity(quantity)
+            lastSentQuantity = quantity
+        }
+    }
 
     Card(
         modifier = modifier
@@ -130,12 +144,13 @@ fun CartProductCard(
                     Spacer(Modifier.size(4.dp))
                     CartProductChangeCount(
                         onAdd = {
-
+                            quantity = quantity.inc()
                         },
                         onMinus = {
-
+                            quantity = quantity.dec()
                         },
-                        count = count
+                        stockQuantity = cart.product.stockQuantity,
+                        quantity = quantity
                     )
                 }
             }
@@ -201,22 +216,32 @@ private fun CartProductDeleteBtn(
 private fun CartProductChangeCount(
     onAdd: () -> Unit,
     onMinus: () -> Unit,
-    count: Int
+    stockQuantity: Int,
+    quantity: Int
 ) {
     Row(
         modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        val enabledMinus = quantity > 1
+        val enabledAdd = quantity < stockQuantity
         Box(
             modifier = Modifier
                 .size(28.dp)
                 .background(
-                    color = PrimaryDarkColor,
+                    color = if (enabledMinus) PrimaryDarkColor else Color.Transparent,
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .border(
+                    1.dp,
+                    color = if (enabledMinus) Color.Transparent else PrimaryDarkColor,
                     shape = RoundedCornerShape(4.dp)
                 )
                 .clickable {
-                    onMinus.invoke()
+                    if (enabledMinus) {
+                        onMinus.invoke()
+                    }
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -224,13 +249,13 @@ private fun CartProductChangeCount(
                 modifier = Modifier.size(20.dp),
                 imageVector = Icons.Outlined.Remove,
                 contentDescription = null,
-                tint = Color.White
+                tint = if (enabledMinus) Color.White else PrimaryDarkColor
             )
         }
         Spacer(Modifier.size(14.dp))
         Text(
             modifier = Modifier,
-            text = count.toString(),
+            text = quantity.toString(),
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
@@ -241,11 +266,18 @@ private fun CartProductChangeCount(
             modifier = Modifier
                 .size(28.dp)
                 .background(
-                    color = PrimaryDarkColor,
+                    color = if (enabledAdd) PrimaryDarkColor else Color.Transparent,
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .border(
+                    1.dp,
+                    color = if (enabledAdd) Color.Transparent else PrimaryDarkColor,
                     shape = RoundedCornerShape(4.dp)
                 )
                 .clickable {
-                    onAdd.invoke()
+                    if (enabledAdd) {
+                        onAdd.invoke()
+                    }
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -253,7 +285,7 @@ private fun CartProductChangeCount(
                 modifier = Modifier.size(20.dp),
                 imageVector = Icons.Default.Add,
                 contentDescription = null,
-                tint = Color.White
+                tint = if (enabledAdd) Color.White else PrimaryDarkColor
             )
         }
     }
