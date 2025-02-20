@@ -28,9 +28,11 @@ android {
 
         val supabaseAnonKey = properties.getProperty("SUPABASE_ANON_KEY") ?: ""
         val supabaseUrl = properties.getProperty("SUPABASE_URL") ?: ""
+        val novaPostApi = properties.getProperty("NOVA_POST_API") ?: ""
 
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "NOVA_POST_API", "\"$novaPostApi\"")
     }
 
     buildTypes {
@@ -90,8 +92,11 @@ dependencies {
     implementation(libs.supabase.storage)
     implementation(libs.supabase.auth)
 
+    implementation(libs.ktor.content.negotiation)
     implementation(libs.ktor.client)
     implementation(libs.ktor.core)
+    implementation(libs.ktor.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.utils)
 
     implementation(libs.paging)

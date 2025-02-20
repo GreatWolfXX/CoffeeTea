@@ -1,7 +1,7 @@
 package com.gwolf.coffeetea.domain.usecase.database.get
 
 import com.gwolf.coffeetea.domain.model.Favorite
-import com.gwolf.coffeetea.domain.repository.remote.FavoriteRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.FavoriteRepository
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.UiResult
 import com.gwolf.coffeetea.util.toDomain

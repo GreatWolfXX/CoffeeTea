@@ -27,31 +27,27 @@ sealed class Screen() {
 
     @Serializable
     data object Category: Screen()
-
     @Serializable
     data class ProductInfo(
         val productId: Int
     ): Screen()
-
     @Serializable
     data class SearchByCategory(
         val categoryId: Int,
         val categoryName: String
     ): Screen()
-
     @Serializable
     data object AboutMe: Screen()
-
     @Serializable
     data class ChangeEmail(
         val email: String
     ): Screen()
-
     @Serializable
     data object ChangePassword: Screen()
-
     @Serializable
     data class ChangePhone(
         val phone: String
     ): Screen()
+    @Serializable
+    data object Checkout: Screen()
 }

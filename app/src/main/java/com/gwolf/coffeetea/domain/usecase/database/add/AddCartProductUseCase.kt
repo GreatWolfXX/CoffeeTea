@@ -1,6 +1,6 @@
 package com.gwolf.coffeetea.domain.usecase.database.add
 
-import com.gwolf.coffeetea.domain.repository.remote.CartRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.CartRepository
 import com.gwolf.coffeetea.util.UiResult
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

@@ -1,7 +1,7 @@
 package com.gwolf.coffeetea.domain.usecase.database.get
 
 import com.gwolf.coffeetea.domain.model.Profile
-import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.ProfileRepository
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.PROFILES_BUCKET_ID
 import com.gwolf.coffeetea.util.UiResult

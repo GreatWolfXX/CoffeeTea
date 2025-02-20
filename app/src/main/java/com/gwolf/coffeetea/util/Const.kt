@@ -1,6 +1,13 @@
 package com.gwolf.coffeetea.util
 
 const val LOGGER_TAG = "Coffee&TeaLogger"
+const val NOVA_POST_API = "https://api.novaposhta.ua/v2.0/json/"
+const val NOVA_POST_DEPARTMENT_REF = "841339c7-591a-42e2-8233-7a0a00f0ed6f"
+const val NOVA_POST_CARGO_DEPARTMENT_REF = "9a68df70-0267-42a8-bb5c-37f427e36ee4"
+const val NOVA_POST_CABINE_REF = "f9316480-5f2d-425d-bc2c-ac7cd29decf0"
+const val NOVA_POST_ADDRESS_MODEL = "AddressGeneral"
+const val NOVA_POST_GET_CITIES = "getCities"
+const val NOVA_POST_GET_WAREHOUSES = "getWarehouses"
 
 const val MAX_PRODUCT_COUNT = 100
 const val MIN_PASSWORD_LENGTH = 8

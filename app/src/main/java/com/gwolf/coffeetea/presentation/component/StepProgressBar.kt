@@ -141,7 +141,7 @@ private fun Step(
         AnimatedVisibility(!isCurrent) {
             Icon(
                 imageVector = Icons.Rounded.Check,
-                tint = colorIcon,
+                tint = if(isActive) colorIcon else Color.Transparent,
                 contentDescription = null
             )
         }
@@ -172,7 +172,7 @@ private fun StepWithText(
         )
         Text(
             modifier = Modifier
-                .width(stepCircleSize+32.dp),
+                .width(stepCircleSize + 48.dp),
             text = titleStep,
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.SemiBold,
@@ -203,7 +203,7 @@ private fun Line(
     if (stepIndex != 0) {
         Box(
             modifier = modifier
-                .scale(scaleX = 1.25f, scaleY = 1f)
+                .scale(scaleX = 1.6f, scaleY = 1f)
                 .padding(top = topPadding)
         ) {
             HorizontalDivider(

@@ -217,7 +217,11 @@ private fun CartScreenContent(
             Spacer(modifier = Modifier.size(16.dp))
             CustomButton(
                 text = R.string.title_cart_buy
-            ) { }
+            ) {
+                if(state.cartProductsList.isNotEmpty()) {
+                    navController.navigate(Screen.Checkout)
+                }
+            }
         }
     }
 }

@@ -2,21 +2,23 @@ package com.gwolf.coffeetea.di
 
 import android.content.Context
 import com.gwolf.coffeetea.data.local.repository.DataStoreRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.AuthRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.CartRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.CategoryRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.FavoriteRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.ProductRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.ProfileRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.PromotionRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.api.NovaPostRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.supabase.AuthRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.supabase.CartRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.supabase.CategoryRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.supabase.FavoriteRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.supabase.ProductRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.supabase.ProfileRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.supabase.PromotionRepositoryImpl
 import com.gwolf.coffeetea.domain.repository.local.DataStoreRepository
-import com.gwolf.coffeetea.domain.repository.remote.AuthRepository
-import com.gwolf.coffeetea.domain.repository.remote.CartRepository
-import com.gwolf.coffeetea.domain.repository.remote.CategoryRepository
-import com.gwolf.coffeetea.domain.repository.remote.FavoriteRepository
-import com.gwolf.coffeetea.domain.repository.remote.ProductRepository
-import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
-import com.gwolf.coffeetea.domain.repository.remote.PromotionRepository
+import com.gwolf.coffeetea.domain.repository.remote.api.NovaPostRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.AuthRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.CartRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.CategoryRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.FavoriteRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.ProductRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.ProfileRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.PromotionRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +27,7 @@ import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
+import io.ktor.client.HttpClient
 import javax.inject.Singleton
 
 @Module
@@ -83,4 +86,10 @@ object RepositoryModule {
         postgrest: Postgrest,
         auth: Auth
     ): CartRepository = CartRepositoryImpl(postgrest, auth)
+
+    @Provides
+    @Singleton
+    fun provideNovaPostRepository(
+        httpClient: HttpClient
+    ): NovaPostRepository = NovaPostRepositoryImpl(httpClient)
 }

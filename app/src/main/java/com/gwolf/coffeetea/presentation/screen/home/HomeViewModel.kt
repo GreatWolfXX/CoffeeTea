@@ -113,7 +113,7 @@ class HomeViewModel @Inject constructor(
         snapshotFlow { _homeScreenState.value.searchText }
             .debounce(1000)
             .distinctUntilChanged()
-            .onEach { query ->
+            .onEach {
                 _homeScreenState.value =
                     _homeScreenState.value.copy(
                         searchProductsList = listOf<Product>()

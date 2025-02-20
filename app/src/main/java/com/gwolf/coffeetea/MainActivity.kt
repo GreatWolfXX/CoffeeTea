@@ -17,7 +17,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
@@ -73,11 +76,13 @@ class MainActivity : ComponentActivity() {
                         destination.hasRoute(screen::class)
                     }
                 }
+
+                val snackbarHostState = remember { SnackbarHostState() }
+
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize(),
                     bottomBar = {
-
                         AnimatedVisibility(
                             visible = showBottomBar ?: false,
                             enter = slideInVertically(
@@ -93,11 +98,15 @@ class MainActivity : ComponentActivity() {
                                 navController = navController
                             )
                         }
+                    },
+                    snackbarHost = {
+                        SnackbarHost(snackbarHostState)
                     }
                 ) { innerPadding ->
                     screen?.let {
                         SetupNavGraph(
                             navController = navController,
+                            snackbarHostState = snackbarHostState,
                             startDestination = it,
                             showBottomBar = showBottomBar ?: false,
                             paddingValues = innerPadding

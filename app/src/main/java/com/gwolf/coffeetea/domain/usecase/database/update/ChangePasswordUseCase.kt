@@ -1,6 +1,6 @@
 package com.gwolf.coffeetea.domain.usecase.database.update
 
-import com.gwolf.coffeetea.domain.repository.remote.ProfileRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.ProfileRepository
 import com.gwolf.coffeetea.util.UiResult
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

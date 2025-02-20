@@ -1,6 +1,6 @@
 package com.gwolf.coffeetea.domain.usecase.auth
 
-import com.gwolf.coffeetea.domain.repository.remote.AuthRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.AuthRepository
 import com.gwolf.coffeetea.util.UiResult
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.channels.awaitClose

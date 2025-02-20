@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import com.gwolf.coffeetea.presentation.screen.category.CategoryScreen
 import com.gwolf.coffeetea.presentation.screen.changeemal.ChangeEmailScreen
 import com.gwolf.coffeetea.presentation.screen.changepassword.ChangePasswordScreen
 import com.gwolf.coffeetea.presentation.screen.changephone.ChangePhoneScreen
+import com.gwolf.coffeetea.presentation.screen.checkout.CheckoutScreen
 import com.gwolf.coffeetea.presentation.screen.favorite.FavoriteScreen
 import com.gwolf.coffeetea.presentation.screen.forgotpassword.ForgotPasswordScreen
 import com.gwolf.coffeetea.presentation.screen.home.HomeScreen
@@ -40,6 +42,7 @@ import com.gwolf.coffeetea.presentation.screen.welcome.WelcomeScreen
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
     startDestination: Screen,
     showBottomBar: Boolean,
     paddingValues: PaddingValues
@@ -210,6 +213,17 @@ fun SetupNavGraph(
             popEnterTransition = popEnterTransition
         ) {
             ChangePhoneScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.Checkout>(
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            popEnterTransition = popEnterTransition
+        ) {
+            CheckoutScreen(
+                snackbarHostState = snackbarHostState,
                 navController = navController
             )
         }

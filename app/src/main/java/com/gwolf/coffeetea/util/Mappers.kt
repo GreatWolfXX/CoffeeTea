@@ -1,13 +1,17 @@
 package com.gwolf.coffeetea.util
 
-import com.gwolf.coffeetea.data.entities.CartEntity
-import com.gwolf.coffeetea.data.entities.CategoryEntity
-import com.gwolf.coffeetea.data.entities.FavoriteEntity
-import com.gwolf.coffeetea.data.entities.ProductEntity
-import com.gwolf.coffeetea.data.entities.ProfileEntity
-import com.gwolf.coffeetea.data.entities.PromotionEntity
+import com.gwolf.coffeetea.data.entities.novapost.NovaPostCityEntity
+import com.gwolf.coffeetea.data.entities.novapost.NovaPostDepartmentsEntity
+import com.gwolf.coffeetea.data.entities.supabase.CartEntity
+import com.gwolf.coffeetea.data.entities.supabase.CategoryEntity
+import com.gwolf.coffeetea.data.entities.supabase.FavoriteEntity
+import com.gwolf.coffeetea.data.entities.supabase.ProductEntity
+import com.gwolf.coffeetea.data.entities.supabase.ProfileEntity
+import com.gwolf.coffeetea.data.entities.supabase.PromotionEntity
 import com.gwolf.coffeetea.domain.model.Cart
 import com.gwolf.coffeetea.domain.model.Category
+import com.gwolf.coffeetea.domain.model.City
+import com.gwolf.coffeetea.domain.model.Department
 import com.gwolf.coffeetea.domain.model.Favorite
 import com.gwolf.coffeetea.domain.model.Product
 import com.gwolf.coffeetea.domain.model.Profile
@@ -66,4 +70,14 @@ fun CartEntity.toDomain(productImageUrl: String) = Cart(
     productId = this.productId,
     quantity = this.quantity,
     product = product?.toDomain(productImageUrl)!!
+)
+
+fun NovaPostCityEntity.toDomain() = City(
+    ref = ref,
+    name = name
+)
+
+fun NovaPostDepartmentsEntity.toDomain() = Department(
+    ref = ref,
+    name = name
 )

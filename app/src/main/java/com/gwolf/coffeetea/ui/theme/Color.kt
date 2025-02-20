@@ -20,6 +20,8 @@ val LightRedColor = Color(0xFFFE585A)
 val LinkColor = Color(0xFF284777)
 val LoadingBackgroundColor = Color(0x801D1B20)
 val StatusBarBackgroundColor = Color(0x411D1B20)
+val NovaPostColor = Color(0xFFEC413B)
+val WhiteAlpha06 = Color(0x99FFFFFF)
 
 val BackgroundGradient = Brush.verticalGradient(
     0.0f to Color(0xFFDCFFF3),

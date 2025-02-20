@@ -57,7 +57,6 @@ fun CategoryFullCard(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // image
             AsyncImage(
                 modifier = Modifier
                     .height(116.dp)
@@ -70,7 +69,6 @@ fun CategoryFullCard(
                 contentScale = ContentScale.Crop
             )
             Spacer(Modifier.size(4.dp))
-            // title
             Text(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 text = category.name,

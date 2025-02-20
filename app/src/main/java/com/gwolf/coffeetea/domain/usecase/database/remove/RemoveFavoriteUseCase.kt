@@ -1,6 +1,6 @@
 package com.gwolf.coffeetea.domain.usecase.database.remove
 
-import com.gwolf.coffeetea.domain.repository.remote.FavoriteRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.FavoriteRepository
 import com.gwolf.coffeetea.util.UiResult
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
