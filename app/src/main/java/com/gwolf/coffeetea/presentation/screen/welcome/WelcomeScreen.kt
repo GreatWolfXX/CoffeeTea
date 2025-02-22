@@ -48,10 +48,10 @@ fun WelcomeScreen(
     viewModel: WelcomeViewModel = hiltViewModel()
 ) {
     val pages = listOf(
-        OnBoardingPage.First,
-        OnBoardingPage.Second,
-        OnBoardingPage.Third,
-        OnBoardingPage.Fourth
+        OnBoardingPages.First,
+        OnBoardingPages.Second,
+        OnBoardingPages.Third,
+        OnBoardingPages.Fourth
     )
     val pagerState = rememberPagerState(
         pageCount = { pages.size }
@@ -60,7 +60,7 @@ fun WelcomeScreen(
         HorizontalPager(
             state = pagerState
         ) {position ->
-            PagerScreen(onBoardingPage = pages[position])
+            PagerScreen(onBoardingPages = pages[position])
         }
         Column(
             modifier = Modifier
@@ -116,11 +116,11 @@ private fun PagerIndicator(
 }
 
 @Composable
-private fun PagerScreen(onBoardingPage: OnBoardingPage) {
+private fun PagerScreen(onBoardingPages: OnBoardingPages) {
     Box {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = onBoardingPage.image),
+            painter = painterResource(id = onBoardingPages.image),
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
@@ -132,7 +132,7 @@ private fun PagerScreen(onBoardingPage: OnBoardingPage) {
         ) {
             Text(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                text = stringResource(id = onBoardingPage.title),
+                text = stringResource(id = onBoardingPages.title),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 32.sp,
@@ -143,7 +143,7 @@ private fun PagerScreen(onBoardingPage: OnBoardingPage) {
             Spacer(modifier = Modifier.size(24.dp))
             Text(
                 modifier = Modifier,
-                text = stringResource(id = onBoardingPage.description),
+                text = stringResource(id = onBoardingPages.description),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
@@ -165,23 +165,23 @@ private fun navigateToAuth(
 @Preview(showBackground = true)
 @Composable
 private fun FirstPagerScreenPreview() {
-    PagerScreen(OnBoardingPage.First)
+    PagerScreen(OnBoardingPages.First)
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun SecondPagerScreenPreview() {
-    PagerScreen(OnBoardingPage.Second)
+    PagerScreen(OnBoardingPages.Second)
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun ThirdPagerScreenPreview() {
-    PagerScreen(OnBoardingPage.Third)
+    PagerScreen(OnBoardingPages.Third)
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun FourthPagerScreenPreview() {
-    PagerScreen(OnBoardingPage.Fourth)
+    PagerScreen(OnBoardingPages.Fourth)
 }

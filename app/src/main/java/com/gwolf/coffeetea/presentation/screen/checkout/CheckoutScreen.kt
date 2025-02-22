@@ -34,11 +34,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.StepProgressBar
+import com.gwolf.coffeetea.presentation.screen.checkout.pages.DeliveryPage
+import com.gwolf.coffeetea.presentation.screen.checkout.pages.PaymentPage
+import com.gwolf.coffeetea.presentation.screen.checkout.pages.PersonalInfoPage
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
@@ -57,9 +59,9 @@ fun CheckoutScreen(
     val state by viewModel.checkoutScreenState
     val coroutineScope = rememberCoroutineScope()
     val pages = listOf(
-        CheckoutPage.Delivery,
-        CheckoutPage.PersonalInfo,
-        CheckoutPage.Payment
+        CheckoutPages.Delivery,
+        CheckoutPages.PersonalInfo,
+        CheckoutPages.Payment
     )
     val pagerState = rememberPagerState(
         pageCount = { pages.size }
@@ -169,7 +171,9 @@ private fun CheckoutScreenContent(
             .padding(bottom = 48.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column {
+        Column(
+            modifier = Modifier.weight(0.8f),
+        ) {
             Spacer(modifier = Modifier.size(8.dp))
             StepProgressBar(
                 currentStep = state.currentStepBar,
@@ -181,42 +185,36 @@ private fun CheckoutScreenContent(
             )
             Spacer(modifier = Modifier.size(16.dp))
             HorizontalPager(
+                modifier = Modifier.fillMaxSize(),
                 state = pagerState,
-                userScrollEnabled = false
+                userScrollEnabled = false,
+                verticalAlignment = Alignment.Top
             ) { position ->
                 when (position) {
                     0 -> {
                         DeliveryPage(
-                            snackbarHostState = snackbarHostState,
-                            state = state,
-                            viewModel = viewModel
-                        )
+                            snackbarHostState = snackbarHostState
+                        ) {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.targetPage.inc())
+                            }
+                            viewModel.onEvent(CheckoutEvent.SetStepBar(state.currentStepBar.inc()))
+                        }
                     }
 
                     1 -> {
-                        PersonalInfoPage(
-                            state = state,
-                            viewModel = viewModel
-                        )
+                        PersonalInfoPage() {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.targetPage.inc())
+                            }
+                            viewModel.onEvent(CheckoutEvent.SetStepBar(state.currentStepBar.inc()))
+                        }
                     }
 
                     2 -> {
-
+                        PaymentPage()
                     }
                 }
-            }
-        }
-
-        val btnEnabled = state.selectedDepartment != null
-        CustomButton(
-            text = R.string.title_continue,
-            isEnabled = true //btnEnabled
-        ) {
-            if (pagerState.canScrollForward) {
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(pagerState.targetPage.inc())
-                }
-                viewModel.onEvent(CheckoutEvent.SetStepBar(state.currentStepBar.inc()))
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.presentation.screen.checkout
+package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,9 +40,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.model.City
 import com.gwolf.coffeetea.domain.model.Department
+import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.PostComponent
 import com.gwolf.coffeetea.presentation.component.SearchBarBottomSheet
 import com.gwolf.coffeetea.ui.theme.NovaPostColor
@@ -51,96 +54,110 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.NOVA_POST_CABINE_REF
 import com.gwolf.coffeetea.util.NOVA_POST_DEPARTMENT_REF
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeliveryPage(
+    viewModel: DeliveryViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState,
-    state: CheckoutUiState,
-    viewModel: CheckoutViewModel
+    nextStep: () -> Unit = {}
 ) {
-    Column {
-        val sheetState = rememberModalBottomSheetState(
-            skipPartiallyExpanded = true
-        )
-        var showDepartmentSearchBarBottomSheet by remember { mutableStateOf(false) }
-        val postEnabled = state.selectedCity != null
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        val state by viewModel.deliveryScreenState
 
-        AddressBlock(
-            state = state,
-            viewModel = viewModel
-        )
-        Spacer(modifier = Modifier.size(16.dp))
-        PostComponent(
-            snackbarHostState = snackbarHostState,
-            icon = ImageVector.vectorResource(R.drawable.nova_post),
-            iconTint = NovaPostColor,
-            title = stringResource(R.string.nova_post_departments),
-            desc = stringResource(R.string.nova_post_departments_desc),
-            departmentName = if (state.selectedDepartment != null) state.selectedDepartment.name else stringResource(
-                R.string.placeholder_department
-            ),
-            priceTitle = stringResource(R.string.nova_post_departments_price),
-            selected = state.selectedNovaPostDepartments,
-            enabled = postEnabled,
-            onSelectedChange = {
-                viewModel.onEvent(CheckoutEvent.SetTypeDepartment(NOVA_POST_DEPARTMENT_REF))
-                viewModel.onEvent(CheckoutEvent.SelectNovaPostDepartments)
-            },
-            onAddressClick = {
-                showDepartmentSearchBarBottomSheet = true
-            }
-        )
-        Spacer(modifier = Modifier.size(16.dp))
-        PostComponent(
-            snackbarHostState = snackbarHostState,
-            icon = ImageVector.vectorResource(R.drawable.nova_post),
-            iconTint = NovaPostColor,
-            title = stringResource(R.string.nova_post),
-            desc = stringResource(R.string.nova_post_desc),
-            departmentName = if (state.selectedDepartment != null) state.selectedDepartment.name else stringResource(
-                R.string.placeholder_department_cabin
-            ),
-            priceTitle = stringResource(R.string.nova_post_price),
-            selected = state.selectedNovaPost,
-            enabled = postEnabled,
-            onSelectedChange = {
-                viewModel.onEvent(CheckoutEvent.SetTypeDepartment(NOVA_POST_CABINE_REF))
-                viewModel.onEvent(CheckoutEvent.SelectNovaPost)
-            },
-            onAddressClick = {
-                showDepartmentSearchBarBottomSheet = true
-            }
-        )
-        val titlePost =
-            if (state.selectedNovaPostDepartments) stringResource(R.string.title_department) else stringResource(
-                R.string.title_department_cabin
+        Column {
+            val sheetState = rememberModalBottomSheetState(
+                skipPartiallyExpanded = true
             )
-        val placeholderPost =
-            if (state.selectedNovaPostDepartments) stringResource(R.string.placeholder_department) else stringResource(
-                R.string.placeholder_department_cabin
+            var showDepartmentSearchBarBottomSheet by remember { mutableStateOf(false) }
+            val postEnabled = state.selectedCity != null
+
+            AddressBlock(
+                state = state,
+                viewModel = viewModel
             )
-        if (showDepartmentSearchBarBottomSheet) {
-            DepartmentsSearchBar(
-                title = titlePost,
-                placeholder = placeholderPost,
-                sheetState = sheetState,
-                list = state.searchDepartmentsList,
-                query = state.searchDepartment,
-                onQueryChange = { query ->
-                    viewModel.onEvent(CheckoutEvent.SearchDepartment(query))
+            Spacer(modifier = Modifier.size(16.dp))
+            PostComponent(
+                snackbarHostState = snackbarHostState,
+                icon = ImageVector.vectorResource(R.drawable.nova_post),
+                iconTint = NovaPostColor,
+                title = stringResource(R.string.nova_post_departments),
+                desc = stringResource(R.string.nova_post_departments_desc),
+                departmentName = if (state.selectedDepartment != null) state.selectedDepartment!!.name else stringResource(
+                    R.string.placeholder_department
+                ),
+                priceTitle = stringResource(R.string.nova_post_departments_price),
+                selected = state.selectedNovaPostDepartments,
+                enabled = postEnabled,
+                onSelectedChange = {
+                    viewModel.onEvent(DeliveryEvent.SetTypeDepartment(NOVA_POST_DEPARTMENT_REF))
+                    viewModel.onEvent(DeliveryEvent.SelectNovaPostDepartments)
                 },
-                onClear = {
-                    viewModel.onEvent(CheckoutEvent.SearchDepartment(""))
-                },
-                onDismiss = {
-                    showDepartmentSearchBarBottomSheet = false
-                },
-                onClickItem = { department ->
-                    viewModel.onEvent(CheckoutEvent.SelectDepartment(department))
-                    showDepartmentSearchBarBottomSheet = false
+                onAddressClick = {
+                    showDepartmentSearchBarBottomSheet = true
                 }
             )
+            Spacer(modifier = Modifier.size(16.dp))
+            PostComponent(
+                snackbarHostState = snackbarHostState,
+                icon = ImageVector.vectorResource(R.drawable.nova_post),
+                iconTint = NovaPostColor,
+                title = stringResource(R.string.nova_post),
+                desc = stringResource(R.string.nova_post_desc),
+                departmentName = if (state.selectedDepartment != null) state.selectedDepartment!!.name else stringResource(
+                    R.string.placeholder_department_cabin
+                ),
+                priceTitle = stringResource(R.string.nova_post_price),
+                selected = state.selectedNovaPost,
+                enabled = postEnabled,
+                onSelectedChange = {
+                    viewModel.onEvent(DeliveryEvent.SetTypeDepartment(NOVA_POST_CABINE_REF))
+                    viewModel.onEvent(DeliveryEvent.SelectNovaPost)
+                },
+                onAddressClick = {
+                    showDepartmentSearchBarBottomSheet = true
+                }
+            )
+            val titlePost =
+                if (state.selectedNovaPostDepartments) stringResource(R.string.title_department) else stringResource(
+                    R.string.title_department_cabin
+                )
+            val placeholderPost =
+                if (state.selectedNovaPostDepartments) stringResource(R.string.placeholder_department) else stringResource(
+                    R.string.placeholder_department_cabin
+                )
+            if (showDepartmentSearchBarBottomSheet) {
+                DepartmentsSearchBar(
+                    title = titlePost,
+                    placeholder = placeholderPost,
+                    sheetState = sheetState,
+                    list = state.searchDepartmentsList,
+                    query = state.searchDepartment,
+                    onQueryChange = { query ->
+                        viewModel.onEvent(DeliveryEvent.SearchDepartment(query))
+                    },
+                    onClear = {
+                        viewModel.onEvent(DeliveryEvent.SearchDepartment(""))
+                    },
+                    onDismiss = {
+                        showDepartmentSearchBarBottomSheet = false
+                    },
+                    onClickItem = { department ->
+                        viewModel.onEvent(DeliveryEvent.SelectDepartment(department))
+                        showDepartmentSearchBarBottomSheet = false
+                    }
+                )
+            }
+        }
+
+        val btnEnabled = state.selectedDepartment != null
+        CustomButton(
+            text = R.string.title_continue,
+            isEnabled = true //btnEnabled
+        ) {
+            nextStep.invoke()
         }
     }
 }
@@ -148,8 +165,8 @@ fun DeliveryPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddressBlock(
-    state: CheckoutUiState,
-    viewModel: CheckoutViewModel
+    state: DeliveryUiState,
+    viewModel: DeliveryViewModel
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -165,7 +182,7 @@ private fun AddressBlock(
             )
             .padding(16.dp)
             .clickable {
-                viewModel.onEvent(CheckoutEvent.ClearSelected)
+                viewModel.onEvent(DeliveryEvent.ClearSelected)
                 showAddressSearchBarBottomSheet = !showAddressSearchBarBottomSheet
             },
         verticalAlignment = Alignment.CenterVertically,
@@ -225,16 +242,16 @@ private fun AddressBlock(
             list = state.searchCitiesList,
             query = state.searchCity,
             onQueryChange = { query ->
-                viewModel.onEvent(CheckoutEvent.SearchCity(query))
+                viewModel.onEvent(DeliveryEvent.SearchCity(query))
             },
             onClear = {
-                viewModel.onEvent(CheckoutEvent.SearchCity(""))
+                viewModel.onEvent(DeliveryEvent.SearchCity(""))
             },
             onDismiss = {
                 showAddressSearchBarBottomSheet = false
             },
             onClickItem = { city ->
-                viewModel.onEvent(CheckoutEvent.SelectCity(city))
+                viewModel.onEvent(DeliveryEvent.SelectCity(city))
                 showAddressSearchBarBottomSheet = false
             }
         )

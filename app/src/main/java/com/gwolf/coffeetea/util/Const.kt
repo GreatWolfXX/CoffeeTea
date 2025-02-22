@@ -1,5 +1,7 @@
 package com.gwolf.coffeetea.util
 
+import com.google.android.gms.wallet.WalletConstants
+
 const val LOGGER_TAG = "Coffee&TeaLogger"
 const val NOVA_POST_API = "https://api.novaposhta.ua/v2.0/json/"
 const val NOVA_POST_DEPARTMENT_REF = "841339c7-591a-42e2-8233-7a0a00f0ed6f"
@@ -28,3 +30,33 @@ const val CART_TABLE = "cart"
 const val PROFILE_USER_IMAGE = "profile_user_image_"
 const val PNG_FORMAT = ".png"
 const val UKRAINE_PHONE_CODE = "+38"
+
+
+// Google Pay Constants
+const val PAYMENTS_ENVIRONMENT = WalletConstants.ENVIRONMENT_TEST
+
+val SUPPORTED_NETWORKS = listOf(
+    "MASTERCARD",
+    "VISA")
+
+val SUPPORTED_METHODS = listOf(
+    "PAN_ONLY",
+    "CRYPTOGRAM_3DS")
+
+const val COUNTRY_CODE = "UA"
+
+const val CURRENCY_CODE = "UAH"
+
+private const val PAYMENT_GATEWAY_TOKENIZATION_NAME = "example"
+
+val PAYMENT_GATEWAY_TOKENIZATION_PARAMETERS = mapOf(
+    "gateway" to PAYMENT_GATEWAY_TOKENIZATION_NAME,
+    "gatewayMerchantId" to "exampleGatewayMerchantId"
+)
+
+const val DIRECT_TOKENIZATION_PUBLIC_KEY = "REPLACE_ME"
+
+//val DIRECT_TOKENIZATION_PARAMETERS = mapOf(
+//    "protocolVersion" to "ECv1",
+//    "publicKey" to DIRECT_TOKENIZATION_PUBLIC_KEY
+//)

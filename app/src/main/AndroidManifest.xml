@@ -40,6 +40,12 @@
                 android:name="photopicker_activity:0:required"
                 android:value="" />
         </service>
+
+
+        <!-- Enabling this flag is required in order to use the PaymentsClient -->
+        <meta-data
+            android:name="com.google.android.gms.wallet.api.enabled"
+            android:value="true" />
     </application>
 
 </manifest>

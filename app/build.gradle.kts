@@ -11,12 +11,12 @@ plugins {
 
 android {
     namespace = "com.gwolf.coffeetea"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.gwolf.coffeetea"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -112,4 +112,8 @@ dependencies {
 
     implementation(libs.splashscreen)
     implementation(libs.ohteepee)
+
+    implementation(libs.google.pay)
+    implementation(libs.google.pay.btn)
+    implementation(libs.coroutines.play.services)
 }
