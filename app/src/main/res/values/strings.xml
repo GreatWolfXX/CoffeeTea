@@ -37,7 +37,7 @@
     <string name="title_about_me">Про мене</string>
     <string name="title_my_order">Мої замовлення</string>
     <string name="title_favorites">Обране</string>
-    <string name="title_address">Адреса</string>
+    <string name="title_addresses">Адреси</string>
     <string name="title_my_cards">Мій гаманець</string>
     <string name="title_notifications">Сповіщення</string>
     <string name="title_logout">Вийти</string>
@@ -115,6 +115,8 @@
     <string name="title_your_city">Ваше місто</string>
     <string name="title_continue">Продовжити</string>
     <string name="title_delivery_info">Дані отримувача</string>
+    <string name="title_address">Адреса</string>
+    <string name="title_saved_address">Збережені адреси</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_field_must_contains_letters">Поле має містити лише літери!</string>

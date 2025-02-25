@@ -6,14 +6,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gwolf.coffeetea.domain.model.Address
 import com.gwolf.coffeetea.domain.model.City
 import com.gwolf.coffeetea.domain.model.Department
+import com.gwolf.coffeetea.domain.usecase.database.add.AddAddressUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressListUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetCityBySearchUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetDepartmentsUseCase
+import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressType
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -22,8 +28,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class DeliveryUiState(
+    val listAddresses: List<Address> = listOf<Address>(),
     val selectedNovaPostDepartments: Boolean = false,
-    val selectedNovaPost: Boolean = false,
+    val selectedNovaPostCabin: Boolean = false,
     val typeByRef: String = "",
     val searchCitiesList: List<City> = listOf<City>(),
     val searchDepartmentsList: List<Department> = listOf<Department>(),
@@ -31,6 +38,7 @@ data class DeliveryUiState(
     val searchDepartment: String = "",
     val selectedCity: City? = null,
     val selectedDepartment: Department? = null,
+    val isAddressAdded: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null,
 )
@@ -44,12 +52,15 @@ sealed class DeliveryEvent {
     data object ClearSelected : DeliveryEvent()
     data object SelectNovaPostDepartments : DeliveryEvent()
     data object SelectNovaPost : DeliveryEvent()
+    data object Submit : DeliveryEvent()
 }
 
 @HiltViewModel
 class DeliveryViewModel @Inject constructor(
     private val getCityBySearchUseCase: GetCityBySearchUseCase,
-    private val getDepartmentsUseCase: GetDepartmentsUseCase
+    private val getDepartmentsUseCase: GetDepartmentsUseCase,
+    private val getAddressUseCase: GetAddressListUseCase,
+    private val addAddressUseCase: AddAddressUseCase
 ) : ViewModel() {
 
     private val _deliveryScreenState = mutableStateOf(DeliveryUiState())
@@ -95,7 +106,7 @@ class DeliveryViewModel @Inject constructor(
             is DeliveryEvent.ClearSelected -> {
                 _deliveryScreenState.value = _deliveryScreenState.value.copy(
                     selectedNovaPostDepartments = false,
-                    selectedNovaPost = false,
+                    selectedNovaPostCabin = false,
                     typeByRef = ""
                 )
             }
@@ -103,17 +114,124 @@ class DeliveryViewModel @Inject constructor(
             is DeliveryEvent.SelectNovaPostDepartments -> {
                 _deliveryScreenState.value = _deliveryScreenState.value.copy(
                     selectedNovaPostDepartments = true,
-                    selectedNovaPost = false,
+                    selectedNovaPostCabin = false,
                 )
             }
 
             is DeliveryEvent.SelectNovaPost -> {
                 _deliveryScreenState.value = _deliveryScreenState.value.copy(
                     selectedNovaPostDepartments = false,
-                    selectedNovaPost = true
+                    selectedNovaPostCabin = true
                 )
             }
+
+            is DeliveryEvent.Submit -> {
+                val selectedCity = _deliveryScreenState.value.selectedCity != null
+                val selectedDepartment = _deliveryScreenState.value.selectedDepartment != null
+                if (selectedCity && selectedDepartment) {
+                    addAddress()
+                }
+            }
         }
+    }
+
+    private fun addAddress() {
+        val selectedCity = _deliveryScreenState.value.selectedCity
+        val selectedDepartment = _deliveryScreenState.value.selectedDepartment
+        val isDefault = _deliveryScreenState.value.listAddresses.isEmpty()
+        val type = when {
+            _deliveryScreenState.value.selectedNovaPostDepartments -> {
+                SavedDeliveryAddressType.NovaPostDepartment.value
+            }
+
+            _deliveryScreenState.value.selectedNovaPostCabin -> {
+                SavedDeliveryAddressType.NovaPostCabin.value
+            }
+
+            else -> {
+                ""
+            }
+        }
+        viewModelScope.launch {
+            addAddressUseCase.invoke(
+                type = type,
+                refCity = selectedCity?.ref.orEmpty(),
+                refAddress = selectedDepartment?.ref.orEmpty(),
+                city = selectedCity?.name.orEmpty(),
+                address = selectedDepartment?.name.orEmpty(),
+                isDefault = isDefault
+            ).collect { response ->
+                when (response) {
+                    is UiResult.Success -> {
+                        _deliveryScreenState.value =
+                            _deliveryScreenState.value.copy(
+                                isAddressAdded = true
+                            )
+                    }
+
+                    is UiResult.Error -> {
+                        _deliveryScreenState.value =
+                            _deliveryScreenState.value.copy(
+                                error = response.exception.message.toString(),
+                                isLoading = false
+                            )
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun getAddresses() {
+        getAddressUseCase.invoke().collect { response ->
+            when (response) {
+                is UiResult.Success -> {
+                    _deliveryScreenState.value =
+                        _deliveryScreenState.value.copy(
+                            listAddresses = response.data,
+                        )
+                    if(response.data.isNotEmpty()) {
+                        setDefaultAddress()
+                    }
+                }
+
+                is UiResult.Error -> {
+                    _deliveryScreenState.value =
+                        _deliveryScreenState.value.copy(
+                            error = response.exception.message.toString(),
+                            isLoading = false
+                        )
+                }
+            }
+        }
+    }
+    private fun setDefaultAddress() {
+        val default = _deliveryScreenState.value.listAddresses.find { address ->
+            address.isDefault
+        }
+        val defaultCity = City(
+            ref = default?.refCity.orEmpty(),
+            name = default?.city.orEmpty()
+        )
+        val defaultDepartment = Department(
+            ref = default?.refAddress.orEmpty(),
+            name = default?.address.orEmpty()
+        )
+
+        if(default?.deliveryType.orEmpty() == SavedDeliveryAddressType.NovaPostDepartment.value) {
+            _deliveryScreenState.value = _deliveryScreenState.value.copy(
+                selectedNovaPostDepartments = true,
+                selectedNovaPostCabin = false
+            )
+        } else {
+            _deliveryScreenState.value = _deliveryScreenState.value.copy(
+                selectedNovaPostCabin = true,
+                selectedNovaPostDepartments = false
+            )
+        }
+        _deliveryScreenState.value = _deliveryScreenState.value.copy(
+            selectedCity = defaultCity,
+            selectedDepartment = defaultDepartment,
+        )
     }
 
     @OptIn(FlowPreview::class)
@@ -195,8 +313,11 @@ class DeliveryViewModel @Inject constructor(
     init {
         _deliveryScreenState.value = _deliveryScreenState.value.copy(isLoading = true)
         viewModelScope.launch {
+            val addresses = async { getAddresses() }
 
             try {
+                awaitAll(addresses)
+
                 _deliveryScreenState.value = _deliveryScreenState.value.copy(isLoading = false)
                 setupSearchAddressDebounce()
                 setupSearchDepartmentDebounce()

@@ -2,12 +2,14 @@ package com.gwolf.coffeetea.util
 
 import com.gwolf.coffeetea.data.entities.novapost.NovaPostCityEntity
 import com.gwolf.coffeetea.data.entities.novapost.NovaPostDepartmentsEntity
+import com.gwolf.coffeetea.data.entities.supabase.AddressEntity
 import com.gwolf.coffeetea.data.entities.supabase.CartEntity
 import com.gwolf.coffeetea.data.entities.supabase.CategoryEntity
 import com.gwolf.coffeetea.data.entities.supabase.FavoriteEntity
 import com.gwolf.coffeetea.data.entities.supabase.ProductEntity
 import com.gwolf.coffeetea.data.entities.supabase.ProfileEntity
 import com.gwolf.coffeetea.data.entities.supabase.PromotionEntity
+import com.gwolf.coffeetea.domain.model.Address
 import com.gwolf.coffeetea.domain.model.Cart
 import com.gwolf.coffeetea.domain.model.Category
 import com.gwolf.coffeetea.domain.model.City
@@ -80,4 +82,15 @@ fun NovaPostCityEntity.toDomain() = City(
 fun NovaPostDepartmentsEntity.toDomain() = Department(
     ref = ref,
     name = name
+)
+
+fun AddressEntity.toDomain() = Address(
+    id = id,
+    userId = userId,
+    deliveryType = deliveryType,
+    refCity = refCity,
+    refAddress = refAddress,
+    city = city,
+    address = address,
+    isDefault = isDefault
 )

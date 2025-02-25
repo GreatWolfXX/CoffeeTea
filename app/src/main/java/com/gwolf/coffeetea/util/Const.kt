@@ -10,6 +10,9 @@ const val NOVA_POST_CABINE_REF = "f9316480-5f2d-425d-bc2c-ac7cd29decf0"
 const val NOVA_POST_ADDRESS_MODEL = "AddressGeneral"
 const val NOVA_POST_GET_CITIES = "getCities"
 const val NOVA_POST_GET_WAREHOUSES = "getWarehouses"
+const val DELIVERY_ADDRESS_TYPE_NOVA_POST_DEPARTMENT = "NovaPostDepartment"
+const val DELIVERY_ADDRESS_TYPE_NOVA_POST_CABIN = "NovaPostCabin"
+const val DELIVERY_ADDRESS_TYPE_UKRPOSHTA = "Ukrposhta"
 
 const val MAX_PRODUCT_COUNT = 100
 const val MIN_PASSWORD_LENGTH = 8
@@ -26,6 +29,7 @@ const val PRODUCTS_TABLE = "products"
 const val FAVORITES_TABLE = "favorites"
 const val PROMOTIONS_TABLE = "promotions"
 const val CATEGORIES_TABLE = "categories"
+const val DELIVERY_ADDRESSES_TABLE = "deliveryaddresses"
 const val CART_TABLE = "cart"
 const val PROFILE_USER_IMAGE = "profile_user_image_"
 const val PNG_FORMAT = ".png"

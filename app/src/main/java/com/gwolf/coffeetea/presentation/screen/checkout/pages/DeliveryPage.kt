@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,9 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.outlined.LocationOn
@@ -46,6 +51,7 @@ import com.gwolf.coffeetea.domain.model.City
 import com.gwolf.coffeetea.domain.model.Department
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.PostComponent
+import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressSmallCard
 import com.gwolf.coffeetea.presentation.component.SearchBarBottomSheet
 import com.gwolf.coffeetea.ui.theme.NovaPostColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
@@ -62,18 +68,27 @@ fun DeliveryPage(
     nextStep: () -> Unit = {}
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         val state by viewModel.deliveryScreenState
 
-        Column {
+        Column(
+            modifier = Modifier
+                .weight(0.9f)
+                .verticalScroll(rememberScrollState())
+        ) {
             val sheetState = rememberModalBottomSheetState(
                 skipPartiallyExpanded = true
             )
             var showDepartmentSearchBarBottomSheet by remember { mutableStateOf(false) }
             val postEnabled = state.selectedCity != null
-
+            AnimatedVisibility(state.listAddresses.isNotEmpty()) {
+                SavedAddressBlock(
+                    state = state
+                )
+            }
             AddressBlock(
                 state = state,
                 viewModel = viewModel
@@ -110,7 +125,7 @@ fun DeliveryPage(
                     R.string.placeholder_department_cabin
                 ),
                 priceTitle = stringResource(R.string.nova_post_price),
-                selected = state.selectedNovaPost,
+                selected = state.selectedNovaPostCabin,
                 enabled = postEnabled,
                 onSelectedChange = {
                     viewModel.onEvent(DeliveryEvent.SetTypeDepartment(NOVA_POST_CABINE_REF))
@@ -151,13 +166,47 @@ fun DeliveryPage(
                 )
             }
         }
-
+        Spacer(modifier = Modifier.size(16.dp))
         val btnEnabled = state.selectedDepartment != null
         CustomButton(
             text = R.string.title_continue,
             isEnabled = true //btnEnabled
         ) {
+            viewModel.onEvent(DeliveryEvent.Submit)
             nextStep.invoke()
+        }
+    }
+}
+
+@Composable
+private fun SavedAddressBlock(
+    state: DeliveryUiState
+) {
+    Column {
+        Text(
+            modifier = Modifier,
+            text = stringResource(R.string.title_saved_address),
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
+            color = OnSurfaceColor
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        LazyRow(
+            modifier = Modifier
+                .wrapContentHeight(),
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(horizontal = 4.dp)
+        ) {
+            items(state.listAddresses) { address ->
+                SavedDeliveryAddressSmallCard(
+                    modifier = Modifier.animateItem(),
+                    typeString = address.deliveryType,
+                    address = "${address.city}, ${address.address}"
+                ) {
+
+                }
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ class GetDepartmentsUseCase @Inject constructor(
                     NOVA_POST_CARGO_DEPARTMENT_REF,
                     cityRef,
                     query
-                ).onEach { delay(2000) }
+                ).onEach { delay(2500) }
                 novaPostRepository.getDepartments(NOVA_POST_DEPARTMENT_REF, cityRef, query).combine(
                     cargoDepartments
                 ) { responseDepartment, responseCargoDepartment ->

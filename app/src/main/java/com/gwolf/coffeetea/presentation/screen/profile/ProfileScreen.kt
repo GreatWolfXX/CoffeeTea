@@ -197,7 +197,7 @@ private fun ProfileScreenContent(
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuComponent(
             icon = Icons.Outlined.Explore,
-            text = stringResource(R.string.title_address)
+            text = stringResource(R.string.title_addresses)
         ) { }
 //        Spacer(modifier = Modifier.size(16.dp))
 //        ProfileMenuComponent(

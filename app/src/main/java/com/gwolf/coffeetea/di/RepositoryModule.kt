@@ -3,6 +3,7 @@ package com.gwolf.coffeetea.di
 import android.content.Context
 import com.gwolf.coffeetea.data.local.repository.DataStoreRepositoryImpl
 import com.gwolf.coffeetea.data.remote.repository.api.NovaPostRepositoryImpl
+import com.gwolf.coffeetea.data.remote.repository.supabase.AddressRepositoryImpl
 import com.gwolf.coffeetea.data.remote.repository.supabase.AuthRepositoryImpl
 import com.gwolf.coffeetea.data.remote.repository.supabase.CartRepositoryImpl
 import com.gwolf.coffeetea.data.remote.repository.supabase.CategoryRepositoryImpl
@@ -12,6 +13,7 @@ import com.gwolf.coffeetea.data.remote.repository.supabase.ProfileRepositoryImpl
 import com.gwolf.coffeetea.data.remote.repository.supabase.PromotionRepositoryImpl
 import com.gwolf.coffeetea.domain.repository.local.DataStoreRepository
 import com.gwolf.coffeetea.domain.repository.remote.api.NovaPostRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.AddressRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.AuthRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.CartRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.CategoryRepository
@@ -92,4 +94,11 @@ object RepositoryModule {
     fun provideNovaPostRepository(
         httpClient: HttpClient
     ): NovaPostRepository = NovaPostRepositoryImpl(httpClient)
+
+    @Provides
+    @Singleton
+    fun provideAddressRepository(
+        postgrest: Postgrest,
+        auth: Auth
+    ): AddressRepository = AddressRepositoryImpl(postgrest, auth)
 }
