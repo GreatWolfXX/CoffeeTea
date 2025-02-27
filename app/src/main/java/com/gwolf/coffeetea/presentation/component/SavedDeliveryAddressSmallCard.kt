@@ -1,6 +1,7 @@
 package com.gwolf.coffeetea.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ fun SavedDeliveryAddressSmallCard(
     modifier: Modifier = Modifier,
     typeString: String,
     address: String,
+    isSelected: Boolean,
     onClick: () -> Unit = {}
 ) {
     val type = SavedDeliveryAddressType.entries.find { element ->
@@ -58,12 +60,19 @@ fun SavedDeliveryAddressSmallCard(
         }
     }
 
+    val borderColor = if (isSelected) OnSurfaceColor else Color.Transparent
+
     Row(
         modifier = modifier
             .width(300.dp)
             .background(
                 color = WhiteAlpha06,
                 shape = RoundedCornerShape(4.dp)
+            )
+            .border(
+                width = 1.dp,
+                shape = RoundedCornerShape(4.dp),
+                color = borderColor
             )
             .padding(
                 horizontal = 8.dp,
@@ -101,6 +110,7 @@ fun SavedDeliveryAddressSmallCard(
 private fun SavedDeliveryAddressPreview() {
     SavedDeliveryAddressSmallCard(
         typeString = SavedDeliveryAddressType.NovaPostDepartment.value,
-        address = "sfsdfsdf, sdf 32, sdfsfsdasdasd sfdsdfds sfsfsdf"
+        address = "sfsdfsdf, sdf 32, sdfsfsdasdasd sfdsdfds sfsfsdf",
+        isSelected = false
     )
 }

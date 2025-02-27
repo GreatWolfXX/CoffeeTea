@@ -198,7 +198,9 @@ private fun ProfileScreenContent(
         ProfileMenuComponent(
             icon = Icons.Outlined.Explore,
             text = stringResource(R.string.title_addresses)
-        ) { }
+        ) {
+            navController.navigate(Screen.SavedAddresses)
+        }
 //        Spacer(modifier = Modifier.size(16.dp))
 //        ProfileMenuComponent(
 //            icon = Icons.Outlined.AccountBalanceWallet,

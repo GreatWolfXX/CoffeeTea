@@ -117,6 +117,9 @@
     <string name="title_delivery_info">Дані отримувача</string>
     <string name="title_address">Адреса</string>
     <string name="title_saved_address">Збережені адреси</string>
+    <string name="title_selected_address">Основна</string>
+    <string name="btn_delete">Видалити</string>
+    <string name="btn_add_new_address">Додати нову адресу</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_field_must_contains_letters">Поле має містити лише літери!</string>

@@ -50,4 +50,10 @@ sealed class Screen() {
     ): Screen()
     @Serializable
     data object Checkout: Screen()
+    @Serializable
+    data object SavedAddresses: Screen()
+    @Serializable
+    data class AddAddress(
+        val isDefault: Boolean
+    ): Screen()
 }

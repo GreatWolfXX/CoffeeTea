@@ -81,17 +81,19 @@ class HomeViewModel @Inject constructor(
                 .collect { response ->
                     when (response) {
                         is UiResult.Success -> {
-                            val indexProduct =
-                                _homeScreenState.value.productsList.toMutableList().indexOfFirst {
-                                    it.id == product.id
-                                }
                             val updatedProductsList =
-                                _homeScreenState.value.productsList.toMutableList().apply {
-                                    this[indexProduct] =
-                                        _homeScreenState.value.productsList[indexProduct].copy(
-                                            cartId = response.data
-                                        )
-                                }
+                                _homeScreenState.value.productsList.toMutableList()
+                                    .apply {
+                                        indexOfFirst { it.id == product.id }
+                                            .takeIf { it != -1 }
+                                            ?.let { index ->
+                                                val cartProduct =
+                                                    _homeScreenState.value.productsList[index].copy(
+                                                        cartId = response.data
+                                                    )
+                                                set(index, cartProduct)
+                                            }
+                                    }
                             _homeScreenState.value = _homeScreenState.value.copy(
                                 productsList = updatedProductsList
                             )

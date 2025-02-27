@@ -1,7 +1,11 @@
 package com.gwolf.coffeetea.presentation.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,11 +22,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gwolf.coffeetea.R
+import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.NovaPostColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
@@ -39,12 +44,18 @@ enum class SavedDeliveryAddressType(val value: String) {
 
 @Composable
 fun SavedDeliveryAddressCard(
-    type: SavedDeliveryAddressType,
+    typeString: String,
     city: String,
     address: String,
-    isDefault: Boolean
+    isDefault: Boolean,
+    onClick: () -> Unit,
+    onRemove: () -> Unit
 ) {
-    val icon = when (type) {
+    val type = SavedDeliveryAddressType.entries.find { element ->
+        element.value == typeString
+    }
+
+    val icon = when (type!!) {
         SavedDeliveryAddressType.NovaPostDepartment, SavedDeliveryAddressType.NovaPostCabin -> {
             R.drawable.nova_post
         }
@@ -83,6 +94,7 @@ fun SavedDeliveryAddressCard(
 
     Row(
         modifier = Modifier
+            .animateContentSize()
             .fillMaxWidth()
             .background(
                 color = WhiteAlpha06
@@ -91,29 +103,51 @@ fun SavedDeliveryAddressCard(
                 width = 1.dp,
                 color = borderColor
             )
-            .padding(16.dp),
+            .padding(16.dp)
+            .clickable {
+                onClick.invoke()
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = ImageVector.vectorResource(icon),
-                    contentDescription = null,
-                    tint = iconTint
-                )
-                Text(
-                    modifier = Modifier.padding(start = 8.dp),
-                    text = stringResource(title),
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp,
-                    color = OnSurfaceColor
-                )
+                Row {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        imageVector = ImageVector.vectorResource(icon),
+                        contentDescription = null,
+                        tint = iconTint
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = stringResource(title),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        color = OnSurfaceColor
+                    )
+                }
+                AnimatedVisibility(isDefault) {
+                    Text(
+                        modifier = Modifier
+                            .border(
+                                width = 1.dp,
+                                color = OnSurfaceColor
+                            )
+                            .padding(all = 4.dp),
+                        text = stringResource(R.string.title_selected_address),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        color = OnSurfaceColor
+                    )
+                }
             }
             Spacer(modifier = Modifier.size(8.dp))
             Text(
@@ -150,22 +184,28 @@ fun SavedDeliveryAddressCard(
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
                 color = OnSurfaceColor,
-                maxLines = 2,
+                maxLines = 4,
                 overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = LightRedColor
+                    )
+                    .padding(horizontal = 4.dp, vertical = 8.dp)
+                    .clickable {
+                        onRemove.invoke()
+                    },
+                text = stringResource(R.string.btn_delete),
+                textAlign = TextAlign.Center,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp,
+                color = LightRedColor
             )
         }
     }
-}
-
-@Preview(
-    showBackground = true
-)
-@Composable
-private fun SavedDeliveryAddressPreview() {
-    SavedDeliveryAddressCard(
-        type = SavedDeliveryAddressType.NovaPostDepartment,
-        city = "Борислав",
-        address = "sfsdfsdf, sdf 32, sdfsfsdasdasd sfdsdfds sfsfsdf",
-        isDefault = true
-    )
 }

@@ -13,4 +13,16 @@ interface AddressRepository {
         address: String,
         isDefault: Boolean
     ): Flow<Unit>
+    fun updateDeliveryAddress(
+        addressId: String,
+        type: String,
+        refCity: String,
+        refAddress: String,
+        city: String,
+        address: String,
+        isDefault: Boolean
+    ): Flow<AddressEntity>
+    fun removeDeliveryAddress(
+        addressId: String,
+    ): Flow<Unit>
 }

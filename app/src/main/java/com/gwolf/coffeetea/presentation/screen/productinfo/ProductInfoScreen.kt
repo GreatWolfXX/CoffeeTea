@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -65,7 +64,6 @@ import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
-import com.gwolf.coffeetea.ui.theme.PrimaryColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.LOGGER_TAG
@@ -226,43 +224,43 @@ private fun ProductInfoScreenContent(
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 lineHeight = TextUnit(20f, TextUnitType.Sp),
-                color = OutlineColor
+                color = OnSurfaceColor
             )
-            Spacer(modifier = Modifier.size(4.dp))
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    modifier = Modifier,
-                    imageVector = Icons.Default.Star,
-                    contentDescription = null,
-                    tint = PrimaryColor
-                )
-                Spacer(modifier = Modifier.size(2.dp))
-                if (state.product?.rating != 0.0) {
-                    Text(
-                        modifier = Modifier,
-                        text = state.product?.rating.toString(),
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp,
-                        lineHeight = TextUnit(20f, TextUnitType.Sp),
-                        color = OutlineColor
-                    )
-                } else {
-                    Text(
-                        modifier = Modifier,
-                        text = stringResource(R.string.title_no_reviews),
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp,
-                        lineHeight = TextUnit(20f, TextUnitType.Sp),
-                        color = OutlineColor
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.size(4.dp))
+//            Spacer(modifier = Modifier.size(4.dp))
+//            Row(
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Icon(
+//                    modifier = Modifier,
+//                    imageVector = Icons.Default.Star,
+//                    contentDescription = null,
+//                    tint = PrimaryColor
+//                )
+//                Spacer(modifier = Modifier.size(2.dp))
+//                if (state.product?.rating != 0.0) {
+//                    Text(
+//                        modifier = Modifier,
+//                        text = state.product?.rating.toString(),
+//                        fontFamily = robotoFontFamily,
+//                        fontWeight = FontWeight.Medium,
+//                        fontSize = 14.sp,
+//                        lineHeight = TextUnit(20f, TextUnitType.Sp),
+//                        color = OutlineColor
+//                    )
+//                } else {
+//                    Text(
+//                        modifier = Modifier,
+//                        text = stringResource(R.string.title_no_reviews),
+//                        fontFamily = robotoFontFamily,
+//                        fontWeight = FontWeight.Medium,
+//                        fontSize = 14.sp,
+//                        lineHeight = TextUnit(20f, TextUnitType.Sp),
+//                        color = OutlineColor
+//                    )
+//                }
+//            }
+            Spacer(modifier = Modifier.size(8.dp))
             val minimumLineLength = 6
             var expandedState by remember { mutableStateOf(false) }
             var showReadMoreButtonState by remember { mutableStateOf(true) }

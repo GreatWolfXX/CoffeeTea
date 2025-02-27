@@ -58,4 +58,49 @@ class AddressRepositoryImpl @Inject constructor(
         close()
         awaitClose()
     }
+
+    override fun updateDeliveryAddress(
+        addressId: String,
+        type: String,
+        refCity: String,
+        refAddress: String,
+        city: String,
+        address: String,
+        isDefault: Boolean
+    ): Flow<AddressEntity> = callbackFlow {
+        val response = withContext(Dispatchers.IO) {
+            postgrest.from(DELIVERY_ADDRESSES_TABLE).update(
+                {
+                    set("delivery_type", type)
+                    set("ref_city", refCity)
+                    set("ref_address", refAddress)
+                    set("city", city)
+                    set("address", address)
+                    set("is_default", isDefault)
+                }
+            ) {
+                select()
+                filter {
+                    eq("address_id", addressId)
+                }
+            }.decodeSingle<AddressEntity>()
+        }
+        trySend(response)
+        close()
+        awaitClose()
+    }
+
+    override fun removeDeliveryAddress(addressId: String): Flow<Unit> = callbackFlow {
+        withContext(Dispatchers.IO) {
+            postgrest.from(DELIVERY_ADDRESSES_TABLE)
+                .delete {
+                    filter {
+                        eq("address_id", addressId)
+                    }
+                }
+        }
+        trySend(Unit)
+        close()
+        awaitClose()
+    }
 }

@@ -22,6 +22,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.gwolf.coffeetea.presentation.screen.aboutme.AboutMeScreen
+import com.gwolf.coffeetea.presentation.screen.addaddress.AddAddressScreen
 import com.gwolf.coffeetea.presentation.screen.auth.AuthScreen
 import com.gwolf.coffeetea.presentation.screen.cart.CartScreen
 import com.gwolf.coffeetea.presentation.screen.category.CategoryScreen
@@ -36,6 +37,7 @@ import com.gwolf.coffeetea.presentation.screen.login.LoginScreen
 import com.gwolf.coffeetea.presentation.screen.productinfo.ProductInfoScreen
 import com.gwolf.coffeetea.presentation.screen.profile.ProfileScreen
 import com.gwolf.coffeetea.presentation.screen.registration.RegistrationScreen
+import com.gwolf.coffeetea.presentation.screen.savedaddresses.SavedAddressesScreen
 import com.gwolf.coffeetea.presentation.screen.searchbycategory.SearchByCategoryScreen
 import com.gwolf.coffeetea.presentation.screen.welcome.WelcomeScreen
 
@@ -223,6 +225,27 @@ fun SetupNavGraph(
             popEnterTransition = popEnterTransition
         ) {
             CheckoutScreen(
+                snackbarHostState = snackbarHostState,
+                navController = navController
+            )
+        }
+
+        composable<Screen.SavedAddresses>(
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            popEnterTransition = popEnterTransition
+        ) {
+            SavedAddressesScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.AddAddress>(
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            popEnterTransition = popEnterTransition
+        ) {
+            AddAddressScreen(
                 snackbarHostState = snackbarHostState,
                 navController = navController
             )

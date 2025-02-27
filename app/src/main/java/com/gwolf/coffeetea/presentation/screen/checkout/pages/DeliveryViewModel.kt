@@ -52,6 +52,7 @@ sealed class DeliveryEvent {
     data object ClearSelected : DeliveryEvent()
     data object SelectNovaPostDepartments : DeliveryEvent()
     data object SelectNovaPost : DeliveryEvent()
+    data class SetSelectAddress(val address: Address) : DeliveryEvent()
     data object Submit : DeliveryEvent()
 }
 
@@ -125,6 +126,10 @@ class DeliveryViewModel @Inject constructor(
                 )
             }
 
+            is DeliveryEvent.SetSelectAddress -> {
+                setSelectedAddress(event.address)
+            }
+
             is DeliveryEvent.Submit -> {
                 val selectedCity = _deliveryScreenState.value.selectedCity != null
                 val selectedDepartment = _deliveryScreenState.value.selectedDepartment != null
@@ -185,12 +190,20 @@ class DeliveryViewModel @Inject constructor(
         getAddressUseCase.invoke().collect { response ->
             when (response) {
                 is UiResult.Success -> {
+                     val list = response.data.sortedBy { address ->
+                         !address.isDefault
+                     }
                     _deliveryScreenState.value =
                         _deliveryScreenState.value.copy(
-                            listAddresses = response.data,
+                            listAddresses = list,
                         )
-                    if(response.data.isNotEmpty()) {
-                        setDefaultAddress()
+                    if(list.isNotEmpty()) {
+                        val default = _deliveryScreenState.value.listAddresses.find { address ->
+                            address.isDefault
+                        }
+                        if(default != null) {
+                            setSelectedAddress(default)
+                        }
                     }
                 }
 
@@ -204,20 +217,19 @@ class DeliveryViewModel @Inject constructor(
             }
         }
     }
-    private fun setDefaultAddress() {
-        val default = _deliveryScreenState.value.listAddresses.find { address ->
-            address.isDefault
-        }
-        val defaultCity = City(
-            ref = default?.refCity.orEmpty(),
-            name = default?.city.orEmpty()
+    private fun setSelectedAddress(
+        address: Address
+    ) {
+        val selectedCity = City(
+            ref = address.refCity,
+            name = address.city
         )
-        val defaultDepartment = Department(
-            ref = default?.refAddress.orEmpty(),
-            name = default?.address.orEmpty()
+        val selectedDepartment = Department(
+            ref = address.refAddress,
+            name = address.address
         )
 
-        if(default?.deliveryType.orEmpty() == SavedDeliveryAddressType.NovaPostDepartment.value) {
+        if(address.deliveryType == SavedDeliveryAddressType.NovaPostDepartment.value) {
             _deliveryScreenState.value = _deliveryScreenState.value.copy(
                 selectedNovaPostDepartments = true,
                 selectedNovaPostCabin = false
@@ -229,8 +241,8 @@ class DeliveryViewModel @Inject constructor(
             )
         }
         _deliveryScreenState.value = _deliveryScreenState.value.copy(
-            selectedCity = defaultCity,
-            selectedDepartment = defaultDepartment,
+            selectedCity = selectedCity,
+            selectedDepartment = selectedDepartment,
         )
     }
 
