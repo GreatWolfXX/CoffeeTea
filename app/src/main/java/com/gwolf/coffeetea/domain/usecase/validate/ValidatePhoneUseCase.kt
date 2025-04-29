@@ -27,8 +27,7 @@ class ValidatePhoneUseCase @Inject constructor() {
             )
         }
         return ValidationResult(
-            successful = true,
-            errorMessage = null
+            successful = true
         )
     }
 }

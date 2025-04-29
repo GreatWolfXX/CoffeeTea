@@ -2,7 +2,6 @@ package com.gwolf.coffeetea.navigation
 
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 sealed class Screen() {
     @Serializable
@@ -26,8 +25,6 @@ sealed class Screen() {
     data object Cart: Screen()
 
     @Serializable
-    data object Category: Screen()
-    @Serializable
     data class ProductInfo(
         val productId: Int
     ): Screen()
@@ -36,6 +33,9 @@ sealed class Screen() {
         val categoryId: Int,
         val categoryName: String
     ): Screen()
+    @Serializable
+    data object Category: Screen()
+
     @Serializable
     data object AboutMe: Screen()
     @Serializable
@@ -49,11 +49,12 @@ sealed class Screen() {
         val phone: String
     ): Screen()
     @Serializable
-    data object Checkout: Screen()
-    @Serializable
     data object SavedAddresses: Screen()
     @Serializable
     data class AddAddress(
         val isDefault: Boolean
     ): Screen()
+
+    @Serializable
+    data object Checkout: Screen()
 }

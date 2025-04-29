@@ -58,7 +58,7 @@ val PAYMENT_GATEWAY_TOKENIZATION_PARAMETERS = mapOf(
     "gatewayMerchantId" to "exampleGatewayMerchantId"
 )
 
-const val DIRECT_TOKENIZATION_PUBLIC_KEY = "REPLACE_ME"
+//const val DIRECT_TOKENIZATION_PUBLIC_KEY = "REPLACE_ME"
 
 //val DIRECT_TOKENIZATION_PARAMETERS = mapOf(
 //    "protocolVersion" to "ECv1",
