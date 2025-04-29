@@ -24,6 +24,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gwolf.coffeetea.R
@@ -208,4 +209,19 @@ fun SavedDeliveryAddressCard(
             )
         }
     }
+}
+
+@Preview(
+    showBackground = true
+)
+@Composable
+private fun SavedDeliveryAddressCardPreview() {
+    SavedDeliveryAddressCard(
+        typeString = SavedDeliveryAddressType.NovaPostCabin.value,
+        city = "Київ",
+        address = "\"Нова Пошта\" №1011: пров. Політехнічний, 5, під\'їзд №2 (ТІЛЬКИ ДЛЯ МЕШКАНЦІВ)",
+        isDefault = true,
+        onRemove = {},
+        onClick = {}
+    )
 }

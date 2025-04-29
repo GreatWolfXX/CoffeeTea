@@ -8,7 +8,7 @@ import com.gwolf.coffeetea.domain.usecase.auth.SignUpUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateRepeatPasswordUseCase
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -80,13 +80,13 @@ class RegistrationViewModel @Inject constructor(
             _formState.value = _formState.value.copy(isLoading = true)
             signUpUseCase.invoke(_formState.value.email, _formState.value.password).collect { result ->
                 when(result) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _formState.value = _formState.value.copy(
                             sigUpSuccess = true,
                             isLoading = false
                         )
                     }
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _formState.value = _formState.value.copy(
                             sigUpError = UiText.DynamicString(result.exception.message.orEmpty()),
                             isLoading = false

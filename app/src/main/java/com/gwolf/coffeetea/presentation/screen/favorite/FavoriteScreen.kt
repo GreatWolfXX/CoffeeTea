@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.model.Favorite
+import com.gwolf.coffeetea.domain.entities.Favorite
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
@@ -41,6 +40,7 @@ import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProductCard
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
+import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.LOGGER_TAG
@@ -91,8 +91,8 @@ fun FavoriteScreen(
 private fun TopMenu(
     navController: NavController
 ) {
-    TopAppBar(
-        modifier = Modifier.padding(horizontal = 8.dp),
+   TopAppBar(
+        modifier = Modifier,
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),
@@ -106,6 +106,7 @@ private fun TopMenu(
         navigationIcon = {
             Icon(
                 modifier = Modifier
+                    .padding(start = 8.dp)
                     .clickable {
                         navController.popBackStack()
                     },
@@ -115,7 +116,7 @@ private fun TopMenu(
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
+            containerColor = WhiteAlpha06
         )
     )
 }

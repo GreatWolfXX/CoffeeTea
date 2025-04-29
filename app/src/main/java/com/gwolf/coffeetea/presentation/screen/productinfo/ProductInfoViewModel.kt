@@ -7,14 +7,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.gwolf.coffeetea.domain.model.Product
+import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.domain.usecase.database.add.AddCartProductUseCase
 import com.gwolf.coffeetea.domain.usecase.database.add.AddFavoriteUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProductByIdUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveFavoriteUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -67,14 +67,14 @@ class ProductInfoViewModel @Inject constructor(
             addCartProductUseCase.invoke(_productInfoScreenState.value.product?.id!!, 1)
                 .collect { response ->
                     when (response) {
-                        is UiResult.Success -> {
+                        is DataResult.Success -> {
                             _productInfoScreenState.value =
                                 _productInfoScreenState.value.copy(
                                     isInCart = true,
                                 )
                         }
 
-                        is UiResult.Error -> {
+                        is DataResult.Error -> {
                             _productInfoScreenState.value =
                                 _productInfoScreenState.value.copy(
                                     error = response.exception.message.toString(),
@@ -91,14 +91,14 @@ class ProductInfoViewModel @Inject constructor(
             removeFavoriteUseCase.invoke(_productInfoScreenState.value.product?.favoriteId!!)
                 .collect { response ->
                     when (response) {
-                        is UiResult.Success -> {
+                        is DataResult.Success -> {
                             _productInfoScreenState.value =
                                 _productInfoScreenState.value.copy(
                                     isFavorite = false,
                                 )
                         }
 
-                        is UiResult.Error -> {
+                        is DataResult.Error -> {
                             _productInfoScreenState.value =
                                 _productInfoScreenState.value.copy(
                                     error = response.exception.message.toString(),
@@ -115,14 +115,14 @@ class ProductInfoViewModel @Inject constructor(
             addFavoriteUseCase.invoke(_productInfoScreenState.value.product?.id!!)
                 .collect { response ->
                     when (response) {
-                        is UiResult.Success -> {
+                        is DataResult.Success -> {
                             _productInfoScreenState.value =
                                 _productInfoScreenState.value.copy(
                                     isFavorite = true,
                                 )
                         }
 
-                        is UiResult.Error -> {
+                        is DataResult.Error -> {
                             _productInfoScreenState.value =
                                 _productInfoScreenState.value.copy(
                                     error = response.exception.message.toString(),
@@ -137,7 +137,7 @@ class ProductInfoViewModel @Inject constructor(
     private suspend fun getProduct(productId: Int) {
         getProductByIdUseCase.invoke(productId).collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _productInfoScreenState.value =
                         _productInfoScreenState.value.copy(
                             product = response.data,
@@ -146,7 +146,7 @@ class ProductInfoViewModel @Inject constructor(
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _productInfoScreenState.value =
                         _productInfoScreenState.value.copy(
                             error = response.exception.message.toString(),

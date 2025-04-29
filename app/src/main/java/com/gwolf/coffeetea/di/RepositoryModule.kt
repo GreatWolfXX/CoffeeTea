@@ -1,16 +1,16 @@
 package com.gwolf.coffeetea.di
 
 import android.content.Context
-import com.gwolf.coffeetea.data.local.repository.DataStoreRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.api.NovaPostRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.supabase.AddressRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.supabase.AuthRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.supabase.CartRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.supabase.CategoryRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.supabase.FavoriteRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.supabase.ProductRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.supabase.ProfileRepositoryImpl
-import com.gwolf.coffeetea.data.remote.repository.supabase.PromotionRepositoryImpl
+import com.gwolf.coffeetea.data.repository.local.DataStoreRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.api.NovaPostRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.AddressRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.AuthRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.CartRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.CategoryRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.FavoriteRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.ProductRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.ProfileRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.PromotionRepositoryImpl
 import com.gwolf.coffeetea.domain.repository.local.DataStoreRepository
 import com.gwolf.coffeetea.domain.repository.remote.api.NovaPostRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.AddressRepository

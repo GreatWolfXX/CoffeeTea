@@ -1,6 +1,6 @@
 package com.gwolf.coffeetea.domain.repository.remote.supabase
 
-import com.gwolf.coffeetea.data.entities.supabase.ProductEntity
+import com.gwolf.coffeetea.data.dto.supabase.ProductEntity
 import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {

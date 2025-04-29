@@ -1,7 +1,7 @@
 package com.gwolf.coffeetea.domain.repository.remote.api
 
-import com.gwolf.coffeetea.data.entities.novapost.NovaPostCityEntity
-import com.gwolf.coffeetea.data.entities.novapost.NovaPostDepartmentsEntity
+import com.gwolf.coffeetea.data.dto.novapost.NovaPostCityEntity
+import com.gwolf.coffeetea.data.dto.novapost.NovaPostDepartmentsEntity
 import kotlinx.coroutines.flow.Flow
 
 interface NovaPostRepository {

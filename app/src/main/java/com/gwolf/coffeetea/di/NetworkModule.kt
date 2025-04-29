@@ -15,21 +15,15 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class NetworkModule {
+object NetworkModule {
     @Singleton
     @Provides
     fun provideHttpClient(): HttpClient {
         return HttpClient(Android) {
             install(ContentNegotiation) {
-                json(
-                    Json {
-                        ignoreUnknownKeys = true
-                    }
-                )
+                json( Json { ignoreUnknownKeys = true } )
             }
-            install(Logging) {
-                level = LogLevel.ALL
-            }
+            install(Logging) { level = LogLevel.ALL }
         }
     }
 }

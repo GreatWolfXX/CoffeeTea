@@ -11,7 +11,7 @@ import com.google.android.gms.wallet.PaymentDataRequest
 import com.google.android.gms.wallet.PaymentsClient
 import com.gwolf.coffeetea.domain.usecase.googlepay.IsReadyToGPayUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.getPaymentDataRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -51,7 +51,7 @@ class PaymentViewModel @Inject constructor(
             )
         isReadyToGPayUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _paymentScreenState.value =
                         _paymentScreenState.value.copy(
                             isGooglePayAvailable = response.data,
@@ -59,7 +59,7 @@ class PaymentViewModel @Inject constructor(
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _paymentScreenState.value =
                         _paymentScreenState.value.copy(
                             error = response.exception.message.toString(),

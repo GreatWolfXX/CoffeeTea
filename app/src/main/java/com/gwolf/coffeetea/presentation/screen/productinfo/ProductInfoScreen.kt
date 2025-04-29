@@ -64,6 +64,7 @@ import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
+import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.LOGGER_TAG
@@ -122,8 +123,8 @@ private fun TopMenu(
     navController: NavController,
     categoryName: String
 ) {
-    TopAppBar(
-        modifier = Modifier.padding(horizontal = 8.dp),
+   TopAppBar(
+        modifier = Modifier,
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),
@@ -137,6 +138,7 @@ private fun TopMenu(
         navigationIcon = {
             Icon(
                 modifier = Modifier
+                    .padding(start = 8.dp)
                     .clickable {
                         navController.popBackStack()
                     },
@@ -146,7 +148,7 @@ private fun TopMenu(
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
+            containerColor = WhiteAlpha06
         )
     )
 }

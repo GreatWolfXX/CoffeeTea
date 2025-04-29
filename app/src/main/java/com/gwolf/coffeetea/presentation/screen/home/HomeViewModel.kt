@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Category
-import com.gwolf.coffeetea.domain.model.Product
-import com.gwolf.coffeetea.domain.model.Promotion
+import com.gwolf.coffeetea.domain.entities.Category
+import com.gwolf.coffeetea.domain.entities.Product
+import com.gwolf.coffeetea.domain.entities.Promotion
 import com.gwolf.coffeetea.domain.usecase.database.add.AddCartProductUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCategoriesListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsListUseCase
@@ -16,7 +16,7 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetPromotionsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.SearchProductsUseCase
 import com.gwolf.coffeetea.util.ADD_TO_CART_COUNT
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -80,7 +80,7 @@ class HomeViewModel @Inject constructor(
             addCartProductUseCase.invoke(product.id, ADD_TO_CART_COUNT)
                 .collect { response ->
                     when (response) {
-                        is UiResult.Success -> {
+                        is DataResult.Success -> {
                             val updatedProductsList =
                                 _homeScreenState.value.productsList.toMutableList()
                                     .apply {
@@ -99,7 +99,7 @@ class HomeViewModel @Inject constructor(
                             )
                         }
 
-                        is UiResult.Error -> {
+                        is DataResult.Error -> {
                             _homeScreenState.value =
                                 _homeScreenState.value.copy(
                                     error = response.exception.message.toString()
@@ -130,14 +130,14 @@ class HomeViewModel @Inject constructor(
     private suspend fun getPromotions() {
         getPromotionsListUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
                             promotionsList = response.data,
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
                             error = response.exception.message.toString(),
@@ -151,14 +151,14 @@ class HomeViewModel @Inject constructor(
     private suspend fun getCategories() {
         getCategoriesListUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
                             categoriesList = response.data,
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
                             error = response.exception.message.toString(),
@@ -172,14 +172,14 @@ class HomeViewModel @Inject constructor(
     private suspend fun getProducts() {
         getProductsListUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
                             productsList = response.data,
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _homeScreenState.value =
                         _homeScreenState.value.copy(
                             error = response.exception.message.toString(),
@@ -195,14 +195,14 @@ class HomeViewModel @Inject constructor(
             searchProductsUseCase.invoke(search).collect { response ->
                 Log.d(LOGGER_TAG, "Query: $search Response: $response")
                 when (response) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _homeScreenState.value =
                             _homeScreenState.value.copy(
                                 searchProductsList = response.data,
                             )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _homeScreenState.value =
                             _homeScreenState.value.copy(
                                 error = response.exception.message.toString(),

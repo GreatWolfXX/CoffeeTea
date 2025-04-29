@@ -5,12 +5,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Address
+import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveSavedDeliveryUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateSavedAddressUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -56,7 +56,7 @@ class SavedAddressesViewModel @Inject constructor(
                 addressId = addressId
             ).collect { response ->
                 when (response) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         val updatedAddressesList =
                             _savedAddressesScreenState.value.listAddresses.toMutableList().apply {
                                 removeIf { it.id == addressId }
@@ -66,7 +66,7 @@ class SavedAddressesViewModel @Inject constructor(
                         )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _savedAddressesScreenState.value =
                             _savedAddressesScreenState.value.copy(
                                 error = response.exception.message.toString(),
@@ -90,7 +90,7 @@ class SavedAddressesViewModel @Inject constructor(
                 isDefault = !address.isDefault
             ).collect { response ->
                 when (response) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         val updatedAddressesList =
                             _savedAddressesScreenState.value.listAddresses.map { existingAddress ->
                                 existingAddress.copy(isDefault = false)
@@ -105,7 +105,7 @@ class SavedAddressesViewModel @Inject constructor(
                         )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _savedAddressesScreenState.value =
                             _savedAddressesScreenState.value.copy(
                                 error = response.exception.message.toString(),
@@ -120,14 +120,14 @@ class SavedAddressesViewModel @Inject constructor(
     private suspend fun getAddresses() {
         getAddressListUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _savedAddressesScreenState.value =
                         _savedAddressesScreenState.value.copy(
                             listAddresses = response.data
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _savedAddressesScreenState.value =
                         _savedAddressesScreenState.value.copy(
                             error = response.exception.message.toString(),

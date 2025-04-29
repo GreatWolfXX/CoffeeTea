@@ -6,16 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Address
-import com.gwolf.coffeetea.domain.model.City
-import com.gwolf.coffeetea.domain.model.Department
+import com.gwolf.coffeetea.domain.entities.Address
+import com.gwolf.coffeetea.domain.entities.City
+import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.domain.usecase.database.add.AddAddressUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressListUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetCityBySearchUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetDepartmentsUseCase
 import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressType
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -167,14 +167,14 @@ class DeliveryViewModel @Inject constructor(
                 isDefault = isDefault
             ).collect { response ->
                 when (response) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _deliveryScreenState.value =
                             _deliveryScreenState.value.copy(
                                 isAddressAdded = true
                             )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _deliveryScreenState.value =
                             _deliveryScreenState.value.copy(
                                 error = response.exception.message.toString(),
@@ -189,7 +189,7 @@ class DeliveryViewModel @Inject constructor(
     private suspend fun getAddresses() {
         getAddressUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                      val list = response.data.sortedBy { address ->
                          !address.isDefault
                      }
@@ -207,7 +207,7 @@ class DeliveryViewModel @Inject constructor(
                     }
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _deliveryScreenState.value =
                         _deliveryScreenState.value.copy(
                             error = response.exception.message.toString(),
@@ -283,14 +283,14 @@ class DeliveryViewModel @Inject constructor(
     private suspend fun getCities(query: String) {
         getCityBySearchUseCase.invoke(query).collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _deliveryScreenState.value =
                         _deliveryScreenState.value.copy(
                             searchCitiesList = response.data
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _deliveryScreenState.value =
                         _deliveryScreenState.value.copy(
                             error = response.exception.message.toString()
@@ -305,14 +305,14 @@ class DeliveryViewModel @Inject constructor(
         val cityRef = _deliveryScreenState.value.selectedCity?.ref
         getDepartmentsUseCase.invoke(typeByRef, cityRef.orEmpty(), query).collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _deliveryScreenState.value =
                         _deliveryScreenState.value.copy(
                             searchDepartmentsList = response.data
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _deliveryScreenState.value =
                         _deliveryScreenState.value.copy(
                             error = response.exception.message.toString()

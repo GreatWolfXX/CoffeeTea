@@ -1,9 +1,9 @@
 package com.gwolf.coffeetea.domain.usecase.database.update
 
-import com.gwolf.coffeetea.domain.model.Address
+import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.repository.remote.supabase.AddressRepository
-import com.gwolf.coffeetea.util.UiResult
-import com.gwolf.coffeetea.util.toDomain
+import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.domain.toDomain
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -20,7 +20,7 @@ class UpdateSavedAddressUseCase @Inject constructor(
         city: String,
         address: String,
         isDefault: Boolean
-    ): Flow<UiResult<Address>> = callbackFlow {
+    ): Flow<DataResult<Address>> = callbackFlow {
         try {
             addressRepository.updateDeliveryAddress(
                 addressId = addressId,
@@ -31,10 +31,10 @@ class UpdateSavedAddressUseCase @Inject constructor(
                 address = address,
                 isDefault = isDefault
             ).collect { response ->
-                trySend(UiResult.Success(data = response.toDomain()))
+                trySend(DataResult.Success(data = response.toDomain()))
             }
         } catch (e: Exception) {
-            trySend(UiResult.Error(exception = e))
+            trySend(DataResult.Error(exception = e))
         } finally {
             close()
         }

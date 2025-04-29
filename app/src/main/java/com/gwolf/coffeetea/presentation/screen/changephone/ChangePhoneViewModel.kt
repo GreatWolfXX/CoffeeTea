@@ -12,7 +12,7 @@ import com.gwolf.coffeetea.domain.usecase.validate.ValidatePhoneUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UKRAINE_PHONE_CODE
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -76,7 +76,7 @@ class ChangePhoneViewModel @Inject constructor(
             val newPhone = "$UKRAINE_PHONE_CODE${_changePhoneState.value.phone}"
             changePhoneUseCase.invoke(newPhone).collect { result ->
                 when (result) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _changePhoneState.value = _changePhoneState.value.copy(
 //                            showOtpModalSheet = true,
                             phoneChanged = true,
@@ -84,7 +84,7 @@ class ChangePhoneViewModel @Inject constructor(
                         )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _changePhoneState.value = _changePhoneState.value.copy(
                             error = result.exception.message,
                             isLoading = false
@@ -100,7 +100,7 @@ class ChangePhoneViewModel @Inject constructor(
 //            _changePhoneState.value = _changePhoneState.value.copy(isLoading = true)
 //            verifyOtpPhoneUseCase.invoke(_changePhoneState.value.phone, otpToken).collect { result ->
 //                when (result) {
-//                    is UiResult.Success -> {
+//                    is DataResult.Success -> {
 //                        _changePhoneState.value = _changePhoneState.value.copy(
 //                            showOtpModalSheet = false,
 //                            phoneChanged = true,
@@ -109,7 +109,7 @@ class ChangePhoneViewModel @Inject constructor(
 //                        )
 //                    }
 //
-//                    is UiResult.Error -> {
+//                    is DataResult.Error -> {
 //                        _changePhoneState.value = _changePhoneState.value.copy(
 //                            otpError = UiText.DynamicString(result.exception.message.orEmpty()),
 //                            isLoading = false

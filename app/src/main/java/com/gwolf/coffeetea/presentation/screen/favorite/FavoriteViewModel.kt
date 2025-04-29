@@ -5,10 +5,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Favorite
+import com.gwolf.coffeetea.domain.entities.Favorite
 import com.gwolf.coffeetea.domain.usecase.database.get.GetFavoritesListUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,14 +32,14 @@ class FavoriteViewModel @Inject constructor(
     private suspend fun getProducts() {
         getFavoritesListUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _favoriteScreenState.value =
                         _favoriteScreenState.value.copy(
                             favoritesList = response.data,
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _favoriteScreenState.value =
                         _favoriteScreenState.value.copy(
                             error = response.exception.message.toString(),

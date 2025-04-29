@@ -22,6 +22,7 @@ val LoadingBackgroundColor = Color(0x801D1B20)
 val StatusBarBackgroundColor = Color(0x411D1B20)
 val NovaPostColor = Color(0xFFEC413B)
 val WhiteAlpha06 = Color(0x99FFFFFF)
+val GrayAlpha05 = Color(0x807E7E7E)
 
 val BackgroundGradient = Brush.verticalGradient(
     0.0f to Color(0xFFDCFFF3),

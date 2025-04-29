@@ -5,12 +5,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Profile
+import com.gwolf.coffeetea.domain.entities.Profile
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateNameInfoUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -79,7 +79,7 @@ class AboutMeViewModel @Inject constructor(
     private suspend fun getProfile() {
         getProfileUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _aboutMeScreenState.value =
                         _aboutMeScreenState.value.copy(
                             profile = response.data,
@@ -89,7 +89,7 @@ class AboutMeViewModel @Inject constructor(
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _aboutMeScreenState.value =
                         _aboutMeScreenState.value.copy(
                             error = response.exception.message.toString(),
@@ -109,7 +109,7 @@ class AboutMeViewModel @Inject constructor(
                 patronymic = _aboutMeScreenState.value.patronymic
             ).collect { response ->
                 when (response) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _aboutMeScreenState.value =
                             _aboutMeScreenState.value.copy(
                                 updatedNameInfo = true,
@@ -117,7 +117,7 @@ class AboutMeViewModel @Inject constructor(
                             )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _aboutMeScreenState.value =
                             _aboutMeScreenState.value.copy(
                                 error = response.exception.message.toString(),

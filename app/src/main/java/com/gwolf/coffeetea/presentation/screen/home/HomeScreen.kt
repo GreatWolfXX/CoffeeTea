@@ -49,8 +49,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.model.Category
-import com.gwolf.coffeetea.domain.model.Product
+import com.gwolf.coffeetea.domain.entities.Category
+import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.BlockTitleComponent
 import com.gwolf.coffeetea.presentation.component.CategorySmallCard

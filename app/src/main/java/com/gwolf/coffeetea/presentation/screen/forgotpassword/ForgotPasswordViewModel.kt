@@ -51,14 +51,14 @@ class ForgotPasswordViewModel @Inject constructor(
             _formState.value = _formState.value.copy(isLoading = true)
 //            forgotPasswordUseCase.invoke(_formState.value.email).collect { result ->
 //                when(result) {
-//                    is UiResult.Success -> {
+//                    is DataResult.Success -> {
 //                        _formState.value = _formState.value.copy(
 //                            forgotPasswordSuccess = true,
 //                            isLoading = false
 //                        )
 //                    }
 //
-//                    is UiResult.Error -> {
+//                    is DataResult.Error -> {
 //                        _formState.value = _formState.value.copy(
 //                            forgotPasswordError = UiText.DynamicString(result.exception.message!!),
 //                            isLoading = false

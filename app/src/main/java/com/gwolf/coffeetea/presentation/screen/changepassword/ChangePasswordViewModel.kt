@@ -10,7 +10,7 @@ import com.gwolf.coffeetea.domain.usecase.database.update.ChangePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateRepeatPasswordUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -71,14 +71,14 @@ class ChangePasswordViewModel @Inject constructor(
             _changePasswordState.value = _changePasswordState.value.copy(isLoading = true)
             changePasswordUseCase.invoke(_changePasswordState.value.newPassword).collect { result ->
                 when (result) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _changePasswordState.value = _changePasswordState.value.copy(
                             passwordChanged = true,
                             isLoading = false
                         )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _changePasswordState.value = _changePasswordState.value.copy(
                             repeatNewPasswordError = UiText.StringResource(R.string.err_new_password),
                             isLoading = false

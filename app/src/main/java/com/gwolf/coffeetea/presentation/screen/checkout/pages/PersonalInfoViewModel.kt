@@ -5,13 +5,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Profile
+import com.gwolf.coffeetea.domain.entities.Profile
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePhoneUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UKRAINE_PHONE_CODE
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -71,7 +71,7 @@ class PersonalInfoViewModel @Inject constructor(
     private suspend fun getProfile() {
         getProfileUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _personalInfoScreenState.value =
                         _personalInfoScreenState.value.copy(
                             profile = response.data,
@@ -81,7 +81,7 @@ class PersonalInfoViewModel @Inject constructor(
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _personalInfoScreenState.value =
                         _personalInfoScreenState.value.copy(
                             error = response.exception.message.toString(),

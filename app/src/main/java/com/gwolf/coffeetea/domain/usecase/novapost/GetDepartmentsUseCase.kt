@@ -1,11 +1,11 @@
 package com.gwolf.coffeetea.domain.usecase.novapost
 
-import com.gwolf.coffeetea.domain.model.Department
+import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.domain.repository.remote.api.NovaPostRepository
 import com.gwolf.coffeetea.util.NOVA_POST_CARGO_DEPARTMENT_REF
 import com.gwolf.coffeetea.util.NOVA_POST_DEPARTMENT_REF
-import com.gwolf.coffeetea.util.UiResult
-import com.gwolf.coffeetea.util.toDomain
+import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.domain.toDomain
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +21,7 @@ class GetDepartmentsUseCase @Inject constructor(
         typeByRef: String,
         cityRef: String,
         query: String
-    ): Flow<UiResult<List<Department>>> = callbackFlow {
+    ): Flow<DataResult<List<Department>>> = callbackFlow {
         try {
             if (typeByRef == NOVA_POST_DEPARTMENT_REF) {
                 val cargoDepartments = novaPostRepository.getDepartments(
@@ -37,7 +37,7 @@ class GetDepartmentsUseCase @Inject constructor(
                     val data = response.map { department ->
                         return@map department.toDomain()
                     }
-                    trySend(UiResult.Success(data = data))
+                    trySend(DataResult.Success(data = data))
                 }
             } else {
                 novaPostRepository.getDepartments(typeByRef, cityRef, query)
@@ -45,12 +45,12 @@ class GetDepartmentsUseCase @Inject constructor(
                         val data = response.map { department ->
                             return@map department.toDomain()
                         }
-                        trySend(UiResult.Success(data = data))
+                        trySend(DataResult.Success(data = data))
                     }
             }
 
         } catch (e: Exception) {
-            trySend(UiResult.Error(exception = e))
+            trySend(DataResult.Error(exception = e))
         } finally {
             close()
         }

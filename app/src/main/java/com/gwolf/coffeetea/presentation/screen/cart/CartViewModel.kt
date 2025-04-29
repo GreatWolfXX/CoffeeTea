@@ -5,12 +5,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Cart
+import com.gwolf.coffeetea.domain.entities.Cart
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveCartProductUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateCartProductQuantityUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -56,7 +56,7 @@ class CartViewModel @Inject constructor(
             removeCartProductUseCase.invoke(cartId)
                 .collect { response ->
                     when (response) {
-                        is UiResult.Success -> {
+                        is DataResult.Success -> {
                             val cartList = _cartScreenState.value.cartProductsList.filter {
                                 it.cartId != cartId
                             }
@@ -66,7 +66,7 @@ class CartViewModel @Inject constructor(
                                 )
                         }
 
-                        is UiResult.Error -> {
+                        is DataResult.Error -> {
                             _cartScreenState.value =
                                 _cartScreenState.value.copy(
                                     error = response.exception.message.toString()
@@ -82,11 +82,11 @@ class CartViewModel @Inject constructor(
             updateCartProductQuantityUseCase.invoke(cartId, quantity)
                 .collect { response ->
                     when (response) {
-                        is UiResult.Success -> {
+                        is DataResult.Success -> {
 
                         }
 
-                        is UiResult.Error -> {
+                        is DataResult.Error -> {
                             _cartScreenState.value =
                                 _cartScreenState.value.copy(
                                     error = response.exception.message.toString()
@@ -100,14 +100,14 @@ class CartViewModel @Inject constructor(
     private suspend fun getProducts() {
         getCartProductsListUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _cartScreenState.value =
                         _cartScreenState.value.copy(
                             cartProductsList = response.data,
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _cartScreenState.value =
                         _cartScreenState.value.copy(
                             error = response.exception.message.toString(),

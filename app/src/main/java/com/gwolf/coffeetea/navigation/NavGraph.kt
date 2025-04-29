@@ -38,7 +38,7 @@ import com.gwolf.coffeetea.presentation.screen.productinfo.ProductInfoScreen
 import com.gwolf.coffeetea.presentation.screen.profile.ProfileScreen
 import com.gwolf.coffeetea.presentation.screen.registration.RegistrationScreen
 import com.gwolf.coffeetea.presentation.screen.savedaddresses.SavedAddressesScreen
-import com.gwolf.coffeetea.presentation.screen.searchbycategory.SearchByCategoryScreen
+import com.gwolf.coffeetea.presentation.screen.searchbycategory.SearchProductScreen
 import com.gwolf.coffeetea.presentation.screen.welcome.WelcomeScreen
 
 @Composable
@@ -174,7 +174,7 @@ fun SetupNavGraph(
             exitTransition = exitTransition,
             popEnterTransition = popEnterTransition
         ) {
-            SearchByCategoryScreen(
+            SearchProductScreen(
                 navController = navController
             )
         }

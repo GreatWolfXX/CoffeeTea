@@ -8,15 +8,15 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.gwolf.coffeetea.domain.model.City
-import com.gwolf.coffeetea.domain.model.Department
+import com.gwolf.coffeetea.domain.entities.City
+import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.domain.usecase.database.add.AddAddressUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetCityBySearchUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetDepartmentsUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressType
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -161,14 +161,14 @@ class AddAddressViewModel @Inject constructor(
                 isDefault = isDefault
             ).collect { response ->
                 when (response) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _addAddressEventScreenState.value =
                             _addAddressEventScreenState.value.copy(
                                 isAddressAdded = true
                             )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _addAddressEventScreenState.value =
                             _addAddressEventScreenState.value.copy(
                                 error = response.exception.message.toString(),
@@ -217,14 +217,14 @@ class AddAddressViewModel @Inject constructor(
     private suspend fun getCities(query: String) {
         getCityBySearchUseCase.invoke(query).collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _addAddressEventScreenState.value =
                         _addAddressEventScreenState.value.copy(
                             searchCitiesList = response.data
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _addAddressEventScreenState.value =
                         _addAddressEventScreenState.value.copy(
                             error = response.exception.message.toString()
@@ -239,14 +239,14 @@ class AddAddressViewModel @Inject constructor(
         val cityRef = _addAddressEventScreenState.value.selectedCity?.ref
         getDepartmentsUseCase.invoke(typeByRef, cityRef.orEmpty(), query).collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _addAddressEventScreenState.value =
                         _addAddressEventScreenState.value.copy(
                             searchDepartmentsList = response.data
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _addAddressEventScreenState.value =
                         _addAddressEventScreenState.value.copy(
                             error = response.exception.message.toString()

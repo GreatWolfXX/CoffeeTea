@@ -1,11 +1,11 @@
 package com.gwolf.coffeetea.domain.usecase.database.get
 
-import com.gwolf.coffeetea.domain.model.Profile
+import com.gwolf.coffeetea.domain.entities.Profile
 import com.gwolf.coffeetea.domain.repository.remote.supabase.ProfileRepository
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.PROFILES_BUCKET_ID
-import com.gwolf.coffeetea.util.UiResult
-import com.gwolf.coffeetea.util.toDomain
+import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.domain.toDomain
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +17,7 @@ class GetProfileUseCase @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(): Flow<UiResult<Profile>> = callbackFlow {
+    operator fun invoke(): Flow<DataResult<Profile>> = callbackFlow {
         try {
             profileRepository.getProfile().collect { response ->
                 if (response != null) {
@@ -25,13 +25,13 @@ class GetProfileUseCase @Inject constructor(
                         .createSignedUrl(response.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
 
                     val profile = response.toDomain(imageUrl)
-                    trySend(UiResult.Success(data = profile))
+                    trySend(DataResult.Success(data = profile))
                 } else {
-                    trySend(UiResult.Error(exception = Exception("Failed to retrieve user profile!")))
+                    trySend(DataResult.Error(exception = Exception("Failed to retrieve user profile!")))
                 }
             }
         } catch (e: Exception) {
-            trySend(UiResult.Error(exception = e))
+            trySend(DataResult.Error(exception = e))
         } finally {
             close()
         }

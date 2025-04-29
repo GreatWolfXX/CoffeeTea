@@ -1,7 +1,7 @@
 package com.gwolf.coffeetea.domain.usecase.validate
 
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.model.ValidationResult
+import com.gwolf.coffeetea.domain.entities.ValidationResult
 import com.gwolf.coffeetea.util.UiText
 import com.gwolf.coffeetea.util.isRepeatPasswordValid
 import javax.inject.Inject

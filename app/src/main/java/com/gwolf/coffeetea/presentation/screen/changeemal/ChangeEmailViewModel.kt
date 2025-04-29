@@ -12,7 +12,7 @@ import com.gwolf.coffeetea.domain.usecase.database.update.ChangeEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -75,14 +75,14 @@ class ChangeEmailViewModel @Inject constructor(
             _changeEmailState.value = _changeEmailState.value.copy(isLoading = true)
             changeEmailUseCase.invoke(_changeEmailState.value.email).collect { result ->
                 when (result) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _changeEmailState.value = _changeEmailState.value.copy(
                             showOtpModalSheet = true,
                             isLoading = false
                         )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _changeEmailState.value = _changeEmailState.value.copy(
                             error = result.exception.message,
                             isLoading = false
@@ -98,7 +98,7 @@ class ChangeEmailViewModel @Inject constructor(
             _changeEmailState.value = _changeEmailState.value.copy(isLoading = true)
             verifyOtpEmailUseCase.invoke(_changeEmailState.value.email, otpToken).collect { result ->
                 when (result) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         _changeEmailState.value = _changeEmailState.value.copy(
                             showOtpModalSheet = false,
                             emailChanged = true,
@@ -107,7 +107,7 @@ class ChangeEmailViewModel @Inject constructor(
                         )
                     }
 
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _changeEmailState.value = _changeEmailState.value.copy(
                             otpError = UiText.DynamicString(result.exception.message.orEmpty()),
                             isLoading = false

@@ -6,12 +6,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Profile
+import com.gwolf.coffeetea.domain.entities.Profile
 import com.gwolf.coffeetea.domain.usecase.database.add.AddImageProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateProfileImageUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.bitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.Auth
@@ -66,11 +66,11 @@ class ProfileViewModel @Inject constructor(
         val byteArray = bitmapToByteArray(bitmap!!)
         addImageProfileUseCase.invoke(byteArray).collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     updateProfileImage(response.data)
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _profileScreenState.value =
                         _profileScreenState.value.copy(
                             error = response.exception.message.toString()
@@ -83,7 +83,7 @@ class ProfileViewModel @Inject constructor(
     private suspend fun updateProfileImage(imagePath: String) {
         updateProfileImageUseCase.invoke(imagePath).collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     val profile = _profileScreenState.value.profile?.copy(
                         imageUrl = response.data
                     )
@@ -94,7 +94,7 @@ class ProfileViewModel @Inject constructor(
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _profileScreenState.value =
                         _profileScreenState.value.copy(
                             error = response.exception.message.toString(),
@@ -109,14 +109,14 @@ class ProfileViewModel @Inject constructor(
     private suspend fun getProfile() {
         getProfileUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _profileScreenState.value =
                         _profileScreenState.value.copy(
                             profile = response.data,
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _profileScreenState.value =
                         _profileScreenState.value.copy(
                             error = response.exception.message.toString(),

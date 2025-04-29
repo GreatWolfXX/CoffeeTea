@@ -120,6 +120,16 @@
     <string name="title_selected_address">Основна</string>
     <string name="btn_delete">Видалити</string>
     <string name="btn_add_new_address">Додати нову адресу</string>
+    <string name="btn_menu_close">ЗАКРИТИ</string>
+    <string name="title_high_to_low">від дорогих до дешевих</string>
+    <string name="title_low_to_high">від дешевих до дорогих</string>
+    <string name="title_sorting">Сортування</string>
+    <string name="title_param_sorting">Параметри сортування</string>
+    <string name="title_filter">Фільтр</string>
+    <string name="title_filter_empty">Не обраний</string>
+    <string name="title_filter_desc">Підбір за параметрами</string>
+    <string name="title_from">від</string>
+    <string name="title_to">до</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_field_must_contains_letters">Поле має містити лише літери!</string>

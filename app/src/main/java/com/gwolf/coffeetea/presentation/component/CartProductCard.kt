@@ -47,8 +47,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.model.Cart
-import com.gwolf.coffeetea.domain.model.Product
+import com.gwolf.coffeetea.domain.entities.Cart
+import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor

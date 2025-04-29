@@ -47,8 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.model.City
-import com.gwolf.coffeetea.domain.model.Department
+import com.gwolf.coffeetea.domain.entities.City
+import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.PostComponent
 import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressSmallCard

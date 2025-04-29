@@ -4,12 +4,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.data.local.repository.PreferencesKey
+import com.gwolf.coffeetea.data.repository.local.PreferencesKey
 import com.gwolf.coffeetea.domain.usecase.auth.SignInUseCase
 import com.gwolf.coffeetea.domain.usecase.preference.SaveBooleanPreferenceUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -75,7 +75,7 @@ class LoginViewModel @Inject constructor(
             _formState.value = _formState.value.copy(isLoading = true)
             signInUseCase.invoke(_formState.value.email, _formState.value.password).collect { result ->
                 when(result) {
-                    is UiResult.Success -> {
+                    is DataResult.Success -> {
                         saveBooleanPreferenceUseCase.invoke(
                             key = PreferencesKey.rememberUserKey,
                             value = _formState.value.isRemember
@@ -85,7 +85,7 @@ class LoginViewModel @Inject constructor(
                             isLoading = false
                         )
                     }
-                    is UiResult.Error -> {
+                    is DataResult.Error -> {
                         _formState.value = _formState.value.copy(
                             sigInError = UiText.DynamicString(result.exception.message.orEmpty()),
                             isLoading = false

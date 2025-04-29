@@ -20,5 +20,5 @@ fun isRepeatPasswordValid(password: String, repeatPassword: String): Boolean {
 }
 
 fun isNameValid(value: String): Boolean {
-    return value.all { it.isLetter() }
+    return value.all { it.isLetter() } || value.isBlank()
 }

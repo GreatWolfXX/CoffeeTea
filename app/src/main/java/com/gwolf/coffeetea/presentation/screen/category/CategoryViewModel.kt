@@ -5,10 +5,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.model.Category
+import com.gwolf.coffeetea.domain.entities.Category
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCategoriesListUseCase
 import com.gwolf.coffeetea.util.LOGGER_TAG
-import com.gwolf.coffeetea.util.UiResult
+import com.gwolf.coffeetea.util.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,14 +32,14 @@ class CategoryViewModel @Inject constructor(
     private suspend fun getCategories() {
         getCategoriesListUseCase.invoke().collect { response ->
             when (response) {
-                is UiResult.Success -> {
+                is DataResult.Success -> {
                     _categoryScreenState.value =
                         _categoryScreenState.value.copy(
                             categoriesList = response.data,
                         )
                 }
 
-                is UiResult.Error -> {
+                is DataResult.Error -> {
                     _categoryScreenState.value =
                         _categoryScreenState.value.copy(
                             error = response.exception.message.toString(),
