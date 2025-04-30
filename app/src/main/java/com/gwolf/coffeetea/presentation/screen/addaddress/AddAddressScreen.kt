@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.addaddress
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,7 +31,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,13 +45,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.gwolf.coffeetea.LocalSnackbarHostState
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.entities.City
-import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
@@ -64,25 +65,51 @@ import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.NOVA_POST_CABINE_REF
 import com.gwolf.coffeetea.util.NOVA_POST_DEPARTMENT_REF
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
 fun AddAddressScreen(
-    snackbarHostState: SnackbarHostState,
     navController: NavController,
     viewModel: AddAddressViewModel = hiltViewModel()
 ) {
-    val state by viewModel.addAddressEventScreenState
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
 
-    LaunchedEffect(state.isAddressAdded) {
-        if(state.isAddressAdded) {
-            navController.popBackStack()
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = AddAddressEvent.Idle)
+
+    LaunchedEffect(event) {
+        when(event) {
+            is AddAddressEvent.Idle -> {}
+            is AddAddressEvent.Navigate -> {
+                navController.navigateUp()
+            }
         }
     }
 
+    AddAddressContent(
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateBack = {
+            navController.navigateUp()
+        },
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun AddAddressContent(
+    state: AddAddressScreenState,
+    isNetworkConnected: Boolean,
+    navigateBack: () -> Unit = {},
+    onIntent: (AddAddressIntent) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -92,40 +119,34 @@ fun AddAddressScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopMenu(
-                navController = navController
+                navigateBack = navigateBack
             )
 
-            val connection by connectivityState()
-
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if (isConnected) R.string.title_error else R.string.title_network
-                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style = if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                AddAddressScreenContent(
-                    snackbarHostState = snackbarHostState,
+                AddAddressForm(
                     state = state,
-                    viewModel = viewModel
+                    onIntent = onIntent
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopMenu(
-    navController: NavController
+    navigateBack: () -> Unit
 ) {
-   TopAppBar(
+    TopAppBar(
         modifier = Modifier,
         title = {
             Text(
@@ -142,7 +163,7 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        navController.popBackStack()
+                        navigateBack()
                     },
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
@@ -157,10 +178,9 @@ private fun TopMenu(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddAddressScreenContent(
-    snackbarHostState: SnackbarHostState,
-    state: AddAddressUiState,
-    viewModel: AddAddressViewModel
+private fun AddAddressForm(
+    state: AddAddressScreenState,
+    onIntent: (AddAddressIntent) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -170,34 +190,31 @@ private fun AddAddressScreenContent(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val sheetState = rememberModalBottomSheetState(
-            skipPartiallyExpanded = true
-        )
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var showDepartmentSearchBarBottomSheet by remember { mutableStateOf(false) }
-        val postEnabled = state.selectedCity != null
+        val postEnabled = state.selection.selectedCity != null
         Column(
             modifier = Modifier.weight(0.8f)
         ) {
             AddressBlock(
                 state = state,
-                viewModel = viewModel
+                onIntent = onIntent
             )
             Spacer(modifier = Modifier.size(16.dp))
             PostComponent(
-                snackbarHostState = snackbarHostState,
                 icon = ImageVector.vectorResource(R.drawable.nova_post),
                 iconTint = NovaPostColor,
                 title = stringResource(R.string.nova_post_departments),
                 desc = stringResource(R.string.nova_post_departments_desc),
-                departmentName = if (state.selectedDepartment != null) state.selectedDepartment!!.name else stringResource(
+                departmentName = if (state.selection.selectedDepartment != null) state.selection.selectedDepartment.name else stringResource(
                     R.string.placeholder_department
                 ),
                 priceTitle = stringResource(R.string.nova_post_departments_price),
-                selected = state.selectedNovaPostDepartments,
+                selected = state.selection.selectedNovaPostDepartments,
                 enabled = postEnabled,
                 onSelectedChange = {
-                    viewModel.onEvent(AddAddressEvent.SetTypeDepartment(NOVA_POST_DEPARTMENT_REF))
-                    viewModel.onEvent(AddAddressEvent.SelectNovaPostDepartments)
+                    onIntent(AddAddressIntent.ButtonClick.SetTypeDepartment(NOVA_POST_DEPARTMENT_REF))
+                    onIntent(AddAddressIntent.ButtonClick.SelectNovaPostDepartments)
                 },
                 onAddressClick = {
                     showDepartmentSearchBarBottomSheet = true
@@ -205,63 +222,63 @@ private fun AddAddressScreenContent(
             )
             Spacer(modifier = Modifier.size(16.dp))
             PostComponent(
-                snackbarHostState = snackbarHostState,
                 icon = ImageVector.vectorResource(R.drawable.nova_post),
                 iconTint = NovaPostColor,
                 title = stringResource(R.string.nova_post),
                 desc = stringResource(R.string.nova_post_desc),
-                departmentName = if (state.selectedDepartment != null) state.selectedDepartment!!.name else stringResource(
+                departmentName = if (state.selection.selectedDepartment != null) state.selection.selectedDepartment.name else stringResource(
                     R.string.placeholder_department_cabin
                 ),
                 priceTitle = stringResource(R.string.nova_post_price),
-                selected = state.selectedNovaPostCabin,
+                selected = state.selection.selectedNovaPostCabin,
                 enabled = postEnabled,
                 onSelectedChange = {
-                    viewModel.onEvent(AddAddressEvent.SetTypeDepartment(NOVA_POST_CABINE_REF))
-                    viewModel.onEvent(AddAddressEvent.SelectNovaPost)
+                    onIntent(AddAddressIntent.ButtonClick.SetTypeDepartment(NOVA_POST_CABINE_REF))
+                    onIntent(AddAddressIntent.ButtonClick.SelectNovaPost)
                 },
                 onAddressClick = {
                     showDepartmentSearchBarBottomSheet = true
                 }
             )
             val titlePost =
-                if (state.selectedNovaPostDepartments) stringResource(R.string.title_department) else stringResource(
+                if (state.selection.selectedNovaPostDepartments) stringResource(R.string.title_department) else stringResource(
                     R.string.title_department_cabin
                 )
             val placeholderPost =
-                if (state.selectedNovaPostDepartments) stringResource(R.string.placeholder_department) else stringResource(
+                if (state.selection.selectedNovaPostDepartments) stringResource(R.string.placeholder_department) else stringResource(
                     R.string.placeholder_department_cabin
                 )
             if (showDepartmentSearchBarBottomSheet) {
-                DepartmentsSearchBar(
+                SearchBar(
                     title = titlePost,
                     placeholder = placeholderPost,
                     sheetState = sheetState,
-                    list = state.searchDepartmentsList,
-                    query = state.searchDepartment,
-                    onQueryChange = { query ->
-                        viewModel.onEvent(AddAddressEvent.SearchDepartment(query))
+                    list = state.search.searchDepartmentsList,
+                    query = state.search.searchDepartment,
+                    onQueryChange = { value ->
+                        onIntent(AddAddressIntent.Input.SearchDepartment(value))
                     },
                     onClear = {
-                        viewModel.onEvent(AddAddressEvent.SearchDepartment(""))
+                        onIntent(AddAddressIntent.Input.SearchDepartment(""))
                     },
                     onDismiss = {
                         showDepartmentSearchBarBottomSheet = false
                     },
                     onClickItem = { department ->
-                        viewModel.onEvent(AddAddressEvent.SelectDepartment(department))
+                        onIntent(AddAddressIntent.ButtonClick.SelectDepartment(department))
                         showDepartmentSearchBarBottomSheet = false
-                    }
+                    },
+                    itemText = { city -> city.name }
                 )
             }
         }
         Spacer(modifier = Modifier.size(16.dp))
-        val btnEnabled = state.selectedDepartment != null
+        val btnEnabled = state.selection.selectedDepartment != null
         CustomButton(
             text = R.string.btn_add_new_address,
             isEnabled = btnEnabled
         ) {
-            viewModel.onEvent(AddAddressEvent.Submit)
+            onIntent(AddAddressIntent.ButtonClick.Submit)
         }
     }
 }
@@ -269,8 +286,8 @@ private fun AddAddressScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddressBlock(
-    state: AddAddressUiState,
-    viewModel: AddAddressViewModel
+    state: AddAddressScreenState,
+    onIntent: (AddAddressIntent) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -286,7 +303,7 @@ private fun AddressBlock(
             )
             .padding(16.dp)
             .clickable {
-                viewModel.onEvent(AddAddressEvent.ClearSelected)
+                onIntent(AddAddressIntent.ButtonClick.ClearSelected)
                 showAddressSearchBarBottomSheet = !showAddressSearchBarBottomSheet
             },
         verticalAlignment = Alignment.CenterVertically,
@@ -317,7 +334,7 @@ private fun AddressBlock(
                 color = OutlineColor
             )
             val city =
-                if (state.selectedCity != null) state.selectedCity.name else stringResource(R.string.choose_city)
+                if (state.selection.selectedCity != null) state.selection.selectedCity.name else stringResource(R.string.choose_city)
             Text(
                 modifier = Modifier,
                 text = city,
@@ -341,95 +358,43 @@ private fun AddressBlock(
         }
     }
     if (showAddressSearchBarBottomSheet) {
-        AddressSearchBar(
+        SearchBar(
+            title = stringResource(R.string.title_city),
+            placeholder = stringResource(R.string.placeholder_city),
             sheetState = sheetState,
-            list = state.searchCitiesList,
-            query = state.searchCity,
-            onQueryChange = { query ->
-                viewModel.onEvent(AddAddressEvent.SearchCity(query))
+            list = state.search.searchCitiesList,
+            query = state.search.searchCity,
+            onQueryChange = { value ->
+                onIntent(AddAddressIntent.Input.SearchCity(value))
             },
             onClear = {
-                viewModel.onEvent(AddAddressEvent.SearchCity(""))
+                onIntent(AddAddressIntent.Input.SearchCity(""))
             },
             onDismiss = {
                 showAddressSearchBarBottomSheet = false
             },
             onClickItem = { city ->
-                viewModel.onEvent(AddAddressEvent.SelectCity(city))
+                onIntent(AddAddressIntent.Input.SelectCity(city))
                 showAddressSearchBarBottomSheet = false
-            }
+            },
+            itemText = { city -> city.name }
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddressSearchBar(
-    sheetState: SheetState,
-    list: List<City>,
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onClear: () -> Unit,
-    onDismiss: () -> Unit,
-    onClickItem: (City) -> Unit
-) {
-    SearchBarBottomSheet(
-        modifier = Modifier,
-        sheetState = sheetState,
-        title = stringResource(R.string.title_city),
-        placeholder = stringResource(R.string.placeholder_city),
-        query = query,
-        onQueryChange = onQueryChange,
-        onClear = onClear,
-        onDismiss = onDismiss
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxHeight(0.75f),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
-        ) {
-            items(list) { city ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            onClickItem(city)
-                        }
-                ) {
-                    Text(
-                        modifier = Modifier,
-                        text = city.name,
-                        textAlign = TextAlign.Start,
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = OnSurfaceColor
-                    )
-                    Spacer(modifier = Modifier.size(4.dp))
-                    HorizontalDivider(
-                        modifier = Modifier,
-                        thickness = 1.dp,
-                        color = OnSurfaceColor
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DepartmentsSearchBar(
+private fun <T>SearchBar(
     title: String,
     placeholder: String,
     sheetState: SheetState,
-    list: List<Department>,
+    list: List<T>,
     query: String,
     onQueryChange: (String) -> Unit,
     onClear: () -> Unit,
     onDismiss: () -> Unit,
-    onClickItem: (Department) -> Unit
+    onClickItem: (T) -> Unit,
+    itemText: (T) -> String
 ) {
     SearchBarBottomSheet(
         modifier = Modifier,
@@ -447,17 +412,17 @@ private fun DepartmentsSearchBar(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-            items(list) { department ->
+            items(list) { item ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onClickItem(department)
+                            onClickItem(item)
                         }
                 ) {
                     Text(
                         modifier = Modifier,
-                        text = department.name,
+                        text = itemText(item),
                         textAlign = TextAlign.Start,
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Normal,
@@ -473,5 +438,20 @@ private fun DepartmentsSearchBar(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun AddAddressScreenPreview() {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    CompositionLocalProvider(
+        LocalSnackbarHostState provides snackbarHostState,
+    ) {
+        AddAddressContent(
+            state = AddAddressScreenState(),
+            isNetworkConnected = true
+        )
     }
 }

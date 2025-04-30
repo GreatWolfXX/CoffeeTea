@@ -1,33 +1,45 @@
 package com.gwolf.coffeetea.presentation.screen.cart
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Cart
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveCartProductUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateCartProductQuantityUseCase
-import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.presentation.screen.login.LoginEvent
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class CartUiState(
+data class CartScreenState(
     val cartProductsList: List<Cart> = listOf<Cart>(),
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
 )
 
-sealed class CartEvent {
-    data class RemoveFromCart(val cartId: String) : CartEvent()
-    data class UpdateProductQuantity(val cartId: String, val quantity: Int) : CartEvent()
+sealed class CartIntent {
+    data class RemoveFromCart(val cartId: String) : CartIntent()
+    data class UpdateProductQuantity(val cartId: String, val quantity: Int) : CartIntent()
+    data object Submit : CartIntent()
 }
 
+sealed class CartEvent {
+    data object Idle : CartEvent()
+    data object Navigate : CartEvent()
+}
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
@@ -36,17 +48,32 @@ class CartViewModel @Inject constructor(
     private val updateCartProductQuantityUseCase: UpdateCartProductQuantityUseCase
 ) : ViewModel() {
 
-    private val _cartScreenState = mutableStateOf(CartUiState())
-    val cartScreenState: State<CartUiState> = _cartScreenState
+    private var _state = MutableStateFlow(CartScreenState())
+    val state: StateFlow<CartScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = CartScreenState()
+    )
 
-    fun onEvent(event: CartEvent) {
-        when (event) {
-            is CartEvent.RemoveFromCart -> {
-                removeFavorite(event.cartId)
+    private var _event: Channel<LoginEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: CartIntent) {
+        when (intent) {
+            is CartIntent.RemoveFromCart -> {
+                removeFavorite(intent.cartId)
             }
 
-            is CartEvent.UpdateProductQuantity -> {
-                updateCartProductQuantity(event.cartId, event.quantity)
+            is CartIntent.UpdateProductQuantity -> {
+                updateCartProductQuantity(intent.cartId, intent.quantity)
+            }
+
+            is CartIntent.Submit -> {
+                if (_state.value.cartProductsList.isNotEmpty()) {
+                    viewModelScope.launch {
+                        _event.send(LoginEvent.Navigate)
+                    }
+                }
             }
         }
     }
@@ -57,20 +84,13 @@ class CartViewModel @Inject constructor(
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
-                            val cartList = _cartScreenState.value.cartProductsList.filter {
-                                it.cartId != cartId
-                            }
-                            _cartScreenState.value =
-                                _cartScreenState.value.copy(
-                                    cartProductsList = cartList
-                                )
+                            val cartList =
+                                _state.value.cartProductsList.filter { it.cartId != cartId }
+                            _state.update { it.copy(cartProductsList = cartList) }
                         }
 
                         is DataResult.Error -> {
-                            _cartScreenState.value =
-                                _cartScreenState.value.copy(
-                                    error = response.exception.message.toString()
-                                )
+                            _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                         }
                     }
                 }
@@ -87,10 +107,7 @@ class CartViewModel @Inject constructor(
                         }
 
                         is DataResult.Error -> {
-                            _cartScreenState.value =
-                                _cartScreenState.value.copy(
-                                    error = response.exception.message.toString()
-                                )
+                            _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                         }
                     }
                 }
@@ -101,31 +118,33 @@ class CartViewModel @Inject constructor(
         getCartProductsListUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _cartScreenState.value =
-                        _cartScreenState.value.copy(
-                            cartProductsList = response.data,
-                        )
+                    _state.update { it.copy(cartProductsList = response.data) }
                 }
 
                 is DataResult.Error -> {
-                    _cartScreenState.value =
-                        _cartScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
+                    _state.update {
+                        it.copy(
+                            error = UiText.DynamicString(response.exception.message.orEmpty())
                         )
+                    }
                 }
             }
         }
     }
 
     init {
-        _cartScreenState.value = _cartScreenState.value.copy(isLoading = true)
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             val product = async { getProducts() }
 
             try {
                 awaitAll(product)
-                _cartScreenState.value = _cartScreenState.value.copy(isLoading = false)
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        error = UiText.DynamicString("")
+                    )
+                }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading cart screen data: ${e.message}")
             }

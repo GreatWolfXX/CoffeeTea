@@ -43,7 +43,7 @@ class ForgotPasswordViewModel @Inject constructor(
     private val validateEmailUseCase: ValidateEmailUseCase,
 //    private val forgotPasswordUseCase: ForgotPasswordUseCase
 ) : ViewModel() {
-    
+
     private var _state = MutableStateFlow(ForgotPasswordScreenState())
     val state: StateFlow<ForgotPasswordScreenState> = _state.stateIn(
         scope = viewModelScope,
@@ -55,13 +55,14 @@ class ForgotPasswordViewModel @Inject constructor(
     val event = _event.receiveAsFlow()
 
     fun onIntent(intent: ForgotPasswordIntent) {
-        when(intent) {
+        when (intent) {
             is ForgotPasswordIntent.Input.EnterEmail -> {
-               _state.update { it.copy(email = intent.email) }
+                _state.update { it.copy(email = intent.email) }
                 validateEmail()
             }
+
             is ForgotPasswordIntent.ButtonClick.Submit -> {
-                if(validateEmail()) {
+                if (validateEmail()) {
                     forgotPassword()
                 }
             }
@@ -70,7 +71,7 @@ class ForgotPasswordViewModel @Inject constructor(
 
     private fun forgotPassword() {
         viewModelScope.launch {
-           _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true) }
 //            forgotPasswordUseCase.invoke(_state.value.email).collect { result ->
 //                when(result) {
 //                    is DataResult.Success -> {

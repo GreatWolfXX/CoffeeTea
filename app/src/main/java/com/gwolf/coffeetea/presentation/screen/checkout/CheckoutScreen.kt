@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -52,7 +51,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CheckoutScreen(
-    snackbarHostState: SnackbarHostState,
     navController: NavController,
     viewModel: CheckoutViewModel = hiltViewModel()
 ) {
@@ -98,7 +96,6 @@ fun CheckoutScreen(
                 )
             } else {
                 CheckoutScreenContent(
-                    snackbarHostState = snackbarHostState,
                     state = state,
                     viewModel = viewModel,
                     coroutineScope = coroutineScope,
@@ -158,7 +155,6 @@ private fun TopMenu(
 
 @Composable
 private fun CheckoutScreenContent(
-    snackbarHostState: SnackbarHostState,
     state: CheckoutUiState,
     viewModel: CheckoutViewModel,
     coroutineScope: CoroutineScope,
@@ -193,9 +189,7 @@ private fun CheckoutScreenContent(
             ) { position ->
                 when (position) {
                     0 -> {
-                        DeliveryPage(
-                            snackbarHostState = snackbarHostState
-                        ) {
+                        DeliveryPage {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(pagerState.targetPage.inc())
                             }

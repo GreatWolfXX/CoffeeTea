@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -36,6 +38,10 @@ import com.gwolf.coffeetea.ui.theme.CoffeeTeaTheme
 import com.gwolf.coffeetea.ui.theme.StatusBarBackgroundColor
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+
+val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState>{
+    error("No Snackbar Host State")
+}
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -56,10 +62,9 @@ class MainActivity : ComponentActivity() {
             )
         )
 
-
-
         setContent {
             CoffeeTeaTheme {
+
                 val screenWithoutBottomBar = listOf(
                     Screen.Welcome,
                     Screen.Auth,
@@ -68,6 +73,7 @@ class MainActivity : ComponentActivity() {
                     Screen.ForgotPassword
                 )
 
+                val snackbarHostState = remember { SnackbarHostState() }
                 val screen by splashViewModel.startDestination
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -77,40 +83,43 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                val snackbarHostState = remember { SnackbarHostState() }
-
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    bottomBar = {
-                        AnimatedVisibility(
-                            visible = showBottomBar ?: false,
-                            enter = slideInVertically(
-                                initialOffsetY = { it },
-                                animationSpec = tween(durationMillis = 300)
-                            ) + fadeIn(),
-                            exit = slideOutVertically(
-                                targetOffsetY = { it },
-                                animationSpec = tween(durationMillis = 300)
-                            ) + fadeOut()
-                        ) {
-                            BottomBar(
-                                navController = navController
+                CompositionLocalProvider(
+                    values = arrayOf(
+                        LocalSnackbarHostState provides snackbarHostState
+                    )
+                ) {
+                    Scaffold(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        bottomBar = {
+                            AnimatedVisibility(
+                                visible = showBottomBar ?: false,
+                                enter = slideInVertically(
+                                    initialOffsetY = { it },
+                                    animationSpec = tween(durationMillis = 300)
+                                ) + fadeIn(),
+                                exit = slideOutVertically(
+                                    targetOffsetY = { it },
+                                    animationSpec = tween(durationMillis = 300)
+                                ) + fadeOut()
+                            ) {
+                                BottomBar(
+                                    navController = navController
+                                )
+                            }
+                        },
+                        snackbarHost = {
+                            SnackbarHost(snackbarHostState)
+                        }
+                    ) { innerPadding ->
+                        screen?.let {
+                            SetupNavGraph(
+                                navController = navController,
+                                startDestination = it,
+                                showBottomBar = showBottomBar ?: false,
+                                paddingValues = innerPadding
                             )
                         }
-                    },
-                    snackbarHost = {
-                        SnackbarHost(snackbarHostState)
-                    }
-                ) { innerPadding ->
-                    screen?.let {
-                        SetupNavGraph(
-                            navController = navController,
-                            snackbarHostState = snackbarHostState,
-                            startDestination = it,
-                            showBottomBar = showBottomBar ?: false,
-                            paddingValues = innerPadding
-                        )
                     }
                 }
             }

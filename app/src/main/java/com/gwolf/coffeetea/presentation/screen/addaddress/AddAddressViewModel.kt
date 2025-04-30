@@ -1,8 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.addaddress
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -15,43 +13,68 @@ import com.gwolf.coffeetea.domain.usecase.novapost.GetCityBySearchUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetDepartmentsUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressType
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class AddAddressUiState(
-    val selectedNovaPostDepartments: Boolean = false,
-    val selectedNovaPostCabin: Boolean = false,
-    val typeByRef: String = "",
-    val searchCitiesList: List<City> = listOf<City>(),
-    val searchDepartmentsList: List<Department> = listOf<Department>(),
-    val searchCity: String = "",
-    val searchDepartment: String = "",
-    val selectedCity: City? = null,
-    val selectedDepartment: Department? = null,
-    val isAddressAdded: Boolean = false,
-    val isDefault: Boolean = false,
+data class AddAddressScreenState(
+    val selection: SelectionState = SelectionState(),
+    val search: SearchState = SearchState(),
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
 )
 
+data class SelectionState(
+    val selectedNovaPostDepartments: Boolean = false,
+    val selectedNovaPostCabin: Boolean = false,
+    val selectedCity: City? = null,
+    val selectedDepartment: Department? = null,
+    val isDefault: Boolean = false,
+)
+
+data class SearchState(
+    val typeByRef: String = "",
+    val searchCity: String = "",
+    val searchDepartment: String = "",
+    val searchCitiesList: List<City> = emptyList(),
+    val searchDepartmentsList: List<Department> = emptyList(),
+)
+
+sealed class AddAddressIntent {
+    sealed class Input {
+        data class SearchCity(val query: String) : AddAddressIntent()
+        data class SelectCity(val city: City) : AddAddressIntent()
+        data class SearchDepartment(val query: String) : AddAddressIntent()
+    }
+
+    sealed class ButtonClick {
+        data class SetTypeDepartment(val typeByRef: String) : AddAddressIntent()
+        data class SelectDepartment(val department: Department) : AddAddressIntent()
+        data object ClearSelected : AddAddressIntent()
+        data object SelectNovaPostDepartments : AddAddressIntent()
+        data object SelectNovaPost : AddAddressIntent()
+        data object Submit : AddAddressIntent()
+    }
+}
+
 sealed class AddAddressEvent {
-    data class SetTypeDepartment(val typeByRef: String) : AddAddressEvent()
-    data class SearchCity(val query: String) : AddAddressEvent()
-    data class SelectCity(val city: City) : AddAddressEvent()
-    data class SearchDepartment(val query: String) : AddAddressEvent()
-    data class SelectDepartment(val department: Department) : AddAddressEvent()
-    data object ClearSelected : AddAddressEvent()
-    data object SelectNovaPostDepartments : AddAddressEvent()
-    data object SelectNovaPost : AddAddressEvent()
-    data object Submit : AddAddressEvent()
+    data object Idle : AddAddressEvent()
+    data object Navigate : AddAddressEvent()
 }
 
 @HiltViewModel
@@ -62,71 +85,80 @@ class AddAddressViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _addAddressEventScreenState = mutableStateOf(AddAddressUiState())
-    val addAddressEventScreenState: State<AddAddressUiState> = _addAddressEventScreenState
+    private var _state = MutableStateFlow(AddAddressScreenState())
+    val state: StateFlow<AddAddressScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = AddAddressScreenState()
+    )
 
-    fun onEvent(event: AddAddressEvent) {
-        when (event) {
-            is AddAddressEvent.SetTypeDepartment -> {
-                if (_addAddressEventScreenState.value.typeByRef != event.typeByRef) {
+    private var _event: Channel<AddAddressEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: AddAddressIntent) {
+        when (intent) {
+            is AddAddressIntent.Input.SearchCity -> {
+                _state.update { it.copy(search = it.search.copy(searchCity = intent.query)) }
+            }
+
+            is AddAddressIntent.Input.SelectCity -> {
+                _state.update { it.copy(selection = it.selection.copy(selectedCity = intent.city)) }
+            }
+
+            is AddAddressIntent.Input.SearchDepartment -> {
+                _state.update { it.copy(search = it.search.copy(searchDepartment = intent.query)) }
+            }
+
+            is AddAddressIntent.ButtonClick.SetTypeDepartment -> {
+                if (_state.value.search.typeByRef != intent.typeByRef) {
                     viewModelScope.launch {
-                        getDepartments("", event.typeByRef)
+                        getDepartments("", intent.typeByRef)
                     }
                 }
-                _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-                    typeByRef = event.typeByRef
-                )
+                _state.update { it.copy(search = it.search.copy(typeByRef = intent.typeByRef)) }
             }
 
-            is AddAddressEvent.SearchCity -> {
-                _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-                    searchCity = event.query
-                )
+            is AddAddressIntent.ButtonClick.SelectDepartment -> {
+                _state.update { it.copy(selection = it.selection.copy(selectedDepartment = intent.department)) }
             }
 
-            is AddAddressEvent.SelectCity -> {
-                _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-                    selectedCity = event.city
-                )
+            is AddAddressIntent.ButtonClick.ClearSelected -> {
+                _state.update {
+                    it.copy(
+                        selection = it.selection.copy(
+                            selectedNovaPostDepartments = false,
+                            selectedNovaPostCabin = false
+                        ),
+                        search = it.search.copy(typeByRef = "")
+                    )
+                }
             }
 
-            is AddAddressEvent.SearchDepartment -> {
-                _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-                    searchDepartment = event.query
-                )
+            is AddAddressIntent.ButtonClick.SelectNovaPostDepartments -> {
+                _state.update {
+                    it.copy(
+                        selection = it.selection.copy(
+                            selectedNovaPostDepartments = true,
+                            selectedNovaPostCabin = false
+                        )
+                    )
+                }
             }
 
-            is AddAddressEvent.SelectDepartment -> {
-                _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-                    selectedDepartment = event.department
-                )
+            is AddAddressIntent.ButtonClick.SelectNovaPost -> {
+                _state.update {
+                    it.copy(
+                        selection = it.selection.copy(
+                            selectedNovaPostDepartments = false,
+                            selectedNovaPostCabin = true
+                        )
+                    )
+                }
             }
 
-            is AddAddressEvent.ClearSelected -> {
-                _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-                    selectedNovaPostDepartments = false,
-                    selectedNovaPostCabin = false,
-                    typeByRef = ""
-                )
-            }
-
-            is AddAddressEvent.SelectNovaPostDepartments -> {
-                _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-                    selectedNovaPostDepartments = true,
-                    selectedNovaPostCabin = false,
-                )
-            }
-
-            is AddAddressEvent.SelectNovaPost -> {
-                _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-                    selectedNovaPostDepartments = false,
-                    selectedNovaPostCabin = true
-                )
-            }
-
-            is AddAddressEvent.Submit -> {
-                val selectedCity = _addAddressEventScreenState.value.selectedCity != null
-                val selectedDepartment = _addAddressEventScreenState.value.selectedDepartment != null
+            is AddAddressIntent.ButtonClick.Submit -> {
+                val selectedCity = _state.value.selection.selectedCity != null
+                val selectedDepartment = _state.value.selection.selectedDepartment != null
                 if (selectedCity && selectedDepartment) {
                     addAddress()
                 }
@@ -135,15 +167,15 @@ class AddAddressViewModel @Inject constructor(
     }
 
     private fun addAddress() {
-        val selectedCity = _addAddressEventScreenState.value.selectedCity
-        val selectedDepartment = _addAddressEventScreenState.value.selectedDepartment
-        val isDefault = _addAddressEventScreenState.value.isDefault
+        val selectedCity = _state.value.selection.selectedCity
+        val selectedDepartment = _state.value.selection.selectedDepartment
+        val isDefault = _state.value.selection.isDefault
         val type = when {
-            _addAddressEventScreenState.value.selectedNovaPostDepartments -> {
+            _state.value.selection.selectedNovaPostDepartments -> {
                 SavedDeliveryAddressType.NovaPostDepartment.value
             }
 
-            _addAddressEventScreenState.value.selectedNovaPostCabin -> {
+            _state.value.selection.selectedNovaPostCabin -> {
                 SavedDeliveryAddressType.NovaPostCabin.value
             }
 
@@ -152,6 +184,7 @@ class AddAddressViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             addAddressUseCase.invoke(
                 type = type,
                 refCity = selectedCity?.ref.orEmpty(),
@@ -162,34 +195,34 @@ class AddAddressViewModel @Inject constructor(
             ).collect { response ->
                 when (response) {
                     is DataResult.Success -> {
-                        _addAddressEventScreenState.value =
-                            _addAddressEventScreenState.value.copy(
-                                isAddressAdded = true
-                            )
+                        _event.send(AddAddressEvent.Navigate)
                     }
 
                     is DataResult.Error -> {
-                        _addAddressEventScreenState.value =
-                            _addAddressEventScreenState.value.copy(
-                                error = response.exception.message.toString(),
-                                isLoading = false
-                            )
+                        _state.update {
+                            it.copy(error = UiText.DynamicString(response.exception.message.orEmpty()))
+                        }
                     }
                 }
+            }
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    error = UiText.DynamicString("")
+                )
             }
         }
     }
 
     @OptIn(FlowPreview::class)
     private suspend fun setupSearchAddressDebounce() {
-        snapshotFlow { _addAddressEventScreenState.value.searchCity }
+        snapshotFlow { _state.value.search.searchCity }
             .debounce(500)
             .distinctUntilChanged()
             .onEach {
-                _addAddressEventScreenState.value =
-                    _addAddressEventScreenState.value.copy(
-                        searchCitiesList = listOf<City>()
-                    )
+                _state.update {
+                    it.copy(search = it.search.copy(searchCitiesList = listOf<City>()))
+                }
             }
             .filter { it.isNotBlank() }
             .collect { query ->
@@ -199,14 +232,13 @@ class AddAddressViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     private suspend fun setupSearchDepartmentDebounce() {
-        snapshotFlow { _addAddressEventScreenState.value.searchDepartment }
+        snapshotFlow { _state.value.search.searchDepartment }
             .debounce(500)
             .distinctUntilChanged()
             .onEach {
-                _addAddressEventScreenState.value =
-                    _addAddressEventScreenState.value.copy(
-                        searchDepartmentsList = listOf<Department>()
-                    )
+                _state.update {
+                    it.copy(search = it.search.copy(searchDepartmentsList = listOf<Department>()))
+                }
             }
             .filter { it.isNotBlank() }
             .collect { query ->
@@ -218,39 +250,35 @@ class AddAddressViewModel @Inject constructor(
         getCityBySearchUseCase.invoke(query).collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _addAddressEventScreenState.value =
-                        _addAddressEventScreenState.value.copy(
-                            searchCitiesList = response.data
-                        )
+                    _state.update {
+                        it.copy(search = it.search.copy(searchCitiesList = response.data))
+                    }
                 }
 
                 is DataResult.Error -> {
-                    _addAddressEventScreenState.value =
-                        _addAddressEventScreenState.value.copy(
-                            error = response.exception.message.toString()
-                        )
+                    _state.update {
+                        it.copy(error = UiText.DynamicString(response.exception.message.orEmpty()))
+                    }
                 }
             }
         }
     }
 
     private suspend fun getDepartments(query: String, type: String = "") {
-        val typeByRef = type.ifBlank { _addAddressEventScreenState.value.typeByRef }
-        val cityRef = _addAddressEventScreenState.value.selectedCity?.ref
+        val typeByRef = type.ifBlank { _state.value.search.typeByRef }
+        val cityRef = _state.value.selection.selectedCity?.ref
         getDepartmentsUseCase.invoke(typeByRef, cityRef.orEmpty(), query).collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _addAddressEventScreenState.value =
-                        _addAddressEventScreenState.value.copy(
-                            searchDepartmentsList = response.data
-                        )
+                    _state.update {
+                        it.copy(search = it.search.copy(searchDepartmentsList = response.data))
+                    }
                 }
 
                 is DataResult.Error -> {
-                    _addAddressEventScreenState.value =
-                        _addAddressEventScreenState.value.copy(
-                            error = response.exception.message.toString()
-                        )
+                    _state.update {
+                        it.copy(error = UiText.DynamicString(response.exception.message.orEmpty()))
+                    }
                 }
             }
         }
@@ -259,15 +287,12 @@ class AddAddressViewModel @Inject constructor(
     init {
         val isDefault = savedStateHandle.toRoute<Screen.AddAddress>().isDefault
 
-        _addAddressEventScreenState.value = _addAddressEventScreenState.value.copy(
-            isLoading = true,
-            isDefault = isDefault
-        )
+        _state.update {
+            it.copy(selection = it.selection.copy(isDefault = isDefault))
+        }
         viewModelScope.launch {
-
             try {
-                _addAddressEventScreenState.value =
-                    _addAddressEventScreenState.value.copy(isLoading = false)
+                _state.update { it.copy(isLoading = false) }
                 setupSearchAddressDebounce()
                 setupSearchDepartmentDebounce()
             } catch (e: Exception) {

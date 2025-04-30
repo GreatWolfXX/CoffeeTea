@@ -28,7 +28,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -64,7 +63,6 @@ import com.gwolf.coffeetea.util.NOVA_POST_DEPARTMENT_REF
 @Composable
 fun DeliveryPage(
     viewModel: DeliveryViewModel = hiltViewModel(),
-    snackbarHostState: SnackbarHostState,
     nextStep: () -> Unit = {}
 ) {
     Column(
@@ -96,7 +94,6 @@ fun DeliveryPage(
             )
             Spacer(modifier = Modifier.size(16.dp))
             PostComponent(
-                snackbarHostState = snackbarHostState,
                 icon = ImageVector.vectorResource(R.drawable.nova_post),
                 iconTint = NovaPostColor,
                 title = stringResource(R.string.nova_post_departments),
@@ -117,7 +114,6 @@ fun DeliveryPage(
             )
             Spacer(modifier = Modifier.size(16.dp))
             PostComponent(
-                snackbarHostState = snackbarHostState,
                 icon = ImageVector.vectorResource(R.drawable.nova_post),
                 iconTint = NovaPostColor,
                 title = stringResource(R.string.nova_post),

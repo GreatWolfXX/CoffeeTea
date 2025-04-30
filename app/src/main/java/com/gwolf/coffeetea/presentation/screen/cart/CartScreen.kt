@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.cart
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +33,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -45,12 +47,12 @@ import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
+import com.gwolf.coffeetea.presentation.screen.login.LoginEvent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
@@ -58,8 +60,46 @@ fun CartScreen(
     navController: NavController,
     viewModel: CartViewModel = hiltViewModel()
 ) {
-    val state by viewModel.cartScreenState
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
 
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = LoginEvent.Idle)
+
+    LaunchedEffect(event) {
+        when(event) {
+            is LoginEvent.Idle -> {}
+            is LoginEvent.Navigate -> {
+                navController.navigate(Screen.Checkout)
+            }
+        }
+    }
+
+    CartContent(
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateToOtherScreen = { screen ->
+            navController.navigate(screen)
+        },
+        navigateBack = {
+            navController.navigateUp()
+        },
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun CartContent(
+    state: CartScreenState,
+    isNetworkConnected: Boolean,
+    navigateToOtherScreen: (Screen) -> Unit = {},
+    navigateBack: () -> Unit = {},
+    onIntent: (CartIntent) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -69,73 +109,34 @@ fun CartScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopMenu(
-                navController = navController
+                navigateBack = navigateBack
             )
-            val connection by connectivityState()
 
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if(isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if(isConnected) R.string.title_error else R.string.title_network
-                val desc = if(isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style = if(isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if(isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc = if(isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                CartScreenContent(
-                    navController = navController,
-                    viewModel = viewModel,
-                    state = state
+                CartMainSection(
+                    state = state,
+                    navigateToOtherScreen = navigateToOtherScreen,
+                    onIntent = onIntent
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopMenu(
-    navController: NavController
-) {
-   TopAppBar(
-        modifier = Modifier,
-        title = {
-            Text(
-                modifier = Modifier.padding(start = 4.dp),
-                text = stringResource(R.string.title_cart),
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 22.sp,
-                color = OnSurfaceColor
-            )
-        },
-        navigationIcon = {
-            Icon(
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .clickable {
-                        navController.popBackStack()
-                    },
-                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
-                contentDescription = null,
-                tint = OnSurfaceColor
-            )
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = WhiteAlpha06
-        )
-    )
 }
 
 @Composable
-private fun CartScreenContent(
-    navController: NavController,
-    state: CartUiState,
-    viewModel: CartViewModel
+private fun CartMainSection(
+    state: CartScreenState,
+    navigateToOtherScreen: (Screen) -> Unit,
+    onIntent: (CartIntent) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -160,13 +161,13 @@ private fun CartScreenContent(
                             modifier = Modifier.animateItem(),
                             cart = cartProduct,
                             onClickDelete = {
-                                viewModel.onEvent(CartEvent.RemoveFromCart(cartProduct.cartId))
+                                onIntent(CartIntent.RemoveFromCart(cartProduct.cartId))
                             },
                             onClick = {
-                                navController.navigate(Screen.ProductInfo(productId = cartProduct.productId))
+                                navigateToOtherScreen(Screen.ProductInfo(productId = cartProduct.productId))
                             },
                             saveQuantity = { count ->
-                                viewModel.onEvent(CartEvent.UpdateProductQuantity(cartProduct.cartId, count))
+                                onIntent(CartIntent.UpdateProductQuantity(cartProduct.cartId, count))
                             }
                         )
                     }
@@ -220,10 +221,52 @@ private fun CartScreenContent(
             CustomButton(
                 text = R.string.title_cart_buy
             ) {
-                if(state.cartProductsList.isNotEmpty()) {
-                    navController.navigate(Screen.Checkout)
-                }
+                onIntent(CartIntent.Submit)
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopMenu(
+    navigateBack: () -> Unit
+) {
+    TopAppBar(
+        modifier = Modifier,
+        title = {
+            Text(
+                modifier = Modifier.padding(start = 4.dp),
+                text = stringResource(R.string.title_cart),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 22.sp,
+                color = OnSurfaceColor
+            )
+        },
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .clickable {
+                        navigateBack()
+                    },
+                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
+                contentDescription = null,
+                tint = OnSurfaceColor
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = WhiteAlpha06
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun CartScreenPreview() {
+    CartContent(
+        state = CartScreenState(),
+        isNetworkConnected = true
+    )
 }

@@ -214,7 +214,7 @@ private fun TopMenu(
 private fun LoginForm(
     context: Context,
     state: LoginScreenState,
-    navigateToOtherScreen: (Screen) -> Unit = {},
+    navigateToOtherScreen: (Screen) -> Unit,
     onIntent: (LoginIntent) -> Unit
 ) {
     CustomTextInput(

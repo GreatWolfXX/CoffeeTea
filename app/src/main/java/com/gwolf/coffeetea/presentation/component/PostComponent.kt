@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gwolf.coffeetea.LocalSnackbarHostState
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
@@ -44,7 +44,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PostComponent(
-    snackbarHostState: SnackbarHostState,
     icon: ImageVector,
     iconTint: Color = Color.Unspecified,
     title: String,
@@ -67,7 +66,7 @@ fun PostComponent(
 
     val borderColor = if (localSelected) OnSurfaceColor else Color.Transparent
     val blurEnabled by animateDpAsState(if (enabled) 0.dp else 1.dp)
-
+    val snackbarHostState = LocalSnackbarHostState.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
