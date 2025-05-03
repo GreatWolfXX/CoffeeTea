@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.changephone
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,15 +18,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -47,7 +47,6 @@ import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UKRAINE_PHONE_CODE
 import com.gwolf.coffeetea.util.connectivityState
 import com.gwolf.coffeetea.util.getFlagEmoji
@@ -58,14 +57,42 @@ fun ChangePhoneScreen(
     navController: NavController,
     viewModel: ChangePhoneViewModel = hiltViewModel()
 ) {
-    val state by viewModel.changePhoneState
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
 
-    LaunchedEffect(state.phoneChanged) {
-        if (state.phoneChanged) {
-            navController.popBackStack()
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = ChangePhoneEvent.Idle)
+
+    LaunchedEffect(event) {
+        when (event) {
+            is ChangePhoneEvent.Idle -> {}
+            is ChangePhoneEvent.Navigate -> {
+                navController.popBackStack()
+            }
         }
     }
 
+    ChangePhoneContent(
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateBack = {
+            navController.navigateUp()
+        },
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun ChangePhoneContent(
+    state: ChangePhoneScreenState,
+    isNetworkConnected: Boolean,
+    navigateBack: () -> Unit = {},
+    onIntent: (ChangePhoneIntent) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -75,40 +102,35 @@ fun ChangePhoneScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopMenu(
-                navController = navController
+                navigateBack = navigateBack
             )
 
-            val connection by connectivityState()
-
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if (isConnected) R.string.title_error else R.string.title_network
-                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style =
+                    if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                ChangePhoneScreenContent(
-                    navController = navController,
+                ChangePhoneMainSection(
                     state = state,
-                    viewModel = viewModel
+                    onIntent = onIntent
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopMenu(
-    navController: NavController
+    navigateBack: () -> Unit
 ) {
-   TopAppBar(
+    TopAppBar(
         modifier = Modifier,
         title = {
             Text(
@@ -125,7 +147,7 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        navController.popBackStack()
+                        navigateBack()
                     },
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
@@ -138,14 +160,11 @@ private fun TopMenu(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ChangePhoneScreenContent(
-    navController: NavController,
-    state: ChangePhoneUiState,
-    viewModel: ChangePhoneViewModel
+private fun ChangePhoneMainSection(
+    state: ChangePhoneScreenState,
+    onIntent: (ChangePhoneIntent) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -175,7 +194,8 @@ private fun ChangePhoneScreenContent(
                         lineHeight = TextUnit(20f, TextUnitType.Sp),
                         color = OutlineColor
                     )
-                    val phoneText = state.currentPhone.ifEmpty { stringResource(R.string.empty_phone) }
+                    val phoneText =
+                        state.currentPhone.ifEmpty { stringResource(R.string.empty_phone) }
                     Text(
                         modifier = Modifier,
                         text = phoneText,
@@ -193,12 +213,12 @@ private fun ChangePhoneScreenContent(
                 prefixText = "$flag $UKRAINE_PHONE_CODE",
                 placeholder = R.string.new_phone_placeholder,
                 text = state.phone,
-                onValueChange = { text ->
-                    viewModel.onEvent(ChangePhoneEvent.PhoneChanged(text))
+                onValueChange = { value ->
+                    onIntent(ChangePhoneIntent.Input.EnterPhone(value))
                 },
                 style = CustomTextInputStyle.PHONE,
                 imeAction = ImeAction.Done,
-                isError = state.phoneError != null,
+                isError = state.phoneError.asString().isNotBlank(),
                 errorMessage = state.phoneError
             )
             Spacer(modifier = Modifier.size(16.dp))
@@ -207,23 +227,16 @@ private fun ChangePhoneScreenContent(
             text = R.string.btn_save
         )
         {
-            viewModel.onEvent(ChangePhoneEvent.Save)
+            onIntent(ChangePhoneIntent.ButtonClick.Submit)
         }
-//        if(state.showOtpModalSheet) {
-//            OtpBottomSheet(
-//                sheetState = sheetState,
-//                title = R.string.title_verify_phone,
-//                desc = R.string.desc_verify_phone,
-//                isError = state.otpError != null,
-//                errorMessage = state.otpError,
-//                onClickConfirm = { otpToken ->
-//                    viewModel.onEvent(ChangePhoneEvent.CheckOtp(otpToken))
-//                },
-//                onClickResendCode = {},
-//                onDismiss = {
-//                    viewModel.onEvent(ChangePhoneEvent.OnDismiss)
-//                }
-//            )
-//        }
     }
+}
+
+@Preview
+@Composable
+private fun ChangePhonePreview() {
+    ChangePhoneContent(
+        state = ChangePhoneScreenState(),
+        isNetworkConnected = true
+    )
 }

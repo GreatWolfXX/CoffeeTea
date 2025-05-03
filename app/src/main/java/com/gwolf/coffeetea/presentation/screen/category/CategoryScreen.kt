@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.category
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,11 +21,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,7 +45,6 @@ import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
@@ -51,7 +52,36 @@ fun CategoryScreen(
     navController: NavController,
     viewModel: CategoryViewModel = hiltViewModel()
 ) {
-    val state by viewModel.categoryScreenState
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
+
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = CategoryEvent.Idle)
+
+    LaunchedEffect(event) {
+        when (event) {
+            is CategoryEvent.Idle -> {}
+        }
+    }
+
+    CategoryContent(
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateBack = {
+            navController.navigateUp()
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun CategoryContent(
+    state: CategoryScreenState,
+    isNetworkConnected: Boolean,
+    navigateToOtherScreen: (Screen) -> Unit = {},
+    navigateBack: () -> Unit = {},
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -60,38 +90,36 @@ fun CategoryScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-           TopMenu(navController)
+            TopMenu(
+                navigateBack = navigateBack
+            )
 
-            val connection by connectivityState()
-
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if(isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if(isConnected) R.string.title_error else R.string.title_network
-                val desc = if(isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style =
+                    if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                CategoryScreenContent(
-                    navController = navController,
-                    state = state
+                CartMainSection(
+                    state = state,
+                    navigateToOtherScreen = navigateToOtherScreen
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopMenu(
-    navController: NavController
+    navigateBack: () -> Unit
 ) {
-   TopAppBar(
+    TopAppBar(
         modifier = Modifier,
         title = {
             Text(
@@ -108,7 +136,7 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        navController.popBackStack()
+                        navigateBack()
                     },
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
@@ -122,27 +150,34 @@ private fun TopMenu(
 }
 
 @Composable
-private fun CategoryScreenContent(
-    navController: NavController,
-    state: CategoryUiState
+private fun CartMainSection(
+    state: CategoryScreenState,
+    navigateToOtherScreen: (Screen) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
     ) {
-        CategoryList(
-            navController = navController,
-            categoriesList = state.categoriesList
-        )
+        if (state.categoriesList.isNotEmpty()) {
+            CategoryList(
+                categoriesList = state.categoriesList,
+                navigateToOtherScreen = navigateToOtherScreen
+            )
+        } else {
+            ErrorOrEmptyComponent(
+                style = ErrorOrEmptyStyle.PRODUCT_EMPTY,
+                title = R.string.title_categories_empty,
+                desc = R.string.desc_categories_empty
+            )
+        }
     }
 }
 
-
 @Composable
 private fun CategoryList(
-    navController: NavController,
-    categoriesList: List<Category>
+    categoriesList: List<Category>,
+    navigateToOtherScreen: (Screen) -> Unit
 ) {
     Spacer(modifier = Modifier.size(8.dp))
     LazyVerticalGrid(
@@ -157,7 +192,7 @@ private fun CategoryList(
                 modifier = Modifier.animateItem(),
                 category = category
             ) {
-                navController.navigate(
+                navigateToOtherScreen(
                     Screen.SearchByCategory(
                         categoryId = category.id,
                         categoryName = category.name
@@ -166,6 +201,14 @@ private fun CategoryList(
             }
         }
     }
-
     Spacer(modifier = Modifier.size(8.dp))
+}
+
+@Preview
+@Composable
+private fun CategoryScreenPreview() {
+    CategoryContent(
+        state = CategoryScreenState(),
+        isNetworkConnected = true
+    )
 }

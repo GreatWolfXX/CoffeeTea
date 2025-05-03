@@ -211,7 +211,7 @@ private fun ForgotPasswordForm(
 
 @Preview
 @Composable
-private fun ForgotPasswordScreenPreview() {
+private fun ForgotPasswordPreview() {
     val context = LocalContext.current
     ForgotPasswordContent(
         context = context,

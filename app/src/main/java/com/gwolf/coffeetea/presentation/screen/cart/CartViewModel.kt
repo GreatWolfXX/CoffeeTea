@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class CartScreenState(
-    val cartProductsList: List<Cart> = listOf<Cart>(),
+    val cartProductsList: List<Cart> = listOf(),
     val isLoading: Boolean = false,
     val error: UiText = UiText.DynamicString(""),
 )
@@ -80,6 +80,7 @@ class CartViewModel @Inject constructor(
 
     private fun removeFavorite(cartId: String) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             removeCartProductUseCase.invoke(cartId)
                 .collect { response ->
                     when (response) {
@@ -94,11 +95,18 @@ class CartViewModel @Inject constructor(
                         }
                     }
                 }
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    error = UiText.DynamicString("")
+                )
+            }
         }
     }
 
     private fun updateCartProductQuantity(cartId: String, quantity: Int) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             updateCartProductQuantityUseCase.invoke(cartId, quantity)
                 .collect { response ->
                     when (response) {
@@ -111,6 +119,12 @@ class CartViewModel @Inject constructor(
                         }
                     }
                 }
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    error = UiText.DynamicString("")
+                )
+            }
         }
     }
 
@@ -150,5 +164,4 @@ class CartViewModel @Inject constructor(
             }
         }
     }
-
 }

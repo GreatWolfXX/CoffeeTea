@@ -1,37 +1,51 @@
 package com.gwolf.coffeetea.presentation.screen.changepassword
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.usecase.database.update.ChangePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateRepeatPasswordUseCase
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ChangePasswordUiState(
+data class ChangePasswordScreenState(
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
     val passwordVisible: Boolean = false,
-    val passwordChanged: Boolean = false,
     val newPassword: String = "",
-    val newPasswordError: UiText? = null,
+    val newPasswordError: UiText = UiText.DynamicString(""),
     val repeatNewPassword: String = "",
-    val repeatNewPasswordError: UiText? = null
+    val repeatNewPasswordError: UiText = UiText.DynamicString(""),
 )
 
+sealed class ChangePasswordIntent {
+    sealed class Input {
+        data class EnterNewPassword(val newPassword: String) : ChangePasswordIntent()
+        data class EnterRepeatNewPassword(val newPassword: String) : ChangePasswordIntent()
+    }
+
+    sealed class ButtonClick {
+        data class PasswordVisibleChanged(val passwordVisible: Boolean) : ChangePasswordIntent()
+        data object Submit : ChangePasswordIntent()
+    }
+}
+
 sealed class ChangePasswordEvent {
-    data class NewPasswordChange(val newPassword: String) : ChangePasswordEvent()
-    data class RepeatNewPasswordChange(val newPassword: String) : ChangePasswordEvent()
-    data class PasswordVisibleChanged(val passwordVisible: Boolean) : ChangePasswordEvent()
-    data object Save : ChangePasswordEvent()
+    data object Idle : ChangePasswordEvent()
+    data object Navigate : ChangePasswordEvent()
 }
 
 @HiltViewModel
@@ -41,24 +55,33 @@ class ChangePasswordViewModel @Inject constructor(
     private val validateRepeatPasswordUseCase: ValidateRepeatPasswordUseCase
 ) : ViewModel() {
 
-    private val _changePasswordState = mutableStateOf(ChangePasswordUiState())
-    val changePasswordState: State<ChangePasswordUiState> = _changePasswordState
+    private var _state = MutableStateFlow(ChangePasswordScreenState())
+    val state: StateFlow<ChangePasswordScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = ChangePasswordScreenState()
+    )
 
-    fun onEvent(event: ChangePasswordEvent) {
-        when (event) {
-            is ChangePasswordEvent.NewPasswordChange -> {
-                _changePasswordState.value = _changePasswordState.value.copy(newPassword = event.newPassword)
+    private var _event: Channel<ChangePasswordEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: ChangePasswordIntent) {
+        when (intent) {
+            is ChangePasswordIntent.Input.EnterNewPassword -> {
+                _state.update { it.copy(newPassword = intent.newPassword) }
                 validateNewPassword()
             }
 
-            is ChangePasswordEvent.RepeatNewPasswordChange -> {
-                _changePasswordState.value = _changePasswordState.value.copy(repeatNewPassword = event.newPassword)
+            is ChangePasswordIntent.Input.EnterRepeatNewPassword -> {
+                _state.update { it.copy(repeatNewPassword = intent.newPassword) }
                 validateRepeatNewPassword()
             }
-            is ChangePasswordEvent.PasswordVisibleChanged-> {
-                _changePasswordState.value = _changePasswordState.value.copy(passwordVisible = event.passwordVisible)
+
+            is ChangePasswordIntent.ButtonClick.PasswordVisibleChanged -> {
+                _state.update { it.copy(passwordVisible = intent.passwordVisible) }
             }
-            is ChangePasswordEvent.Save -> {
+
+            is ChangePasswordIntent.ButtonClick.Submit -> {
                 if (validateNewPassword() && validateRepeatNewPassword()) {
                     changePassword()
                 }
@@ -68,34 +91,32 @@ class ChangePasswordViewModel @Inject constructor(
 
     private fun changePassword() {
         viewModelScope.launch {
-            _changePasswordState.value = _changePasswordState.value.copy(isLoading = true)
-            changePasswordUseCase.invoke(_changePasswordState.value.newPassword).collect { result ->
+            _state.update { it.copy(isLoading = true) }
+            changePasswordUseCase.invoke(_state.value.newPassword).collect { result ->
                 when (result) {
                     is DataResult.Success -> {
-                        _changePasswordState.value = _changePasswordState.value.copy(
-                            passwordChanged = true,
-                            isLoading = false
-                        )
+                        _event.send(ChangePasswordEvent.Navigate)
                     }
 
                     is DataResult.Error -> {
-                        _changePasswordState.value = _changePasswordState.value.copy(
-                            repeatNewPasswordError = UiText.StringResource(R.string.err_new_password),
-                            isLoading = false
-                        )
+                        _state.update { it.copy(repeatNewPasswordError = UiText.StringResource(R.string.err_new_password)) }
                     }
                 }
+            }
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    repeatNewPasswordError = UiText.DynamicString("")
+                )
             }
         }
     }
 
     init {
-        _changePasswordState.value = _changePasswordState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                _changePasswordState.value = _changePasswordState.value.copy(
-                    isLoading = false
-                )
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading change password screen data: ${e.message}")
             }
@@ -103,18 +124,17 @@ class ChangePasswordViewModel @Inject constructor(
     }
 
     private fun validateNewPassword(): Boolean {
-        val passwordResult = validatePasswordUseCase.invoke(_changePasswordState.value.newPassword)
-        _changePasswordState.value = _changePasswordState.value.copy(newPasswordError = passwordResult.errorMessage)
+        val passwordResult = validatePasswordUseCase.invoke(_state.value.newPassword)
+        _state.update { it.copy(newPasswordError = passwordResult.errorMessage) }
         return passwordResult.successful
     }
 
     private fun validateRepeatNewPassword(): Boolean {
         val passwordResult = validateRepeatPasswordUseCase.invoke(
-            password = _changePasswordState.value.newPassword,
-            passwordRepeat = _changePasswordState.value.repeatNewPassword
+            password = _state.value.newPassword,
+            passwordRepeat = _state.value.repeatNewPassword
         )
-        _changePasswordState.value = _changePasswordState.value.copy(repeatNewPasswordError = passwordResult.errorMessage)
+        _state.update { it.copy(repeatNewPasswordError = passwordResult.errorMessage) }
         return passwordResult.successful
     }
-
 }

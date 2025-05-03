@@ -313,7 +313,7 @@ private fun LoginForm(
 
 @Preview
 @Composable
-private fun LoginScreenPreview() {
+private fun LoginPreview() {
     val context = LocalContext.current
     LoginContent(
         context = context,

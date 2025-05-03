@@ -47,7 +47,6 @@ import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
-import com.gwolf.coffeetea.presentation.screen.login.LoginEvent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
@@ -64,12 +63,12 @@ fun CartScreen(
     val isNetworkConnected = connection === ConnectionState.Available
 
     val state by viewModel.state.collectAsState()
-    val event by viewModel.event.collectAsState(initial = LoginEvent.Idle)
+    val event by viewModel.event.collectAsState(initial = CartEvent.Idle)
 
     LaunchedEffect(event) {
         when(event) {
-            is LoginEvent.Idle -> {}
-            is LoginEvent.Navigate -> {
+            is CartEvent.Idle -> {}
+            is CartEvent.Navigate -> {
                 navController.navigate(Screen.Checkout)
             }
         }

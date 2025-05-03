@@ -1,8 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.changeemal
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,29 +9,46 @@ import com.gwolf.coffeetea.domain.usecase.auth.VerifyOtpEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.ChangeEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.navigation.Screen
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ChangeEmailUiState(
+data class ChangeEmailScreenState(
     val currentEmail: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null,
-    val showOtpModalSheet: Boolean = false,
-    val otpError: UiText? = null,
-    val emailChanged: Boolean = false,
+    val error: UiText = UiText.DynamicString(""),
+    val otpError: UiText = UiText.DynamicString(""),
     val email: String = "",
-    val emailError: UiText? = null
+    val emailError: UiText = UiText.DynamicString(""),
 )
 
+sealed class ChangeEmailIntent {
+    sealed class Input {
+        data class EnterEmail(val email: String) : ChangeEmailIntent()
+    }
+
+    sealed class ButtonClick {
+        data object Submit : ChangeEmailIntent()
+        data class CheckOtp(val otpToken: String) : ChangeEmailIntent()
+        data object OnDismiss : ChangeEmailIntent()
+    }
+}
+
 sealed class ChangeEmailEvent {
-    data class EmailChanged(val email: String) : ChangeEmailEvent()
-    data object Save : ChangeEmailEvent()
-    data class CheckOtp(val otpToken: String) : ChangeEmailEvent()
-    data object OnDismiss : ChangeEmailEvent()
+    data object Idle : ChangeEmailEvent()
+    data object Navigate : ChangeEmailEvent()
+    data object ShowOtp : ChangeEmailEvent()
+    data object HideOtp : ChangeEmailEvent()
 }
 
 @HiltViewModel
@@ -44,88 +59,108 @@ class ChangeEmailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _changeEmailState = mutableStateOf(ChangeEmailUiState())
-    val changeEmailState: State<ChangeEmailUiState> = _changeEmailState
+    private var _state = MutableStateFlow(ChangeEmailScreenState())
+    val state: StateFlow<ChangeEmailScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = ChangeEmailScreenState()
+    )
 
-    fun onEvent(event: ChangeEmailEvent) {
-        when (event) {
-            is ChangeEmailEvent.EmailChanged -> {
-                _changeEmailState.value = _changeEmailState.value.copy(email = event.email)
+    private var _event: Channel<ChangeEmailEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: ChangeEmailIntent) {
+        when (intent) {
+            is ChangeEmailIntent.Input.EnterEmail -> {
+                _state.update { it.copy(email = intent.email) }
                 validateEmail()
             }
 
-            is ChangeEmailEvent.Save -> {
+            is ChangeEmailIntent.ButtonClick.Submit -> {
                 if (validateEmail()) {
                     sendOtpEmailChange()
                 }
             }
 
-            is ChangeEmailEvent.CheckOtp -> {
-                verifyOtpEmail(event.otpToken)
+            is ChangeEmailIntent.ButtonClick.CheckOtp -> {
+                verifyOtpEmail(intent.otpToken)
             }
 
-            is ChangeEmailEvent.OnDismiss -> {
-                _changeEmailState.value = _changeEmailState.value.copy(showOtpModalSheet = false)
+            is ChangeEmailIntent.ButtonClick.OnDismiss -> {
+                viewModelScope.launch {
+                    _event.send(ChangeEmailEvent.HideOtp)
+                }
             }
         }
     }
 
     private fun sendOtpEmailChange() {
         viewModelScope.launch {
-            _changeEmailState.value = _changeEmailState.value.copy(isLoading = true)
-            changeEmailUseCase.invoke(_changeEmailState.value.email).collect { result ->
+            _state.update { it.copy(isLoading = true) }
+            changeEmailUseCase.invoke(_state.value.email).collect { result ->
                 when (result) {
                     is DataResult.Success -> {
-                        _changeEmailState.value = _changeEmailState.value.copy(
-                            showOtpModalSheet = true,
-                            isLoading = false
-                        )
+                        _event.send(ChangeEmailEvent.ShowOtp)
                     }
 
                     is DataResult.Error -> {
-                        _changeEmailState.value = _changeEmailState.value.copy(
-                            error = result.exception.message,
-                            isLoading = false
-                        )
+                        _state.update {
+                            it.copy(
+                                error = UiText.DynamicString(result.exception.message.orEmpty())
+                            )
+                        }
                     }
                 }
+            }
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    error = UiText.DynamicString("")
+                )
             }
         }
     }
 
     private fun verifyOtpEmail(otpToken: String) {
         viewModelScope.launch {
-            _changeEmailState.value = _changeEmailState.value.copy(isLoading = true)
-            verifyOtpEmailUseCase.invoke(_changeEmailState.value.email, otpToken).collect { result ->
+            _state.update { it.copy(isLoading = true) }
+            verifyOtpEmailUseCase.invoke(_state.value.email, otpToken).collect { result ->
                 when (result) {
                     is DataResult.Success -> {
-                        _changeEmailState.value = _changeEmailState.value.copy(
-                            showOtpModalSheet = false,
-                            emailChanged = true,
-                            otpError = null,
-                            isLoading = false
-                        )
+                        _event.send(ChangeEmailEvent.HideOtp)
+                        _event.send(ChangeEmailEvent.Navigate)
                     }
 
                     is DataResult.Error -> {
-                        _changeEmailState.value = _changeEmailState.value.copy(
-                            otpError = UiText.DynamicString(result.exception.message.orEmpty()),
-                            isLoading = false
-                        )
+                        _state.update {
+                            it.copy(
+                                otpError = UiText.DynamicString(result.exception.message.orEmpty()),
+                            )
+                        }
                     }
                 }
+            }
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    otpError = UiText.DynamicString("")
+                )
             }
         }
     }
 
     init {
-        _changeEmailState.value = _changeEmailState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
+            val currentEmail = savedStateHandle.toRoute<Screen.ChangeEmail>().email
+
             try {
-                _changeEmailState.value = _changeEmailState.value.copy(
-                    isLoading = false,
-                    currentEmail = savedStateHandle.toRoute<Screen.ChangeEmail>().email
-                )
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        currentEmail = currentEmail
+                    )
+                }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading change email screen data: ${e.message}")
             }
@@ -133,10 +168,8 @@ class ChangeEmailViewModel @Inject constructor(
     }
 
     private fun validateEmail(): Boolean {
-        val emailResult = validateEmailUseCase.invoke(_changeEmailState.value.email)
-        _changeEmailState.value =
-            _changeEmailState.value.copy(emailError = emailResult.errorMessage)
+        val emailResult = validateEmailUseCase.invoke(_state.value.email)
+        _state.update { it.copy(emailError = emailResult.errorMessage) }
         return emailResult.successful
     }
-
 }

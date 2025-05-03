@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.changeemal
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,12 +21,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -48,22 +49,75 @@ import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangeEmailScreen(
     navController: NavController,
     viewModel: ChangeEmailViewModel = hiltViewModel()
 ) {
-    val state by viewModel.changeEmailState
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
 
-    LaunchedEffect(state.emailChanged) {
-        if (state.emailChanged) {
-            navController.popBackStack()
+    val sheetState = rememberModalBottomSheetState()
+
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = ChangeEmailEvent.Idle)
+
+    LaunchedEffect(event) {
+        when (event) {
+            is ChangeEmailEvent.Idle -> {}
+            is ChangeEmailEvent.Navigate -> {
+                navController.popBackStack()
+            }
+
+            is ChangeEmailEvent.ShowOtp -> {
+                sheetState.show()
+            }
+
+            is ChangeEmailEvent.HideOtp -> {
+                sheetState.hide()
+            }
         }
     }
 
+    ChangeEmailContent(
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateBack = {
+            navController.navigateUp()
+        },
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        }
+    )
+
+    OtpBottomSheet(
+        sheetState = sheetState,
+        title = R.string.title_verify_email,
+        desc = R.string.desc_verify_email,
+        isError = state.otpError.asString().isNotBlank(),
+        errorMessage = state.otpError,
+        onClickConfirm = { otpToken ->
+            viewModel.onIntent(ChangeEmailIntent.ButtonClick.CheckOtp(otpToken))
+        },
+        onClickResendCode = {},
+        onDismiss = {
+            viewModel.onIntent(ChangeEmailIntent.ButtonClick.OnDismiss)
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun ChangeEmailContent(
+    state: ChangeEmailScreenState,
+    isNetworkConnected: Boolean,
+    navigateBack: () -> Unit = {},
+    onIntent: (ChangeEmailIntent) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -73,40 +127,35 @@ fun ChangeEmailScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopMenu(
-                navController = navController
+                navigateBack = navigateBack
             )
 
-            val connection by connectivityState()
-
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if (isConnected) R.string.title_error else R.string.title_network
-                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style =
+                    if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                ChangeEmailScreenContent(
-                    navController = navController,
+                ChangeEmailMainSection(
                     state = state,
-                    viewModel = viewModel
+                    onIntent = onIntent
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopMenu(
-    navController: NavController
+    navigateBack: () -> Unit
 ) {
-   TopAppBar(
+    TopAppBar(
         modifier = Modifier,
         title = {
             Text(
@@ -123,7 +172,7 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        navController.popBackStack()
+                        navigateBack()
                     },
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
@@ -136,14 +185,11 @@ private fun TopMenu(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ChangeEmailScreenContent(
-    navController: NavController,
-    state: ChangeEmailUiState,
-    viewModel: ChangeEmailViewModel
+private fun ChangeEmailMainSection(
+    state: ChangeEmailScreenState,
+    onIntent: (ChangeEmailIntent) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -189,12 +235,12 @@ private fun ChangeEmailScreenContent(
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.new_email_placeholder,
                 text = state.email,
-                onValueChange = { text ->
-                    viewModel.onEvent(ChangeEmailEvent.EmailChanged(text))
+                onValueChange = { value ->
+                    onIntent(ChangeEmailIntent.Input.EnterEmail(value))
                 },
                 style = CustomTextInputStyle.EMAIL,
                 imeAction = ImeAction.Done,
-                isError = state.emailError != null,
+                isError = state.emailError.asString().isNotBlank(),
                 errorMessage = state.emailError
             )
             Spacer(modifier = Modifier.size(16.dp))
@@ -203,23 +249,16 @@ private fun ChangeEmailScreenContent(
             text = R.string.btn_save
         )
         {
-            viewModel.onEvent(ChangeEmailEvent.Save)
-        }
-        if(state.showOtpModalSheet) {
-            OtpBottomSheet(
-                sheetState = sheetState,
-                title = R.string.title_verify_email,
-                desc = R.string.desc_verify_email,
-                isError = state.otpError != null,
-                errorMessage = state.otpError,
-                onClickConfirm = { otpToken ->
-                    viewModel.onEvent(ChangeEmailEvent.CheckOtp(otpToken))
-                },
-                onClickResendCode = {},
-                onDismiss = {
-                    viewModel.onEvent(ChangeEmailEvent.OnDismiss)
-                }
-            )
+            onIntent(ChangeEmailIntent.ButtonClick.Submit)
         }
     }
+}
+
+@Preview
+@Composable
+private fun ChangeEmailPreview() {
+    ChangeEmailContent(
+        state = ChangeEmailScreenState(),
+        isNetworkConnected = true
+    )
 }

@@ -95,7 +95,6 @@ class AboutMeViewModel @Inject constructor(
     }
 
     private suspend fun getProfile() {
-        _state.update { it.copy(isLoading = true) }
         getProfileUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
@@ -112,12 +111,6 @@ class AboutMeViewModel @Inject constructor(
                 is DataResult.Error -> {
                     _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                 }
-            }
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    error = UiText.DynamicString("")
-                )
             }
         }
     }
@@ -151,10 +144,17 @@ class AboutMeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             val profile = async { getProfile() }
 
             try {
                 awaitAll(profile)
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        error = UiText.DynamicString("")
+                    )
+                }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading about me screen data: ${e.message}")
             }

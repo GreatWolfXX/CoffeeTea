@@ -1,8 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.changephone
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,124 +8,110 @@ import androidx.navigation.toRoute
 import com.gwolf.coffeetea.domain.usecase.database.update.ChangePhoneUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePhoneUseCase
 import com.gwolf.coffeetea.navigation.Screen
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UKRAINE_PHONE_CODE
-import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ChangePhoneUiState(
+data class ChangePhoneScreenState(
     val currentPhone: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null,
-//    val showOtpModalSheet: Boolean = false,
-//    val otpError: UiText? = null,
-    val phoneChanged: Boolean = false,
+    val error: UiText = UiText.DynamicString(""),
     val phone: String = "",
-    val phoneError: UiText? = null
+    val phoneError: UiText = UiText.DynamicString("")
 )
 
+sealed class ChangePhoneIntent {
+    sealed class Input {
+        data class EnterPhone(val phone: String) : ChangePhoneIntent()
+    }
+
+    sealed class ButtonClick {
+        data object Submit : ChangePhoneIntent()
+    }
+}
+
 sealed class ChangePhoneEvent {
-    data class PhoneChanged(val phone: String) : ChangePhoneEvent()
-    data object Save : ChangePhoneEvent()
-//    data class CheckOtp(val otpToken: String) : ChangePhoneEvent()
-//    data object OnDismiss : ChangePhoneEvent()
+    data object Idle : ChangePhoneEvent()
+    data object Navigate : ChangePhoneEvent()
 }
 
 @HiltViewModel
 class ChangePhoneViewModel @Inject constructor(
     private val changePhoneUseCase: ChangePhoneUseCase,
     private val validatePhoneUseCase: ValidatePhoneUseCase,
-//    private val verifyOtpPhoneUseCase: VerifyOtpPhoneUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _changePhoneState = mutableStateOf(ChangePhoneUiState())
-    val changePhoneState: State<ChangePhoneUiState> = _changePhoneState
+    private var _state = MutableStateFlow(ChangePhoneScreenState())
+    val state: StateFlow<ChangePhoneScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = ChangePhoneScreenState()
+    )
 
-    fun onEvent(event: ChangePhoneEvent) {
-        when (event) {
-            is ChangePhoneEvent.PhoneChanged -> {
-                _changePhoneState.value = _changePhoneState.value.copy(phone = event.phone)
+    private var _event: Channel<ChangePhoneEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: ChangePhoneIntent) {
+        when (intent) {
+            is ChangePhoneIntent.Input.EnterPhone -> {
+                _state.update { it.copy(phone = intent.phone) }
                 validatePhone()
             }
 
-            is ChangePhoneEvent.Save -> {
+            is ChangePhoneIntent.ButtonClick.Submit -> {
                 if (validatePhone()) {
                     sendOtpPhoneChange()
                 }
             }
-
-//            is ChangePhoneEvent.CheckOtp -> {
-//                verifyOtpPhone(event.otpToken)
-//            }
-//
-//            is ChangePhoneEvent.OnDismiss -> {
-//                _changePhoneState.value = _changePhoneState.value.copy(showOtpModalSheet = false)
-//            }
         }
     }
 
     private fun sendOtpPhoneChange() {
         viewModelScope.launch {
-            _changePhoneState.value = _changePhoneState.value.copy(isLoading = true)
-            val newPhone = "$UKRAINE_PHONE_CODE${_changePhoneState.value.phone}"
+            _state.update { it.copy(isLoading = true) }
+            val newPhone = "$UKRAINE_PHONE_CODE${_state.value.phone}"
             changePhoneUseCase.invoke(newPhone).collect { result ->
                 when (result) {
                     is DataResult.Success -> {
-                        _changePhoneState.value = _changePhoneState.value.copy(
-//                            showOtpModalSheet = true,
-                            phoneChanged = true,
-                            isLoading = false
-                        )
+                        _event.send(ChangePhoneEvent.Navigate)
                     }
 
                     is DataResult.Error -> {
-                        _changePhoneState.value = _changePhoneState.value.copy(
-                            error = result.exception.message,
-                            isLoading = false
-                        )
+                        _state.update { it.copy(error = UiText.DynamicString(result.exception.message.orEmpty())) }
                     }
                 }
             }
         }
+        _state.update {
+            it.copy(
+                isLoading = false,
+                error = UiText.DynamicString(""),
+            )
+        }
     }
 
-//    private fun verifyOtpPhone(otpToken: String) {
-//        viewModelScope.launch {
-//            _changePhoneState.value = _changePhoneState.value.copy(isLoading = true)
-//            verifyOtpPhoneUseCase.invoke(_changePhoneState.value.phone, otpToken).collect { result ->
-//                when (result) {
-//                    is DataResult.Success -> {
-//                        _changePhoneState.value = _changePhoneState.value.copy(
-//                            showOtpModalSheet = false,
-//                            phoneChanged = true,
-//                            otpError = null,
-//                            isLoading = false
-//                        )
-//                    }
-//
-//                    is DataResult.Error -> {
-//                        _changePhoneState.value = _changePhoneState.value.copy(
-//                            otpError = UiText.DynamicString(result.exception.message.orEmpty()),
-//                            isLoading = false
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     init {
-        _changePhoneState.value = _changePhoneState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                _changePhoneState.value = _changePhoneState.value.copy(
-                    isLoading = false,
-                    currentPhone = savedStateHandle.toRoute<Screen.ChangePhone>().phone
-                )
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        currentPhone = savedStateHandle.toRoute<Screen.ChangePhone>().phone
+                    )
+                }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading change phone screen data: ${e.message}")
             }
@@ -135,11 +119,9 @@ class ChangePhoneViewModel @Inject constructor(
     }
 
     private fun validatePhone(): Boolean {
-        val newPhone = "$UKRAINE_PHONE_CODE${_changePhoneState.value.phone}"
-        val phoneResult = validatePhoneUseCase.invoke(newPhone, _changePhoneState.value.currentPhone)
-        _changePhoneState.value =
-            _changePhoneState.value.copy(phoneError = phoneResult.errorMessage)
+        val newPhone = "$UKRAINE_PHONE_CODE${_state.value.phone}"
+        val phoneResult = validatePhoneUseCase.invoke(newPhone, _state.value.currentPhone)
+        _state.update { it.copy(phoneError = phoneResult.errorMessage) }
         return phoneResult.successful
     }
-
 }

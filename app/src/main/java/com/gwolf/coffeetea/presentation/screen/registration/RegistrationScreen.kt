@@ -279,7 +279,7 @@ private fun RegistrationForm(
 
 @Preview
 @Composable
-private fun RegistrationScreenPreview() {
+private fun RegistrationPreview() {
     val context = LocalContext.current
     RegistrationContent(
         context = context,

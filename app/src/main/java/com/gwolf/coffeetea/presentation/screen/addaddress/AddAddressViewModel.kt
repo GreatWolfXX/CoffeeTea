@@ -221,7 +221,7 @@ class AddAddressViewModel @Inject constructor(
             .distinctUntilChanged()
             .onEach {
                 _state.update {
-                    it.copy(search = it.search.copy(searchCitiesList = listOf<City>()))
+                    it.copy(search = it.search.copy(searchCitiesList = listOf()))
                 }
             }
             .filter { it.isNotBlank() }
@@ -237,7 +237,7 @@ class AddAddressViewModel @Inject constructor(
             .distinctUntilChanged()
             .onEach {
                 _state.update {
-                    it.copy(search = it.search.copy(searchDepartmentsList = listOf<Department>()))
+                    it.copy(search = it.search.copy(searchDepartmentsList = listOf()))
                 }
             }
             .filter { it.isNotBlank() }
@@ -288,13 +288,21 @@ class AddAddressViewModel @Inject constructor(
         val isDefault = savedStateHandle.toRoute<Screen.AddAddress>().isDefault
 
         _state.update {
-            it.copy(selection = it.selection.copy(isDefault = isDefault))
+            it.copy(
+                isLoading = true,
+                selection = it.selection.copy(isDefault = isDefault)
+            )
         }
         viewModelScope.launch {
             try {
-                _state.update { it.copy(isLoading = false) }
                 setupSearchAddressDebounce()
                 setupSearchDepartmentDebounce()
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        error = UiText.DynamicString("")
+                    )
+                }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading add address screen data: ${e.message}")
             }
