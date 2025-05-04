@@ -1,8 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.home
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,32 +13,52 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetPromotionsListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.SearchProductsUseCase
 import com.gwolf.coffeetea.util.ADD_TO_CART_COUNT
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class HomeUiState(
-    val promotionsList: List<Promotion> = listOf<Promotion>(),
-    val categoriesList: List<Category> = listOf<Category>(),
-    val productsList: List<Product> = listOf<Product>(),
-    val searchProductsList: List<Product> = listOf<Product>(),
+data class HomeScreenState(
+    val promotionsList: List<Promotion> = listOf(),
+    val categoriesList: List<Category> = listOf(),
+    val productsList: List<Product> = listOf(),
+    val searchProductsList: List<Product> = listOf(),
     val searchText: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
 )
 
+sealed class HomeIntent {
+    sealed class Input {
+        data class Search(val query: String) : HomeIntent()
+    }
+
+    sealed class ButtonClick {
+        data class AddToCart(val product: Product) : HomeIntent()
+    }
+
+    data object ClearSearch : HomeIntent()
+}
+
 sealed class HomeEvent {
-    data class Search(val query: String) : HomeEvent()
-    data class AddToCart(val product: Product) : HomeEvent()
+    data object Idle : HomeEvent()
+    data object NavigateToCart : HomeEvent()
 }
 
 @HiltViewModel
@@ -52,25 +70,28 @@ class HomeViewModel @Inject constructor(
     private val addCartProductUseCase: AddCartProductUseCase,
 ) : ViewModel() {
 
-    private val _homeScreenState = mutableStateOf(HomeUiState())
-    val homeScreenState: State<HomeUiState> = _homeScreenState
+    private var _state = MutableStateFlow(HomeScreenState())
+    val state: StateFlow<HomeScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = HomeScreenState()
+    )
 
-    fun onSearchTextChange(text: String) {
-        _homeScreenState.value = _homeScreenState.value.copy(
-            searchText = text
-        )
-    }
+    private var _event: Channel<HomeEvent> = Channel()
+    val event = _event.receiveAsFlow()
 
-    fun onEvent(event: HomeEvent) {
-        when (event) {
-            is HomeEvent.Search -> {
-                _homeScreenState.value = _homeScreenState.value.copy(
-                    searchText = event.query
-                )
+    fun onIntent(intent: HomeIntent) {
+        when (intent) {
+            is HomeIntent.Input.Search -> {
+                _state.update { it.copy(searchText = intent.query) }
             }
 
-            is HomeEvent.AddToCart -> {
-                addToCart(event.product)
+            is HomeIntent.ButtonClick.AddToCart -> {
+                addToCart(intent.product)
+            }
+
+            is HomeIntent.ClearSearch -> {
+                _state.update { it.copy(searchText = "") }
             }
         }
     }
@@ -82,28 +103,24 @@ class HomeViewModel @Inject constructor(
                     when (response) {
                         is DataResult.Success -> {
                             val updatedProductsList =
-                                _homeScreenState.value.productsList.toMutableList()
+                                _state.value.productsList.toMutableList()
                                     .apply {
                                         indexOfFirst { it.id == product.id }
                                             .takeIf { it != -1 }
                                             ?.let { index ->
                                                 val cartProduct =
-                                                    _homeScreenState.value.productsList[index].copy(
+                                                    _state.value.productsList[index].copy(
                                                         cartId = response.data
                                                     )
                                                 set(index, cartProduct)
                                             }
                                     }
-                            _homeScreenState.value = _homeScreenState.value.copy(
-                                productsList = updatedProductsList
-                            )
+                            _state.update { it.copy(productsList = updatedProductsList) }
+                            _event.send(HomeEvent.NavigateToCart)
                         }
 
                         is DataResult.Error -> {
-                            _homeScreenState.value =
-                                _homeScreenState.value.copy(
-                                    error = response.exception.message.toString()
-                                )
+                            _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                         }
                     }
                 }
@@ -112,14 +129,11 @@ class HomeViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     private suspend fun setupSearchDebounce() {
-        snapshotFlow { _homeScreenState.value.searchText }
+        snapshotFlow { _state.value.searchText }
             .debounce(1000)
             .distinctUntilChanged()
             .onEach {
-                _homeScreenState.value =
-                    _homeScreenState.value.copy(
-                        searchProductsList = listOf<Product>()
-                    )
+                _state.update { it.copy(searchProductsList = listOf()) }
             }
             .filter { it.isNotBlank() }
             .collect { query ->
@@ -131,18 +145,11 @@ class HomeViewModel @Inject constructor(
         getPromotionsListUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _homeScreenState.value =
-                        _homeScreenState.value.copy(
-                            promotionsList = response.data,
-                        )
+                    _state.update { it.copy(promotionsList = response.data) }
                 }
 
                 is DataResult.Error -> {
-                    _homeScreenState.value =
-                        _homeScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
-                        )
+                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -152,18 +159,11 @@ class HomeViewModel @Inject constructor(
         getCategoriesListUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _homeScreenState.value =
-                        _homeScreenState.value.copy(
-                            categoriesList = response.data,
-                        )
+                    _state.update { it.copy(categoriesList = response.data) }
                 }
 
                 is DataResult.Error -> {
-                    _homeScreenState.value =
-                        _homeScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
-                        )
+                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -173,18 +173,11 @@ class HomeViewModel @Inject constructor(
         getProductsListUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _homeScreenState.value =
-                        _homeScreenState.value.copy(
-                            productsList = response.data,
-                        )
+                    _state.update { it.copy(productsList = response.data) }
                 }
 
                 is DataResult.Error -> {
-                    _homeScreenState.value =
-                        _homeScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
-                        )
+                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -192,30 +185,29 @@ class HomeViewModel @Inject constructor(
 
     private fun getSearchProducts(search: String) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             searchProductsUseCase.invoke(search).collect { response ->
-                Log.d(LOGGER_TAG, "Query: $search Response: $response")
                 when (response) {
                     is DataResult.Success -> {
-                        _homeScreenState.value =
-                            _homeScreenState.value.copy(
-                                searchProductsList = response.data,
-                            )
+                        _state.update { it.copy(searchProductsList = response.data) }
                     }
 
                     is DataResult.Error -> {
-                        _homeScreenState.value =
-                            _homeScreenState.value.copy(
-                                error = response.exception.message.toString(),
-                                isLoading = false
-                            )
+                        _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                     }
                 }
+            }
+            _state.update {
+                it.copy(
+                    error = UiText.DynamicString(""),
+                    isLoading = false
+                )
             }
         }
     }
 
     init {
-        _homeScreenState.value = _homeScreenState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val promotionsList = async { getPromotions() }
             val categoriesList = async { getCategories() }
@@ -223,13 +215,11 @@ class HomeViewModel @Inject constructor(
 
             try {
                 awaitAll(promotionsList, categoriesList, productsList)
-                _homeScreenState.value = _homeScreenState.value.copy(isLoading = false)
-
                 setupSearchDebounce()
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading home screen data: ${e.message}")
             }
         }
     }
-
 }

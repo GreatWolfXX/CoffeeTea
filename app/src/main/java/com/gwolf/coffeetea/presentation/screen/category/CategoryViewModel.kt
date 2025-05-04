@@ -67,12 +67,7 @@ class CategoryViewModel @Inject constructor(
 
             try {
                 awaitAll(categoriesList)
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = UiText.DynamicString("")
-                    )
-                }
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading category screen data: ${e.message}")
             }

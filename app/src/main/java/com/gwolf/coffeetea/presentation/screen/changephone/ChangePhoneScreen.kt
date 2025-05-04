@@ -116,7 +116,7 @@ private fun ChangePhoneContent(
                     desc = desc
                 )
             } else {
-                ChangePhoneMainSection(
+                ChangePhoneForm(
                     state = state,
                     onIntent = onIntent
                 )
@@ -161,7 +161,7 @@ private fun TopMenu(
 }
 
 @Composable
-private fun ChangePhoneMainSection(
+private fun ChangePhoneForm(
     state: ChangePhoneScreenState,
     onIntent: (ChangePhoneIntent) -> Unit
 ) {
@@ -234,7 +234,7 @@ private fun ChangePhoneMainSection(
 
 @Preview
 @Composable
-private fun ChangePhonePreview() {
+private fun ChangePhoneScreenPreview() {
     ChangePhoneContent(
         state = ChangePhoneScreenState(),
         isNetworkConnected = true

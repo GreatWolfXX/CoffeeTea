@@ -141,7 +141,7 @@ private fun ChangeEmailContent(
                     desc = desc
                 )
             } else {
-                ChangeEmailMainSection(
+                ChangeEmailForm(
                     state = state,
                     onIntent = onIntent
                 )
@@ -186,7 +186,7 @@ private fun TopMenu(
 }
 
 @Composable
-private fun ChangeEmailMainSection(
+private fun ChangeEmailForm(
     state: ChangeEmailScreenState,
     onIntent: (ChangeEmailIntent) -> Unit
 ) {
@@ -256,7 +256,7 @@ private fun ChangeEmailMainSection(
 
 @Preview
 @Composable
-private fun ChangeEmailPreview() {
+private fun ChangeEmailScreenPreview() {
     ChangeEmailContent(
         state = ChangeEmailScreenState(),
         isNetworkConnected = true

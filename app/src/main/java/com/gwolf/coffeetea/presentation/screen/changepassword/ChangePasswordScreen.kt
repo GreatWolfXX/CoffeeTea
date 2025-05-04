@@ -109,7 +109,7 @@ private fun ChangePasswordContent(
                     desc = desc
                 )
             } else {
-                ChangePasswordMainSection(
+                ChangePasswordForm(
                     state = state,
                     onIntent = onIntent
                 )
@@ -154,7 +154,7 @@ private fun TopMenu(
 }
 
 @Composable
-private fun ChangePasswordMainSection(
+private fun ChangePasswordForm(
     state: ChangePasswordScreenState,
     onIntent: (ChangePasswordIntent) -> Unit
 ) {
@@ -214,7 +214,7 @@ private fun ChangePasswordMainSection(
 
 @Preview
 @Composable
-private fun ChangePasswordPreview() {
+private fun ChangePasswordScreenPreview() {
     ChangePasswordContent(
         state = ChangePasswordScreenState(),
         isNetworkConnected = true

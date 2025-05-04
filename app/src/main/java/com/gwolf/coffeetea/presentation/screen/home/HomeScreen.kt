@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.home
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -36,6 +35,8 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,7 +67,6 @@ import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
@@ -73,42 +74,73 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val state by viewModel.homeScreenState
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
+
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = HomeEvent.Idle)
+
+    LaunchedEffect(event) {
+        when (event) {
+            is HomeEvent.Idle -> {}
+            is HomeEvent.NavigateToCart -> {
+                navController.navigate(Screen.Cart)
+            }
+        }
+    }
+
+    HomeContent(
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateToOtherScreen = { screen ->
+            navController.navigate(screen)
+        },
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun HomeContent(
+    state: HomeScreenState,
+    isNetworkConnected: Boolean,
+    navigateToOtherScreen: (Screen) -> Unit = {},
+    onIntent: (HomeIntent) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundGradient),
         contentAlignment = Alignment.Center
     ) {
-        val connection by connectivityState()
-
-        val isConnected = connection === ConnectionState.Available
-        if (state.error != null || !isConnected) {
-            Log.d(LOGGER_TAG, "Error: ${state.error}")
-            val style = if(isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-            val title = if(isConnected) R.string.title_error else R.string.title_network
-            val desc = if(isConnected) R.string.desc_error else R.string.desc_network
+        if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+            val style =
+                if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+            val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
+            val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
             ErrorOrEmptyComponent(
                 style = style,
                 title = title,
                 desc = desc
             )
         } else {
-            HomeScreenContent(
-                navController = navController,
+            HomeMainSection(
                 state = state,
-                viewModel = viewModel
+                navigateToOtherScreen = navigateToOtherScreen,
+                onIntent = onIntent
             )
         }
     }
-    LoadingComponent(state.isLoading)
 }
 
 @Composable
-private fun HomeScreenContent(
-    navController: NavController,
-    state: HomeUiState,
-    viewModel: HomeViewModel
+private fun HomeMainSection(
+    state: HomeScreenState,
+    navigateToOtherScreen: (Screen) -> Unit,
+    onIntent: (HomeIntent) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -116,8 +148,8 @@ private fun HomeScreenContent(
     ) {
         SearchBarComponent(
             state = state,
-            viewModel = viewModel,
-            navController = navController
+            navigateToOtherScreen = navigateToOtherScreen,
+            onIntent = onIntent
         )
         Spacer(modifier = Modifier.size(16.dp))
         Column(
@@ -129,14 +161,14 @@ private fun HomeScreenContent(
             PromotionsComponent(state.promotionsList)
             Spacer(modifier = Modifier.size(16.dp))
             CategoriesList(
-                navController = navController,
-                categoriesList = state.categoriesList
+                categoriesList = state.categoriesList,
+                navigateToOtherScreen = navigateToOtherScreen
             )
             Spacer(modifier = Modifier.size(16.dp))
             ProductsList(
-                navController = navController,
-                viewModel = viewModel,
-                productsList = state.productsList
+                productsList = state.productsList,
+                navigateToOtherScreen = navigateToOtherScreen,
+                onIntent = onIntent
             )
         }
     }
@@ -145,9 +177,9 @@ private fun HomeScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchBarComponent(
-    state: HomeUiState,
-    viewModel: HomeViewModel,
-    navController: NavController
+    state: HomeScreenState,
+    navigateToOtherScreen: (Screen) -> Unit,
+    onIntent: (HomeIntent) -> Unit = {}
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val padding by animateDpAsState(targetValue = if (expanded) 0.dp else 16.dp)
@@ -164,7 +196,7 @@ private fun SearchBarComponent(
                 SearchBarDefaults.InputField(
                     query = state.searchText,
                     onQueryChange = { query ->
-                        viewModel.onEvent(HomeEvent.Search(query))
+                        onIntent(HomeIntent.Input.Search(query))
                     },
                     onSearch = { expanded = false },
                     expanded = expanded,
@@ -191,7 +223,7 @@ private fun SearchBarComponent(
                             AnimatedVisibility(expanded) {
                                 Icon(
                                     modifier = Modifier.clickable {
-                                        viewModel.onSearchTextChange("")
+                                        onIntent(HomeIntent.ClearSearch)
                                     },
                                     imageVector = Icons.Outlined.Cancel,
                                     contentDescription = null,
@@ -211,7 +243,7 @@ private fun SearchBarComponent(
                             Icon(
                                 modifier = Modifier.clickable {
                                     expanded = false
-                                    viewModel.onSearchTextChange("")
+                                    onIntent(HomeIntent.ClearSearch)
                                 },
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = null,
@@ -246,11 +278,10 @@ private fun SearchBarComponent(
                             modifier = Modifier.animateItem(),
                             product = product,
                             onClick = {
-                                navController.navigate(Screen.ProductInfo(productId = product.id))
+                                navigateToOtherScreen(Screen.ProductInfo(productId = product.id))
                             },
                             onClickBuy = {
-                                viewModel.onEvent(HomeEvent.AddToCart(product = product))
-                                navController.navigate(Screen.Cart)
+                                onIntent(HomeIntent.ButtonClick.AddToCart(product = product))
                             }
                         )
                     }
@@ -262,13 +293,13 @@ private fun SearchBarComponent(
 
 @Composable
 private fun CategoriesList(
-    navController: NavController,
-    categoriesList: List<Category>
+    categoriesList: List<Category>,
+    navigateToOtherScreen: (Screen) -> Unit
 ) {
     BlockTitleComponent(
         text = R.string.title_categories
     ) {
-        navController.navigate(Screen.Category)
+        navigateToOtherScreen(Screen.Category)
     }
     Spacer(modifier = Modifier.size(8.dp))
     LazyRow(
@@ -282,7 +313,7 @@ private fun CategoriesList(
                 modifier = Modifier.animateItem(),
                 category = category
             ) {
-                navController.navigate(
+                navigateToOtherScreen(
                     Screen.SearchByCategory(
                         categoryId = category.id,
                         categoryName = category.name
@@ -295,9 +326,9 @@ private fun CategoriesList(
 
 @Composable
 private fun ProductsList(
-    navController: NavController,
-    viewModel: HomeViewModel,
-    productsList: List<Product>
+    productsList: List<Product>,
+    navigateToOtherScreen: (Screen) -> Unit,
+    onIntent: (HomeIntent) -> Unit,
 ) {
     val screenHeight = ((productsList.size + 1) / 2 * 240).dp
     BlockTitleComponent(
@@ -316,17 +347,25 @@ private fun ProductsList(
                 modifier = Modifier.animateItem(),
                 product = product,
                 onClick = {
-                    navController.navigate(Screen.ProductInfo(productId = product.id))
+                    navigateToOtherScreen(Screen.ProductInfo(productId = product.id))
                 },
                 onClickBuy = {
-                    viewModel.onEvent(HomeEvent.AddToCart(product))
+                    onIntent(HomeIntent.ButtonClick.AddToCart(product))
                 },
                 onClickToCart = {
-                    navController.navigate(Screen.Cart)
+                    navigateToOtherScreen(Screen.Cart)
                 }
             )
         }
     }
-
     Spacer(modifier = Modifier.size(8.dp))
+}
+
+@Preview
+@Composable
+private fun HomeScreenPreview() {
+    HomeContent(
+        state = HomeScreenState(),
+        isNetworkConnected = true
+    )
 }

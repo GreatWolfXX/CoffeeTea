@@ -297,12 +297,7 @@ class AddAddressViewModel @Inject constructor(
             try {
                 setupSearchAddressDebounce()
                 setupSearchDepartmentDebounce()
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = UiText.DynamicString("")
-                    )
-                }
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading add address screen data: ${e.message}")
             }

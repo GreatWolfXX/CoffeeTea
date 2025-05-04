@@ -149,12 +149,7 @@ class AboutMeViewModel @Inject constructor(
 
             try {
                 awaitAll(profile)
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = UiText.DynamicString("")
-                    )
-                }
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading about me screen data: ${e.message}")
             }

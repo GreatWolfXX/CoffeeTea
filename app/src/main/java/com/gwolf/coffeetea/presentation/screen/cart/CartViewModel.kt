@@ -153,12 +153,7 @@ class CartViewModel @Inject constructor(
 
             try {
                 awaitAll(product)
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = UiText.DynamicString("")
-                    )
-                }
+                _state.update { it.copy(isLoading = false,) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading cart screen data: ${e.message}")
             }
