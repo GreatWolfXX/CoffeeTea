@@ -1,7 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.profile
 
 import android.content.Context
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -61,7 +63,6 @@ import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 import com.gwolf.coffeetea.util.uriToBitmap
 
@@ -70,9 +71,50 @@ fun ProfileScreen(
     navController: NavController,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    val state by viewModel.profileScreenState
     val context = LocalContext.current
 
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
+
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = ProfileEvent.Idle)
+
+    LaunchedEffect(event) {
+        when (event) {
+            is ProfileEvent.Idle -> {}
+            is ProfileEvent.NavigateToAuth -> {
+                navController.navigate(Screen.Auth)
+            }
+        }
+    }
+
+    ProfileContent(
+        context = context,
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateToOtherScreen = { screen ->
+            navController.navigate(screen)
+        },
+        navigateBack = {
+            navController.navigateUp()
+        },
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun ProfileContent(
+    context: Context,
+    state: ProfileScreenState,
+    isNetworkConnected: Boolean,
+    navigateToOtherScreen: (Screen) -> Unit = {},
+    navigateBack: () -> Unit = {},
+    onIntent: (ProfileIntent) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -82,41 +124,37 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopMenu(
-                navController = navController
+                navigateBack = navigateBack
             )
 
-            val connection by connectivityState()
-
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if (isConnected) R.string.title_error else R.string.title_network
-                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style =
+                    if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                ProfileScreenContent(
-                    navController = navController,
+                ProfileMainSection(
+                    context = context,
                     state = state,
-                    viewModel = viewModel,
-                    context = context
+                    navigateToOtherScreen = navigateToOtherScreen,
+                    onIntent = onIntent
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopMenu(
-    navController: NavController
+    navigateBack: () -> Unit
 ) {
-   TopAppBar(
+    TopAppBar(
         modifier = Modifier,
         title = {
             Text(
@@ -133,7 +171,7 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        navController.popBackStack()
+                        navigateBack()
                     },
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
@@ -147,17 +185,17 @@ private fun TopMenu(
 }
 
 @Composable
-private fun ProfileScreenContent(
-    navController: NavController,
-    state: ProfileUiState,
-    viewModel: ProfileViewModel,
-    context: Context
+private fun ProfileMainSection(
+    context: Context,
+    state: ProfileScreenState,
+    navigateToOtherScreen: (Screen) -> Unit,
+    onIntent: (ProfileIntent) -> Unit,
 ) {
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
-            viewModel.onEvent(ProfileEvent.LoadImage(uriToBitmap(context, uri)))
+            onIntent(ProfileIntent.LoadImage(uriToBitmap(context, uri)))
         }
     }
 
@@ -169,7 +207,8 @@ private fun ProfileScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val displayName = "${state.profile?.lastName.orEmpty()} ${state.profile?.firstName.orEmpty()}"
+        val displayName =
+            "${state.profile?.lastName.orEmpty()} ${state.profile?.firstName.orEmpty()}"
 
         AccountInfo(
             displayName = displayName,
@@ -184,7 +223,7 @@ private fun ProfileScreenContent(
             icon = Icons.Outlined.AccountCircle,
             text = stringResource(R.string.title_about_me)
         ) {
-            navController.navigate(Screen.AboutMe)
+            navigateToOtherScreen(Screen.AboutMe)
         }
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuComponent(
@@ -201,7 +240,7 @@ private fun ProfileScreenContent(
             icon = Icons.Outlined.Explore,
             text = stringResource(R.string.title_addresses)
         ) {
-            navController.navigate(Screen.SavedAddresses)
+            navigateToOtherScreen(Screen.SavedAddresses)
         }
 //        Spacer(modifier = Modifier.size(16.dp))
 //        ProfileMenuComponent(
@@ -220,8 +259,7 @@ private fun ProfileScreenContent(
             isVisibleArrow = false,
             isVisibleDivider = false
         ) {
-            viewModel.onEvent(ProfileEvent.Exit)
-            navController.navigate(Screen.Auth)
+            onIntent(ProfileIntent.Exit)
         }
     }
 }
@@ -283,5 +321,17 @@ private fun AccountInfo(
         fontSize = 12.sp,
         lineHeight = TextUnit(16f, TextUnitType.Sp),
         color = OutlineColor
+    )
+}
+
+@Preview
+@Composable
+private fun ProfileScreenPreview() {
+    val context = LocalContext.current
+
+    ProfileContent(
+        context = context,
+        state = ProfileScreenState(),
+        isNetworkConnected = true
     )
 }

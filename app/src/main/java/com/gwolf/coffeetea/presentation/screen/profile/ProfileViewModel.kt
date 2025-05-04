@@ -2,34 +2,46 @@ package com.gwolf.coffeetea.presentation.screen.profile
 
 import android.graphics.Bitmap
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Profile
 import com.gwolf.coffeetea.domain.usecase.database.add.AddImageProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateProfileImageUseCase
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.UiText
 import com.gwolf.coffeetea.util.bitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.Auth
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ProfileUiState(
+data class ProfileScreenState(
     val profile: Profile? = null,
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
 )
 
-sealed class ProfileEvent {
-    data object Exit : ProfileEvent()
-    data class LoadImage(val bitmap: Bitmap?) : ProfileEvent()
+sealed class ProfileIntent {
+    data class LoadImage(val bitmap: Bitmap?) : ProfileIntent()
+    data object Exit : ProfileIntent()
 }
+
+sealed class ProfileEvent {
+    data object Idle : ProfileEvent()
+    data object NavigateToAuth : ProfileEvent()
+}
+
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -39,24 +51,29 @@ class ProfileViewModel @Inject constructor(
     private val updateProfileImageUseCase: UpdateProfileImageUseCase
 ) : ViewModel() {
 
-    private val _profileScreenState = mutableStateOf(ProfileUiState())
-    val profileScreenState: State<ProfileUiState> = _profileScreenState
+    private var _state = MutableStateFlow(ProfileScreenState())
+    val state: StateFlow<ProfileScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = ProfileScreenState()
+    )
 
-    fun onEvent(event: ProfileEvent) {
-        when (event) {
-            is ProfileEvent.Exit -> {
+    private var _event: Channel<ProfileEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: ProfileIntent) {
+        when (intent) {
+            is ProfileIntent.LoadImage -> {
                 viewModelScope.launch {
-                    auth.signOut()
+                    _state.update { it.copy(isLoading = true) }
+                    loadProfileImage(intent.bitmap)
                 }
             }
 
-            is ProfileEvent.LoadImage -> {
+            is ProfileIntent.Exit -> {
                 viewModelScope.launch {
-                    _profileScreenState.value =
-                        _profileScreenState.value.copy(
-                            isLoading = true
-                        )
-                    loadProfileImage(event.bitmap)
+                    auth.signOut()
+                    _event.send(ProfileEvent.NavigateToAuth)
                 }
             }
         }
@@ -71,10 +88,11 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _profileScreenState.value =
-                        _profileScreenState.value.copy(
-                            error = response.exception.message.toString()
+                    _state.update {
+                        it.copy(
+                            error = UiText.DynamicString(response.exception.message.orEmpty())
                         )
+                    }
                 }
             }
         }
@@ -84,22 +102,24 @@ class ProfileViewModel @Inject constructor(
         updateProfileImageUseCase.invoke(imagePath).collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    val profile = _profileScreenState.value.profile?.copy(
+                    val profile = _state.value.profile?.copy(
                         imageUrl = response.data
                     )
-                    _profileScreenState.value =
-                        _profileScreenState.value.copy(
+                    _state.update {
+                        it.copy(
                             profile = profile,
                             isLoading = false
                         )
+                    }
                 }
 
                 is DataResult.Error -> {
-                    _profileScreenState.value =
-                        _profileScreenState.value.copy(
-                            error = response.exception.message.toString(),
+                    _state.update {
+                        it.copy(
+                            error = UiText.DynamicString(response.exception.message.orEmpty()),
                             isLoading = false
                         )
+                    }
                 }
             }
         }
@@ -110,35 +130,27 @@ class ProfileViewModel @Inject constructor(
         getProfileUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _profileScreenState.value =
-                        _profileScreenState.value.copy(
-                            profile = response.data,
-                        )
+                    _state.update { it.copy(profile = response.data) }
                 }
 
                 is DataResult.Error -> {
-                    _profileScreenState.value =
-                        _profileScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
-                        )
+                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
     }
 
     init {
-        _profileScreenState.value = _profileScreenState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val profile = async { getProfile() }
 
             try {
                 awaitAll(profile)
-                _profileScreenState.value = _profileScreenState.value.copy(isLoading = false)
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading profile screen data: ${e.message}")
             }
         }
     }
-
 }

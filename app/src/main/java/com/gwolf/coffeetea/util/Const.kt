@@ -21,6 +21,7 @@ const val DAYS_EXPIRES_IMAGE_URL = 30
 const val MAX_SEARCH_LIST_RESULT = 5L
 const val ADD_TO_CART_COUNT = 1
 const val PROFILE_IMAGE_QUALITY = 10 // 1 - 100
+const val PRODUCT_ADD_CART_QUANTITY = 1
 
 const val PROFILES_BUCKET_ID = "profiles"
 const val USERS_TABLE = "users"

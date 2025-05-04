@@ -1,8 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.productinfo
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,26 +11,39 @@ import com.gwolf.coffeetea.domain.usecase.database.add.AddFavoriteUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProductByIdUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveFavoriteUseCase
 import com.gwolf.coffeetea.navigation.Screen
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.PRODUCT_ADD_CART_QUANTITY
+import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ProductInfoUiState(
+data class ProductInfoScreenState(
     val product: Product? = null,
     val isLoading: Boolean = false,
     val isFavorite: Boolean = false,
     val isInCart: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
 )
 
+sealed class ProductInfoIntent {
+    data object AddToCart : ProductInfoIntent()
+    data object AddFavorite : ProductInfoIntent()
+    data object RemoveFavorite : ProductInfoIntent()
+}
+
 sealed class ProductInfoEvent {
-    data object AddToCart : ProductInfoEvent()
-    data object AddFavorite : ProductInfoEvent()
-    data object RemoveFavorite : ProductInfoEvent()
+    data object Idle : ProductInfoEvent()
 }
 
 @HiltViewModel
@@ -44,18 +55,27 @@ class ProductInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _productInfoScreenState = mutableStateOf(ProductInfoUiState())
-    val productInfoScreenState: State<ProductInfoUiState> = _productInfoScreenState
+    private var _state = MutableStateFlow(ProductInfoScreenState())
+    val state: StateFlow<ProductInfoScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = ProductInfoScreenState()
+    )
 
-    fun onEvent(event: ProductInfoEvent) {
-        when(event) {
-            is ProductInfoEvent.AddToCart -> {
+    private var _event: Channel<ProductInfoEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: ProductInfoIntent) {
+        when (intent) {
+            is ProductInfoIntent.AddToCart -> {
                 addToCart()
             }
-            is ProductInfoEvent.AddFavorite -> {
+
+            is ProductInfoIntent.AddFavorite -> {
                 addFavorite()
             }
-            is ProductInfoEvent.RemoveFavorite -> {
+
+            is ProductInfoIntent.RemoveFavorite -> {
                 removeFavorite()
             }
         }
@@ -63,23 +83,23 @@ class ProductInfoViewModel @Inject constructor(
 
     private fun addToCart() {
         viewModelScope.launch {
-            // WARNING quantity hard code
-            addCartProductUseCase.invoke(_productInfoScreenState.value.product?.id!!, 1)
+            addCartProductUseCase.invoke(
+                _state.value.product?.id!!,
+                PRODUCT_ADD_CART_QUANTITY
+            )
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
-                            _productInfoScreenState.value =
-                                _productInfoScreenState.value.copy(
-                                    isInCart = true,
-                                )
+                            _state.update { it.copy(isInCart = true) }
                         }
 
                         is DataResult.Error -> {
-                            _productInfoScreenState.value =
-                                _productInfoScreenState.value.copy(
-                                    error = response.exception.message.toString(),
+                            _state.update {
+                                it.copy(
+                                    error = UiText.DynamicString(response.exception.message.orEmpty()),
                                     isInCart = false
                                 )
+                            }
                         }
                     }
                 }
@@ -88,22 +108,20 @@ class ProductInfoViewModel @Inject constructor(
 
     private fun removeFavorite() {
         viewModelScope.launch {
-            removeFavoriteUseCase.invoke(_productInfoScreenState.value.product?.favoriteId!!)
+            removeFavoriteUseCase.invoke(_state.value.product?.favoriteId!!)
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
-                            _productInfoScreenState.value =
-                                _productInfoScreenState.value.copy(
-                                    isFavorite = false,
-                                )
+                            _state.update { it.copy(isFavorite = false) }
                         }
 
                         is DataResult.Error -> {
-                            _productInfoScreenState.value =
-                                _productInfoScreenState.value.copy(
-                                    error = response.exception.message.toString(),
+                            _state.update {
+                                it.copy(
+                                    error = UiText.DynamicString(response.exception.message.orEmpty()),
                                     isFavorite = true
                                 )
+                            }
                         }
                     }
                 }
@@ -112,22 +130,20 @@ class ProductInfoViewModel @Inject constructor(
 
     private fun addFavorite() {
         viewModelScope.launch {
-            addFavoriteUseCase.invoke(_productInfoScreenState.value.product?.id!!)
+            addFavoriteUseCase.invoke(_state.value.product?.id!!)
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
-                            _productInfoScreenState.value =
-                                _productInfoScreenState.value.copy(
-                                    isFavorite = true,
-                                )
+                            _state.update { it.copy(isFavorite = true) }
                         }
 
                         is DataResult.Error -> {
-                            _productInfoScreenState.value =
-                                _productInfoScreenState.value.copy(
-                                    error = response.exception.message.toString(),
+                            _state.update {
+                                it.copy(
+                                    error = UiText.DynamicString(response.exception.message.orEmpty()),
                                     isFavorite = false
                                 )
+                            }
                         }
                     }
                 }
@@ -138,22 +154,23 @@ class ProductInfoViewModel @Inject constructor(
         getProductByIdUseCase.invoke(productId).collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _productInfoScreenState.value =
-                        _productInfoScreenState.value.copy(
+                    _state.update {
+                        it.copy(
                             product = response.data,
                             isFavorite = response.data.favoriteId.isNotBlank(),
                             isInCart = response.data.cartId.isNotBlank()
                         )
+                    }
                 }
 
                 is DataResult.Error -> {
-                    _productInfoScreenState.value =
-                        _productInfoScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false,
+                    _state.update {
+                        it.copy(
+                            error = UiText.DynamicString(response.exception.message.orEmpty()),
                             isFavorite = false,
                             isInCart = false
                         )
+                    }
                 }
             }
         }
@@ -162,13 +179,13 @@ class ProductInfoViewModel @Inject constructor(
     init {
         val productInfo = savedStateHandle.toRoute<Screen.ProductInfo>()
 
-        _productInfoScreenState.value = _productInfoScreenState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val product = async { getProduct(productInfo.productId) }
 
             try {
                 awaitAll(product)
-                _productInfoScreenState.value = _productInfoScreenState.value.copy(isLoading = false)
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading product info screen data: ${e.message}")
             }

@@ -21,5 +21,4 @@ class WelcomeViewModel @Inject constructor(
             )
         }
     }
-
 }

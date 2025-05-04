@@ -1,7 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.productinfo
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +28,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -67,7 +69,6 @@ import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
@@ -75,9 +76,47 @@ fun ProductInfoScreen(
     navController: NavController,
     viewModel: ProductInfoViewModel = hiltViewModel()
 ) {
-    val state by viewModel.productInfoScreenState
     val context = LocalContext.current
 
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
+
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = ProductInfoEvent.Idle)
+
+    LaunchedEffect(event) {
+        when (event) {
+            is ProductInfoEvent.Idle -> {}
+        }
+    }
+
+    ProductInfoContent(
+        context = context,
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateToOtherScreen = { screen ->
+            navController.navigate(screen)
+        },
+        navigateBack = {
+            navController.navigateUp()
+        },
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun ProductInfoContent(
+    context: Context,
+    state: ProductInfoScreenState,
+    isNetworkConnected: Boolean,
+    navigateToOtherScreen: (Screen) -> Unit = {},
+    navigateBack: () -> Unit = {},
+    onIntent: (ProductInfoIntent) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -87,43 +126,38 @@ fun ProductInfoScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopMenu(
-                navController,
-                categoryName = state.product?.categoryName.orEmpty()
+                categoryName = state.product?.categoryName.orEmpty(),
+                navigateBack = navigateBack
             )
 
-            val connection by connectivityState()
-
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if (isConnected) R.string.title_error else R.string.title_network
-                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style = if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                ProductInfoScreenContent(
-                    navController = navController,
+                ProductInfoMainSection(
+                    context = context,
                     state = state,
-                    viewModel = viewModel,
-                    context = context
+                    navigateToOtherScreen = navigateToOtherScreen,
+                    onIntent = onIntent
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopMenu(
-    navController: NavController,
-    categoryName: String
+    categoryName: String,
+    navigateBack: () -> Unit
 ) {
-   TopAppBar(
+    TopAppBar(
         modifier = Modifier,
         title = {
             Text(
@@ -140,7 +174,7 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        navController.popBackStack()
+                        navigateBack()
                     },
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
@@ -154,11 +188,11 @@ private fun TopMenu(
 }
 
 @Composable
-private fun ProductInfoScreenContent(
-    navController: NavController,
-    state: ProductInfoUiState,
-    viewModel: ProductInfoViewModel,
-    context: Context
+private fun ProductInfoMainSection(
+    context: Context,
+    state: ProductInfoScreenState,
+    navigateToOtherScreen: (Screen) -> Unit,
+    onIntent: (ProductInfoIntent) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -185,7 +219,6 @@ private fun ProductInfoScreenContent(
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
-                Log.d(LOGGER_TAG, "favorite: ${state.isFavorite}")
                 Icon(
                     modifier = Modifier
                         .align(alignment = Alignment.BottomEnd)
@@ -198,9 +231,9 @@ private fun ProductInfoScreenContent(
                         .padding(4.dp)
                         .clickable {
                             if (state.isFavorite) {
-                                viewModel.onEvent(ProductInfoEvent.RemoveFavorite)
+                                onIntent(ProductInfoIntent.RemoveFavorite)
                             } else {
-                                viewModel.onEvent(ProductInfoEvent.AddFavorite)
+                                onIntent(ProductInfoIntent.AddFavorite)
                             }
                         },
                     imageVector = if (state.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -329,7 +362,7 @@ private fun ProductInfoScreenContent(
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(
                     modifier = Modifier,
-                    text = "667₴",
+                    text = "${state.product?.price.let { 0 }}₴",
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 22.sp,
@@ -343,12 +376,23 @@ private fun ProductInfoScreenContent(
                 text = btnTitle
             ) {
                 if (state.isInCart) {
-                    navController.navigate(Screen.Cart)
+                    navigateToOtherScreen(Screen.Cart)
                 } else {
-                    viewModel.onEvent(ProductInfoEvent.AddToCart)
+                    onIntent(ProductInfoIntent.AddToCart)
                 }
-
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun ProductInfoScreenPreview() {
+    val context = LocalContext.current
+
+    ProductInfoContent(
+        context = context,
+        state = ProductInfoScreenState(),
+        isNetworkConnected = true
+    )
 }
