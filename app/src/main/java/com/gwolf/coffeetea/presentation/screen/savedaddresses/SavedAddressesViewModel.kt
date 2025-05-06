@@ -1,31 +1,35 @@
 package com.gwolf.coffeetea.presentation.screen.savedaddresses
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressListUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveSavedDeliveryUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateSavedAddressUseCase
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class SavedAddressesUiState(
-    val listAddresses: List<Address> = listOf<Address>(),
+data class SavedAddressesScreenState(
+    val listAddresses: List<Address> = listOf(),
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
 )
 
-sealed class SavedAddressesEvent {
-    data class SelectDefaultAddress(val address: Address) : SavedAddressesEvent()
-    data class RemoveAddress(val addressId: String) : SavedAddressesEvent()
+sealed class SavedAddressesIntent {
+    data class SelectDefaultAddress(val address: Address) : SavedAddressesIntent()
+    data class RemoveAddress(val addressId: String) : SavedAddressesIntent()
 }
 
 @HiltViewModel
@@ -35,51 +39,52 @@ class SavedAddressesViewModel @Inject constructor(
     private val removeSavedDeliveryUseCase: RemoveSavedDeliveryUseCase,
 ) : ViewModel() {
 
-    private val _savedAddressesScreenState = mutableStateOf(SavedAddressesUiState())
-    val savedAddressesScreenState: State<SavedAddressesUiState> = _savedAddressesScreenState
+    private var _state = MutableStateFlow(SavedAddressesScreenState())
+    val state: StateFlow<SavedAddressesScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = SavedAddressesScreenState()
+    )
 
-    fun onEvent(event: SavedAddressesEvent) {
-        when (event) {
-            is SavedAddressesEvent.SelectDefaultAddress -> {
-                updateAddresses(event.address)
+    fun onIntent(intent: SavedAddressesIntent) {
+        when (intent) {
+            is SavedAddressesIntent.SelectDefaultAddress -> {
+                updateAddresses(intent.address)
             }
 
-            is SavedAddressesEvent.RemoveAddress -> {
-                removeAddress(event.addressId)
+            is SavedAddressesIntent.RemoveAddress -> {
+                removeAddress(intent.addressId)
             }
         }
     }
 
     private fun removeAddress(addressId: String) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             removeSavedDeliveryUseCase.invoke(
                 addressId = addressId
             ).collect { response ->
                 when (response) {
                     is DataResult.Success -> {
                         val updatedAddressesList =
-                            _savedAddressesScreenState.value.listAddresses.toMutableList().apply {
+                            _state.value.listAddresses.toMutableList().apply {
                                 removeIf { it.id == addressId }
                             }
-                        _savedAddressesScreenState.value = _savedAddressesScreenState.value.copy(
-                            listAddresses = updatedAddressesList
-                        )
+                        _state.update { it.copy(listAddresses = updatedAddressesList) }
                     }
 
                     is DataResult.Error -> {
-                        _savedAddressesScreenState.value =
-                            _savedAddressesScreenState.value.copy(
-                                error = response.exception.message.toString(),
-                                isLoading = false
-                            )
+                        _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                     }
                 }
             }
+            _state.update { it.copy(isLoading = false) }
         }
     }
 
     private fun updateAddresses(address: Address) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             updateSavedAddressUseCase.invoke(
                 addressId = address.id,
                 type = address.deliveryType,
@@ -92,7 +97,7 @@ class SavedAddressesViewModel @Inject constructor(
                 when (response) {
                     is DataResult.Success -> {
                         val updatedAddressesList =
-                            _savedAddressesScreenState.value.listAddresses.map { existingAddress ->
+                            _state.value.listAddresses.map { existingAddress ->
                                 existingAddress.copy(isDefault = false)
                             }.toMutableList().apply {
                                 indexOfFirst { it.id == address.id }
@@ -100,20 +105,15 @@ class SavedAddressesViewModel @Inject constructor(
                                     ?.let { index -> set(index, response.data) }
 
                             }
-                        _savedAddressesScreenState.value = _savedAddressesScreenState.value.copy(
-                            listAddresses = updatedAddressesList
-                        )
+                        _state.update { it.copy(listAddresses = updatedAddressesList) }
                     }
 
                     is DataResult.Error -> {
-                        _savedAddressesScreenState.value =
-                            _savedAddressesScreenState.value.copy(
-                                error = response.exception.message.toString(),
-                                isLoading = false
-                            )
+                        _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                     }
                 }
             }
+            _state.update { it.copy(isLoading = false) }
         }
     }
 
@@ -121,32 +121,24 @@ class SavedAddressesViewModel @Inject constructor(
         getAddressListUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _savedAddressesScreenState.value =
-                        _savedAddressesScreenState.value.copy(
-                            listAddresses = response.data
-                        )
+                    _state.update { it.copy(listAddresses = response.data) }
                 }
 
                 is DataResult.Error -> {
-                    _savedAddressesScreenState.value =
-                        _savedAddressesScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
-                        )
+                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
     }
 
     init {
-        _savedAddressesScreenState.value = _savedAddressesScreenState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val addresses = async { getAddresses() }
 
             try {
                 awaitAll(addresses)
-                _savedAddressesScreenState.value =
-                    _savedAddressesScreenState.value.copy(isLoading = false)
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading saved addresses screen data: ${e.message}")
             }

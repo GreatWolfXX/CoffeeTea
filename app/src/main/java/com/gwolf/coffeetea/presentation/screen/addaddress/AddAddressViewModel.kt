@@ -33,13 +33,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class AddAddressScreenState(
-    val selection: SelectionState = SelectionState(),
-    val search: SearchState = SearchState(),
+    val selection: AddAddressSelectionState = AddAddressSelectionState(),
+    val search: AddAddressSearchState = AddAddressSearchState(),
     val isLoading: Boolean = false,
     val error: UiText = UiText.DynamicString(""),
 )
 
-data class SelectionState(
+data class AddAddressSelectionState(
     val selectedNovaPostDepartments: Boolean = false,
     val selectedNovaPostCabin: Boolean = false,
     val selectedCity: City? = null,
@@ -47,7 +47,7 @@ data class SelectionState(
     val isDefault: Boolean = false,
 )
 
-data class SearchState(
+data class AddAddressSearchState(
     val typeByRef: String = "",
     val searchCity: String = "",
     val searchDepartment: String = "",
@@ -58,12 +58,12 @@ data class SearchState(
 sealed class AddAddressIntent {
     sealed class Input {
         data class SearchCity(val query: String) : AddAddressIntent()
-        data class SelectCity(val city: City) : AddAddressIntent()
         data class SearchDepartment(val query: String) : AddAddressIntent()
     }
 
     sealed class ButtonClick {
         data class SetTypeDepartment(val typeByRef: String) : AddAddressIntent()
+        data class SelectCity(val city: City) : AddAddressIntent()
         data class SelectDepartment(val department: Department) : AddAddressIntent()
         data object ClearSelected : AddAddressIntent()
         data object SelectNovaPostDepartments : AddAddressIntent()
@@ -101,7 +101,7 @@ class AddAddressViewModel @Inject constructor(
                 _state.update { it.copy(search = it.search.copy(searchCity = intent.query)) }
             }
 
-            is AddAddressIntent.Input.SelectCity -> {
+            is AddAddressIntent.ButtonClick.SelectCity -> {
                 _state.update { it.copy(selection = it.selection.copy(selectedCity = intent.city)) }
             }
 
@@ -295,9 +295,9 @@ class AddAddressViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
+                _state.update { it.copy(isLoading = false) }
                 setupSearchAddressDebounce()
                 setupSearchDepartmentDebounce()
-                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading add address screen data: ${e.message}")
             }

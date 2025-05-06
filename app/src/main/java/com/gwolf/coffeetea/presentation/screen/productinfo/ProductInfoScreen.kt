@@ -362,7 +362,7 @@ private fun ProductInfoMainSection(
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(
                     modifier = Modifier,
-                    text = "${state.product?.price.let { 0 }}₴",
+                    text = "${state.product?.price ?: 0}₴",
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 22.sp,

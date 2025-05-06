@@ -1,52 +1,70 @@
 package com.gwolf.coffeetea.presentation.screen.checkout
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class CheckoutUiState(
+data class CheckoutScreenState(
     val currentStepBar: Int = 0,
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
 )
 
+sealed class CheckoutIntent {
+    data class SetStepBar(val currentStep: Int) : CheckoutIntent()
+}
+
 sealed class CheckoutEvent {
-    data class SetStepBar(val currentStep: Int) : CheckoutEvent()
+    data object Idle : CheckoutEvent()
+    data class StepBarChanged(val newPage: Int) : CheckoutEvent()
 }
 
 @HiltViewModel
 class CheckoutViewModel @Inject constructor() : ViewModel() {
 
-    private val _checkoutScreenState = mutableStateOf(CheckoutUiState())
-    val checkoutScreenState: State<CheckoutUiState> = _checkoutScreenState
+    private var _state = MutableStateFlow(CheckoutScreenState())
+    val state: StateFlow<CheckoutScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = CheckoutScreenState()
+    )
 
-    fun onEvent(event: CheckoutEvent) {
-        when (event) {
-            is CheckoutEvent.SetStepBar -> {
-                _checkoutScreenState.value = _checkoutScreenState.value.copy(
-                    currentStepBar = event.currentStep
-                )
+    private var _event: Channel<CheckoutEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: CheckoutIntent) {
+        when (intent) {
+            is CheckoutIntent.SetStepBar -> {
+                _state.update { it.copy(currentStepBar = intent.currentStep) }
+                viewModelScope.launch {
+                    _event.send(CheckoutEvent.StepBarChanged(intent.currentStep))
+                }
             }
         }
     }
 
     init {
-        _checkoutScreenState.value = _checkoutScreenState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
 
             try {
 
-                _checkoutScreenState.value = _checkoutScreenState.value.copy(isLoading = false)
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading checkout screen data: ${e.message}")
             }
         }
     }
-
 }

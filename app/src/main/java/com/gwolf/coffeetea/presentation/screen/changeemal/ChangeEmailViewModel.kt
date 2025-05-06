@@ -27,6 +27,7 @@ data class ChangeEmailScreenState(
     val currentEmail: String = "",
     val isLoading: Boolean = false,
     val error: UiText = UiText.DynamicString(""),
+    val showOtpModalSheet: Boolean = false,
     val otpError: UiText = UiText.DynamicString(""),
     val email: String = "",
     val emailError: UiText = UiText.DynamicString(""),
@@ -47,8 +48,6 @@ sealed class ChangeEmailIntent {
 sealed class ChangeEmailEvent {
     data object Idle : ChangeEmailEvent()
     data object Navigate : ChangeEmailEvent()
-    data object ShowOtp : ChangeEmailEvent()
-    data object HideOtp : ChangeEmailEvent()
 }
 
 @HiltViewModel
@@ -88,7 +87,7 @@ class ChangeEmailViewModel @Inject constructor(
 
             is ChangeEmailIntent.ButtonClick.OnDismiss -> {
                 viewModelScope.launch {
-                    _event.send(ChangeEmailEvent.HideOtp)
+                    _state.update { it.copy(showOtpModalSheet = false) }
                 }
             }
         }
@@ -100,7 +99,7 @@ class ChangeEmailViewModel @Inject constructor(
             changeEmailUseCase.invoke(_state.value.email).collect { result ->
                 when (result) {
                     is DataResult.Success -> {
-                        _event.send(ChangeEmailEvent.ShowOtp)
+                        _state.update { it.copy(showOtpModalSheet = true) }
                     }
 
                     is DataResult.Error -> {
@@ -127,7 +126,7 @@ class ChangeEmailViewModel @Inject constructor(
             verifyOtpEmailUseCase.invoke(_state.value.email, otpToken).collect { result ->
                 when (result) {
                     is DataResult.Success -> {
-                        _event.send(ChangeEmailEvent.HideOtp)
+                        _state.update { it.copy(showOtpModalSheet = false) }
                         _event.send(ChangeEmailEvent.Navigate)
                     }
 

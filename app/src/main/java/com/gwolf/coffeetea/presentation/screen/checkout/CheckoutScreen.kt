@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.checkout
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -44,9 +45,7 @@ import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -54,8 +53,13 @@ fun CheckoutScreen(
     navController: NavController,
     viewModel: CheckoutViewModel = hiltViewModel()
 ) {
-    val state by viewModel.checkoutScreenState
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
+
+    val state by viewModel.state.collectAsState()
+
     val coroutineScope = rememberCoroutineScope()
+
     val pages = listOf(
         CheckoutPages.Delivery,
         CheckoutPages.PersonalInfo,
@@ -65,6 +69,42 @@ fun CheckoutScreen(
         pageCount = { pages.size }
     )
 
+    val event by viewModel.event.collectAsState(initial = CheckoutEvent.Idle)
+
+    LaunchedEffect(event) {
+        when (val currentEvent: CheckoutEvent = event) {
+            is CheckoutEvent.Idle -> {}
+            is CheckoutEvent.StepBarChanged -> {
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(currentEvent.newPage)
+                }
+            }
+        }
+    }
+
+    CheckoutContent(
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateBack = {
+            navController.navigateUp()
+        },
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        },
+        pagerState = pagerState
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun CheckoutContent(
+    state: CheckoutScreenState,
+    isNetworkConnected: Boolean,
+    navigateBack: () -> Unit = {},
+    onIntent: (CheckoutIntent) -> Unit = {},
+    pagerState: PagerState
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -74,49 +114,42 @@ fun CheckoutScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopMenu(
-                navController = navController,
-                viewModel = viewModel,
                 state = state,
-                coroutineScope = coroutineScope,
-                pagerState = pagerState
+                navigateBack = navigateBack,
+                onIntent = onIntent,
+                canScrollBackward = pagerState.canScrollBackward
             )
 
-            val connection by connectivityState()
-
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if (isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if (isConnected) R.string.title_error else R.string.title_network
-                val desc = if (isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style =
+                    if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                CheckoutScreenContent(
+                CheckoutMainSection(
                     state = state,
-                    viewModel = viewModel,
-                    coroutineScope = coroutineScope,
+                    onIntent = onIntent,
                     pagerState = pagerState
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopMenu(
-    navController: NavController,
-    viewModel: CheckoutViewModel,
-    state: CheckoutUiState,
-    coroutineScope: CoroutineScope,
-    pagerState: PagerState
+    canScrollBackward: Boolean,
+    state: CheckoutScreenState,
+    navigateBack: () -> Unit,
+    onIntent: (CheckoutIntent) -> Unit
 ) {
-   TopAppBar(
+    TopAppBar(
         modifier = Modifier,
         title = {
             Text(
@@ -133,13 +166,10 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        if (pagerState.canScrollBackward) {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.targetPage.dec())
-                            }
-                            viewModel.onEvent(CheckoutEvent.SetStepBar(state.currentStepBar.dec()))
+                        if (canScrollBackward) {
+                            onIntent(CheckoutIntent.SetStepBar(state.currentStepBar.dec()))
                         } else {
-                            navController.popBackStack()
+                            navigateBack()
                         }
                     },
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
@@ -154,13 +184,11 @@ private fun TopMenu(
 }
 
 @Composable
-private fun CheckoutScreenContent(
-    state: CheckoutUiState,
-    viewModel: CheckoutViewModel,
-    coroutineScope: CoroutineScope,
+private fun CheckoutMainSection(
+    state: CheckoutScreenState,
+    onIntent: (CheckoutIntent) -> Unit,
     pagerState: PagerState
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -190,19 +218,13 @@ private fun CheckoutScreenContent(
                 when (position) {
                     0 -> {
                         DeliveryPage {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.targetPage.inc())
-                            }
-                            viewModel.onEvent(CheckoutEvent.SetStepBar(state.currentStepBar.inc()))
+                            onIntent(CheckoutIntent.SetStepBar(state.currentStepBar.inc()))
                         }
                     }
 
                     1 -> {
-                        PersonalInfoPage() {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.targetPage.inc())
-                            }
-                            viewModel.onEvent(CheckoutEvent.SetStepBar(state.currentStepBar.inc()))
+                        PersonalInfoPage {
+                            onIntent(CheckoutIntent.SetStepBar(state.currentStepBar.inc()))
                         }
                     }
 

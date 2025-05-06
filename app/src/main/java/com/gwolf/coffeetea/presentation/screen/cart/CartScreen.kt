@@ -110,7 +110,6 @@ private fun CartContent(
             TopMenu(
                 navigateBack = navigateBack
             )
-
             if (state.error.asString().isNotBlank() || !isNetworkConnected) {
                 val style = if(isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
                 val title = if(isNetworkConnected) R.string.title_error else R.string.title_network

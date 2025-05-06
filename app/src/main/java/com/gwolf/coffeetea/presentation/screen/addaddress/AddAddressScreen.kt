@@ -1,30 +1,18 @@
 package com.gwolf.coffeetea.presentation.screen.addaddress
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -44,7 +32,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,16 +39,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.LocalSnackbarHostState
 import com.gwolf.coffeetea.R
+import com.gwolf.coffeetea.presentation.component.CitySelector
 import com.gwolf.coffeetea.presentation.component.CustomButton
+import com.gwolf.coffeetea.presentation.component.CustomSearchBar
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.PostComponent
-import com.gwolf.coffeetea.presentation.component.SearchBarBottomSheet
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.NovaPostColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
-import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
@@ -196,7 +183,7 @@ private fun AddAddressForm(
         Column(
             modifier = Modifier.weight(0.8f)
         ) {
-            AddressBlock(
+            CityBlock(
                 state = state,
                 onIntent = onIntent
             )
@@ -249,7 +236,7 @@ private fun AddAddressForm(
                     R.string.placeholder_department_cabin
                 )
             if (showDepartmentSearchBarBottomSheet) {
-                SearchBar(
+                CustomSearchBar(
                     title = titlePost,
                     placeholder = placeholderPost,
                     sheetState = sheetState,
@@ -268,7 +255,7 @@ private fun AddAddressForm(
                         onIntent(AddAddressIntent.ButtonClick.SelectDepartment(department))
                         showDepartmentSearchBarBottomSheet = false
                     },
-                    itemText = { city -> city.name }
+                    itemText = { department -> department.name }
                 )
             }
         }
@@ -285,7 +272,7 @@ private fun AddAddressForm(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddressBlock(
+private fun CityBlock(
     state: AddAddressScreenState,
     onIntent: (AddAddressIntent) -> Unit
 ) {
@@ -293,72 +280,15 @@ private fun AddressBlock(
         skipPartiallyExpanded = true
     )
     var showAddressSearchBarBottomSheet by remember { mutableStateOf(false) }
-    Row(
-        modifier = Modifier
-            .padding(top = 16.dp)
-            .border(
-                width = 1.dp,
-                color = OnSurfaceColor,
-                shape = RoundedCornerShape(4.dp)
-            )
-            .padding(16.dp)
-            .clickable {
-                onIntent(AddAddressIntent.ButtonClick.ClearSelected)
-                showAddressSearchBarBottomSheet = !showAddressSearchBarBottomSheet
-            },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Box(
-            modifier = Modifier.weight(0.1f),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Icon(
-                modifier = Modifier
-                    .size(24.dp),
-                imageVector = Icons.Outlined.LocationOn,
-                contentDescription = null,
-                tint = OnSurfaceColor
-            )
+    CitySelector(
+        cityName = state.selection.selectedCity?.name ?: "",
+        onClick = {
+            onIntent(AddAddressIntent.ButtonClick.ClearSelected)
+            showAddressSearchBarBottomSheet = !showAddressSearchBarBottomSheet
         }
-        Column(
-            modifier = Modifier.weight(0.8f),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                modifier = Modifier,
-                text = stringResource(R.string.title_your_city),
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                color = OutlineColor
-            )
-            val city =
-                if (state.selection.selectedCity != null) state.selection.selectedCity.name else stringResource(R.string.choose_city)
-            Text(
-                modifier = Modifier,
-                text = city,
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 16.sp,
-                color = OnSurfaceColor
-            )
-        }
-        Box(
-            modifier = Modifier.weight(0.1f),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            Icon(
-                modifier = Modifier
-                    .size(16.dp),
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                contentDescription = null,
-                tint = OnSurfaceColor
-            )
-        }
-    }
+    )
     if (showAddressSearchBarBottomSheet) {
-        SearchBar(
+        CustomSearchBar(
             title = stringResource(R.string.title_city),
             placeholder = stringResource(R.string.placeholder_city),
             sheetState = sheetState,
@@ -374,70 +304,11 @@ private fun AddressBlock(
                 showAddressSearchBarBottomSheet = false
             },
             onClickItem = { city ->
-                onIntent(AddAddressIntent.Input.SelectCity(city))
+                onIntent(AddAddressIntent.ButtonClick.SelectCity(city))
                 showAddressSearchBarBottomSheet = false
             },
             itemText = { city -> city.name }
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun <T>SearchBar(
-    title: String,
-    placeholder: String,
-    sheetState: SheetState,
-    list: List<T>,
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onClear: () -> Unit,
-    onDismiss: () -> Unit,
-    onClickItem: (T) -> Unit,
-    itemText: (T) -> String
-) {
-    SearchBarBottomSheet(
-        modifier = Modifier,
-        sheetState = sheetState,
-        title = title,
-        placeholder = placeholder,
-        query = query,
-        onQueryChange = onQueryChange,
-        onClear = onClear,
-        onDismiss = onDismiss
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxHeight(0.75f),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
-        ) {
-            items(list) { item ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            onClickItem(item)
-                        }
-                ) {
-                    Text(
-                        modifier = Modifier,
-                        text = itemText(item),
-                        textAlign = TextAlign.Start,
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = OnSurfaceColor
-                    )
-                    Spacer(modifier = Modifier.size(4.dp))
-                    HorizontalDivider(
-                        modifier = Modifier,
-                        thickness = 1.dp,
-                        color = OnSurfaceColor
-                    )
-                }
-            }
-        }
     }
 }
 

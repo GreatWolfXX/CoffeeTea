@@ -1,10 +1,7 @@
 package com.gwolf.coffeetea
 
-import android.app.Activity
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -20,14 +17,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.graphics.ColorUtils
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.ViewCompat
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -39,7 +35,7 @@ import com.gwolf.coffeetea.ui.theme.StatusBarBackgroundColor
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState>{
+val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> {
     error("No Snackbar Host State")
 }
 
@@ -74,7 +70,7 @@ class MainActivity : ComponentActivity() {
                 )
 
                 val snackbarHostState = remember { SnackbarHostState() }
-                val screen by splashViewModel.startDestination
+                val screen by splashViewModel.state.collectAsState()
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val showBottomBar = navBackStackEntry?.destination?.let { destination ->
@@ -127,33 +123,33 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun Activity.updateStatusBarIconColor() {
-    val statusBarColor = window.statusBarColor
-    val isColorLight = ColorUtils.calculateLuminance(statusBarColor) > 0.5
-
-    if (isColorLight) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window?.insetsController?.setSystemBarsAppearance(
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-            )
-        } else {
-            val windowInsetController = window?.decorView?.let {
-                ViewCompat.getWindowInsetsController(it)
-            }
-            windowInsetController?.isAppearanceLightStatusBars = true
-        }
-    } else {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window?.insetsController?.setSystemBarsAppearance(
-                0,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-            )
-        } else {
-            val windowInsetController = window?.decorView?.let {
-                ViewCompat.getWindowInsetsController(it)
-            }
-            windowInsetController?.isAppearanceLightStatusBars = false
-        }
-    }
-}
+//fun Activity.updateStatusBarIconColor() {
+//    val statusBarColor = window.statusBarColor
+//    val isColorLight = ColorUtils.calculateLuminance(statusBarColor) > 0.5
+//
+//    if (isColorLight) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            window?.insetsController?.setSystemBarsAppearance(
+//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+//            )
+//        } else {
+//            val windowInsetController = window?.decorView?.let {
+//                ViewCompat.getWindowInsetsController(it)
+//            }
+//            windowInsetController?.isAppearanceLightStatusBars = true
+//        }
+//    } else {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            window?.insetsController?.setSystemBarsAppearance(
+//                0,
+//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+//            )
+//        } else {
+//            val windowInsetController = window?.decorView?.let {
+//                ViewCompat.getWindowInsetsController(it)
+//            }
+//            windowInsetController?.isAppearanceLightStatusBars = false
+//        }
+//    }
+//}

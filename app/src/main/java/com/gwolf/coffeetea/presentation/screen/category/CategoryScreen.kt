@@ -67,6 +67,9 @@ fun CategoryScreen(
     CategoryContent(
         state = state,
         isNetworkConnected = isNetworkConnected,
+        navigateToOtherScreen = { screen ->
+            navController.navigate(screen)
+        },
         navigateBack = {
             navController.navigateUp()
         }

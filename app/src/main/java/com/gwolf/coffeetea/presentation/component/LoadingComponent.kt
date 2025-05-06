@@ -2,7 +2,7 @@ package com.gwolf.coffeetea.presentation.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -22,12 +22,14 @@ fun LoadingComponent(
 ) {
     AnimatedVisibility(
         visible = isLoading,
+        enter = slideInHorizontally(
+            initialOffsetX = { -it },
+            animationSpec = tween(durationMillis = 300)
+        ),
         exit = slideOutHorizontally(
             targetOffsetX = { -it },
             animationSpec = tween(durationMillis = 300)
-        ) + shrinkVertically(
-            animationSpec = tween(delayMillis = 300)
-        ),
+        )
     ) {
         Box(
             modifier = Modifier

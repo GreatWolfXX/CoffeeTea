@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.searchbycategory
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,10 +21,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,7 +44,6 @@ import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
@@ -51,20 +51,44 @@ fun SearchProductScreen(
     navController: NavController,
     viewModel: SearchProductViewModel = hiltViewModel()
 ) {
-    val state by viewModel.searchProductScreenState
+    val connection by connectivityState()
+    val isNetworkConnected = connection === ConnectionState.Available
+
+    val state by viewModel.state.collectAsState()
+
+    SearchProductContent(
+        state = state,
+        isNetworkConnected = isNetworkConnected,
+        navigateToOtherScreen = { screen ->
+            navController.navigate(screen)
+        },
+        navigateBack = {
+            navController.navigateUp()
+        }
+    )
+
+    LoadingComponent(state.isLoading)
+}
+
+@Composable
+private fun SearchProductContent(
+    state: SearchProductScreenState,
+    isNetworkConnected: Boolean,
+    navigateToOtherScreen: (Screen) -> Unit = {},
+    navigateBack: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundGradient)
     ) {
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (!state.isLoading) {
                 TopMenu(
-                    navController = navController,
-                    state = state
+                    categoryName = state.categoryName,
+                    navigateBack = navigateBack
                 )
                 FiltersComponent(
                     onSortingStateChanged = { lowToHighSelected, highToLowSelected ->
@@ -76,102 +100,41 @@ fun SearchProductScreen(
                     }
                 )
             }
-            val connection by connectivityState()
 
-            val isConnected = connection === ConnectionState.Available
-            if (state.error != null || !isConnected) {
-                Log.d(LOGGER_TAG, "Error: ${state.error}")
-                val style = if(isConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
-                val title = if(isConnected) R.string.title_error else R.string.title_network
-                val desc = if(isConnected) R.string.desc_error else R.string.desc_network
+            if (state.error.asString().isNotBlank() || !isNetworkConnected) {
+                val style =
+                    if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val title =
+                    if (isNetworkConnected) R.string.title_error else R.string.title_network
+                val desc =
+                    if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
                     style = style,
                     title = title,
                     desc = desc
                 )
             } else {
-                FavoriteScreenContent(
-                    navController = navController,
-                    state = state
+                SearchProductMainSection(
+                    state = state,
+                    navigateToOtherScreen = navigateToOtherScreen
                 )
             }
         }
     }
-    LoadingComponent(state.isLoading)
-}
-
-@Composable
-private fun FavoriteScreenContent(
-    navController: NavController,
-    state: SearchProductUiState
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-    ) {
-        if (state.productsList.isNotEmpty()) {
-            ProductsList(
-                navController = navController,
-                productsList = state.productsList
-            )
-        } else {
-            ErrorOrEmptyComponent(
-                style = ErrorOrEmptyStyle.PRODUCT_EMPTY,
-                title = R.string.title_product_empty,
-                desc = R.string.desc_product_empty
-            )
-        }
-
-    }
-}
-
-@Composable
-private fun ProductsList(
-    navController: NavController,
-    productsList: List<Product>
-) {
-    Spacer(modifier = Modifier.size(8.dp))
-    LazyVerticalGrid(
-        modifier = Modifier,
-        columns = GridCells.FixedSize(174.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(bottom = 12.dp)
-    ) {
-        items(productsList) { product ->
-            Log.d(LOGGER_TAG, "Product: ${product.categoryName}")
-            ProductCard(
-                modifier = Modifier.animateItem(),
-                product = product,
-                onClick = {
-                    navController.navigate(Screen.ProductInfo(productId = product.id))
-                },
-                onClickBuy = {
-
-                },
-                onClickToCart = {
-
-                }
-            )
-        }
-    }
-
-    Spacer(modifier = Modifier.size(8.dp))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopMenu(
-    state: SearchProductUiState,
-    navController: NavController
+    categoryName: String,
+    navigateBack: () -> Unit
 ) {
     TopAppBar(
         modifier = Modifier,
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),
-                text = state.categoryName,
+                text = categoryName,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 22.sp,
@@ -183,7 +146,7 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        navController.popBackStack()
+                        navigateBack()
                     },
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
@@ -193,5 +156,71 @@ private fun TopMenu(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = WhiteAlpha06
         )
+    )
+}
+
+@Composable
+private fun SearchProductMainSection(
+    state: SearchProductScreenState,
+    navigateToOtherScreen: (Screen) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+    ) {
+        if (state.productsList.isNotEmpty()) {
+            ProductsList(
+                productsList = state.productsList,
+                navigateToOtherScreen = navigateToOtherScreen
+            )
+        } else {
+            ErrorOrEmptyComponent(
+                style = ErrorOrEmptyStyle.PRODUCT_EMPTY,
+                title = R.string.title_product_empty,
+                desc = R.string.desc_product_empty
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProductsList(
+    productsList: List<Product>,
+    navigateToOtherScreen: (Screen) -> Unit,
+) {
+    Spacer(modifier = Modifier.size(8.dp))
+    LazyVerticalGrid(
+        modifier = Modifier,
+        columns = GridCells.FixedSize(174.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        contentPadding = PaddingValues(bottom = 12.dp)
+    ) {
+        items(productsList) { product ->
+            ProductCard(
+                modifier = Modifier.animateItem(),
+                product = product,
+                onClick = {
+                    navigateToOtherScreen(Screen.ProductInfo(productId = product.id))
+                },
+                onClickBuy = {
+
+                },
+                onClickToCart = {
+
+                }
+            )
+        }
+    }
+    Spacer(modifier = Modifier.size(8.dp))
+}
+
+@Preview
+@Composable
+private fun SearchProductScreenPreview() {
+    SearchProductContent(
+        state = SearchProductScreenState(),
+        isNetworkConnected = true
     )
 }

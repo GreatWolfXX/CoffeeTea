@@ -60,8 +60,6 @@ fun ChangeEmailScreen(
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
-    val sheetState = rememberModalBottomSheetState()
-
     val state by viewModel.state.collectAsState()
     val event by viewModel.event.collectAsState(initial = ChangeEmailEvent.Idle)
 
@@ -70,14 +68,6 @@ fun ChangeEmailScreen(
             is ChangeEmailEvent.Idle -> {}
             is ChangeEmailEvent.Navigate -> {
                 navController.popBackStack()
-            }
-
-            is ChangeEmailEvent.ShowOtp -> {
-                sheetState.show()
-            }
-
-            is ChangeEmailEvent.HideOtp -> {
-                sheetState.hide()
             }
         }
     }
@@ -90,21 +80,6 @@ fun ChangeEmailScreen(
         },
         onIntent = { intent ->
             viewModel.onIntent(intent)
-        }
-    )
-
-    OtpBottomSheet(
-        sheetState = sheetState,
-        title = R.string.title_verify_email,
-        desc = R.string.desc_verify_email,
-        isError = state.otpError.asString().isNotBlank(),
-        errorMessage = state.otpError,
-        onClickConfirm = { otpToken ->
-            viewModel.onIntent(ChangeEmailIntent.ButtonClick.CheckOtp(otpToken))
-        },
-        onClickResendCode = {},
-        onDismiss = {
-            viewModel.onIntent(ChangeEmailIntent.ButtonClick.OnDismiss)
         }
     )
 
@@ -185,11 +160,14 @@ private fun TopMenu(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChangeEmailForm(
     state: ChangeEmailScreenState,
     onIntent: (ChangeEmailIntent) -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -250,6 +228,22 @@ private fun ChangeEmailForm(
         )
         {
             onIntent(ChangeEmailIntent.ButtonClick.Submit)
+        }
+        if (state.showOtpModalSheet) {
+            OtpBottomSheet(
+                sheetState = sheetState,
+                title = R.string.title_verify_email,
+                desc = R.string.desc_verify_email,
+                isError = state.otpError.asString().isNotBlank(),
+                errorMessage = state.otpError,
+                onClickConfirm = { otpToken ->
+                    onIntent(ChangeEmailIntent.ButtonClick.CheckOtp(otpToken))
+                },
+                onClickResendCode = {},
+                onDismiss = {
+                    onIntent(ChangeEmailIntent.ButtonClick.OnDismiss)
+                }
+            )
         }
     }
 }

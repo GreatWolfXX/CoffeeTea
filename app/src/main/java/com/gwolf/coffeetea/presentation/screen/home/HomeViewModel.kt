@@ -133,10 +133,12 @@ class HomeViewModel @Inject constructor(
             .debounce(1000)
             .distinctUntilChanged()
             .onEach {
+                Log.d("Coffee&TeaLogger", "EACH")
                 _state.update { it.copy(searchProductsList = listOf()) }
             }
             .filter { it.isNotBlank() }
             .collect { query ->
+                Log.d("Coffee&TeaLogger", "COLLECT")
                 getSearchProducts(query)
             }
     }
@@ -215,8 +217,10 @@ class HomeViewModel @Inject constructor(
 
             try {
                 awaitAll(promotionsList, categoriesList, productsList)
-                setupSearchDebounce()
                 _state.update { it.copy(isLoading = false) }
+
+                setupSearchDebounce()
+
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading home screen data: ${e.message}")
             }
