@@ -9,12 +9,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,12 +35,37 @@ fun PersonalInfoPage(
     viewModel: PersonalInfoViewModel = hiltViewModel(),
     nextStep: () -> Unit = {}
 ) {
+    val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = PersonalInfoEvent.Idle)
+
+    LaunchedEffect(event) {
+        when (event) {
+            is PersonalInfoEvent.Idle -> {}
+            is PersonalInfoEvent.Navigate -> {
+                nextStep()
+            }
+        }
+    }
+
+    PersonalInfoContent(
+        state = state,
+        onIntent = { intent ->
+            viewModel.onIntent(intent)
+        }
+    )
+
+
+}
+
+@Composable
+private fun PersonalInfoContent(
+    state: PersonalInfoScreenState,
+    onIntent: (PersonalInfoIntent) -> Unit = {}
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        val state by viewModel.personalInfoScreenState
-
         Column {
             Text(
                 modifier = Modifier,
@@ -54,11 +82,11 @@ fun PersonalInfoPage(
                 placeholder = R.string.new_phone_placeholder,
                 text = state.phone,
                 onValueChange = { text ->
-                    viewModel.onEvent(PersonalInfoEvent.PhoneChanged(text))
+                    onIntent(PersonalInfoIntent.Input.EnterPhone(text))
                 },
                 style = CustomTextInputStyle.PHONE,
                 imeAction = ImeAction.Done,
-                isError = state.phoneError != null,
+                isError = state.phoneError.asString().isNotBlank(),
                 errorMessage = state.phoneError
             )
             Spacer(modifier = Modifier.size(16.dp))
@@ -67,11 +95,11 @@ fun PersonalInfoPage(
                 placeholder = R.string.first_name_placeholder,
                 text = state.firstName,
                 onValueChange = { text ->
-                    viewModel.onEvent(PersonalInfoEvent.FirstNameChanged(text))
+                    onIntent(PersonalInfoIntent.Input.EnterFirstName(text))
                 },
                 style = CustomTextInputStyle.STANDARD,
                 imeAction = ImeAction.Next,
-                isError = state.firstNameError != null,
+                isError = state.firstNameError.asString().isNotBlank(),
                 errorMessage = state.firstNameError
             )
             Spacer(modifier = Modifier.size(16.dp))
@@ -80,11 +108,11 @@ fun PersonalInfoPage(
                 placeholder = R.string.last_name_placeholder,
                 text = state.lastName,
                 onValueChange = { text ->
-                    viewModel.onEvent(PersonalInfoEvent.LastNameChanged(text))
+                    onIntent(PersonalInfoIntent.Input.EnterLastName(text))
                 },
                 style = CustomTextInputStyle.STANDARD,
                 imeAction = ImeAction.Next,
-                isError = state.lastNameError != null,
+                isError = state.lastNameError.asString().isNotBlank(),
                 errorMessage = state.lastNameError
             )
         }
@@ -94,7 +122,15 @@ fun PersonalInfoPage(
             text = R.string.title_continue,
             isEnabled = true //btnEnabled
         ) {
-            nextStep.invoke()
+            onIntent(PersonalInfoIntent.ButtonClick.Submit)
         }
     }
+}
+
+@Preview
+@Composable
+private fun PersonalInfoPagePreview() {
+    PersonalInfoContent(
+        state = PersonalInfoScreenState()
+    )
 }

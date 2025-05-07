@@ -1,40 +1,56 @@
 package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Profile
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePhoneUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
+import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UKRAINE_PHONE_CODE
-import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class PersonalInfoUiState(
+data class PersonalInfoScreenState(
     val profile: Profile? = null,
     val phone: String = "",
-    val phoneError: UiText? = null,
+    val phoneError: UiText = UiText.DynamicString(""),
     val firstName: String = "",
-    val firstNameError: UiText? = null,
+    val firstNameError: UiText = UiText.DynamicString(""),
     val lastName: String = "",
-    val lastNameError: UiText? = null,
+    val lastNameError: UiText = UiText.DynamicString(""),
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText = UiText.DynamicString(""),
 )
 
+sealed class PersonalInfoIntent {
+    sealed class Input {
+        data class EnterPhone(val phone: String) : PersonalInfoIntent()
+        data class EnterFirstName(val firstName: String) : PersonalInfoIntent()
+        data class EnterLastName(val lastName: String) : PersonalInfoIntent()
+    }
+
+    sealed class ButtonClick {
+        data object Submit : PersonalInfoIntent()
+    }
+}
+
 sealed class PersonalInfoEvent {
-    data class PhoneChanged(val phone: String) : PersonalInfoEvent()
-    data class FirstNameChanged(val firstName: String) : PersonalInfoEvent()
-    data class LastNameChanged(val lastName: String) : PersonalInfoEvent()
+    data object Idle : PersonalInfoEvent()
+    data object Navigate : PersonalInfoEvent()
 }
 
 @HiltViewModel
@@ -42,65 +58,73 @@ class PersonalInfoViewModel @Inject constructor(
     private val validatePhoneUseCase: ValidatePhoneUseCase,
     private val validateTextUseCase: ValidateTextUseCase,
     private val getProfileUseCase: GetProfileUseCase,
-) : ViewModel()  {
+) : ViewModel() {
 
-    private val _personalInfoScreenState = mutableStateOf(PersonalInfoUiState())
-    val personalInfoScreenState: State<PersonalInfoUiState> = _personalInfoScreenState
+    private var _state = MutableStateFlow(PersonalInfoScreenState())
+    val state: StateFlow<PersonalInfoScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = PersonalInfoScreenState()
+    )
 
-    fun onEvent(event: PersonalInfoEvent) {
-        when (event) {
-            is PersonalInfoEvent.PhoneChanged -> {
-                _personalInfoScreenState.value = _personalInfoScreenState.value.copy(phone = event.phone)
+    private var _event: Channel<PersonalInfoEvent> = Channel()
+    val event = _event.receiveAsFlow()
+
+    fun onIntent(intent: PersonalInfoIntent) {
+        when (intent) {
+            is PersonalInfoIntent.Input.EnterPhone -> {
+                _state.update { it.copy(phone = intent.phone) }
                 validatePhone()
             }
 
-            is PersonalInfoEvent.FirstNameChanged -> {
-                _personalInfoScreenState.value =
-                    _personalInfoScreenState.value.copy(firstName = event.firstName)
+            is PersonalInfoIntent.Input.EnterFirstName -> {
+                _state.update { it.copy(firstName = intent.firstName) }
                 validateFirstName()
             }
 
-            is PersonalInfoEvent.LastNameChanged -> {
-                _personalInfoScreenState.value =
-                    _personalInfoScreenState.value.copy(lastName = event.lastName)
+            is PersonalInfoIntent.Input.EnterLastName -> {
+                _state.update { it.copy(lastName = intent.lastName) }
                 validateLastName()
+            }
+
+            is PersonalInfoIntent.ButtonClick.Submit -> {
+                viewModelScope.launch {
+                    _event.send(PersonalInfoEvent.Navigate)
+                }
             }
         }
     }
-    
+
     private suspend fun getProfile() {
         getProfileUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _personalInfoScreenState.value =
-                        _personalInfoScreenState.value.copy(
+                    _state.update {
+                        it.copy(
                             profile = response.data,
                             phone = response.data.phone.removePrefix("+38"),
                             firstName = response.data.firstName,
                             lastName = response.data.lastName
                         )
+                    }
                 }
 
                 is DataResult.Error -> {
-                    _personalInfoScreenState.value =
-                        _personalInfoScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
-                        )
+                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
     }
-    
+
     init {
-        _personalInfoScreenState.value = _personalInfoScreenState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val profile = async { getProfile() }
 
             try {
                 awaitAll(profile)
 
-                _personalInfoScreenState.value = _personalInfoScreenState.value.copy(isLoading = false)
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading personal info page data: ${e.message}")
             }
@@ -108,25 +132,21 @@ class PersonalInfoViewModel @Inject constructor(
     }
 
     private fun validatePhone(): Boolean {
-        val newPhone = "$UKRAINE_PHONE_CODE${_personalInfoScreenState.value.phone}"
+        val newPhone = "$UKRAINE_PHONE_CODE${_state.value.phone}"
         val phoneResult = validatePhoneUseCase.invoke(newPhone)
-        _personalInfoScreenState.value =
-            _personalInfoScreenState.value.copy(phoneError = phoneResult.errorMessage)
+        _state.update { it.copy(phoneError = phoneResult.errorMessage) }
         return phoneResult.successful
     }
 
     private fun validateFirstName(): Boolean {
-        val textResult = validateTextUseCase.invoke(_personalInfoScreenState.value.firstName)
-        _personalInfoScreenState.value =
-            _personalInfoScreenState.value.copy(firstNameError = textResult.errorMessage)
+        val textResult = validateTextUseCase.invoke(_state.value.firstName)
+        _state.update { it.copy(firstNameError = textResult.errorMessage) }
         return textResult.successful
     }
 
     private fun validateLastName(): Boolean {
-        val textResult = validateTextUseCase.invoke(_personalInfoScreenState.value.lastName)
-        _personalInfoScreenState.value =
-            _personalInfoScreenState.value.copy(lastNameError = textResult.errorMessage)
+        val textResult = validateTextUseCase.invoke(_state.value.lastName)
+        _state.update { it.copy(lastNameError = textResult.errorMessage) }
         return textResult.successful
     }
-    
 }

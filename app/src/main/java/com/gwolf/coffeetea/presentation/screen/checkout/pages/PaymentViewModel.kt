@@ -1,8 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.tasks.Task
@@ -10,61 +8,69 @@ import com.google.android.gms.wallet.PaymentData
 import com.google.android.gms.wallet.PaymentDataRequest
 import com.google.android.gms.wallet.PaymentsClient
 import com.gwolf.coffeetea.domain.usecase.googlepay.IsReadyToGPayUseCase
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.DataResult
+import com.gwolf.coffeetea.util.LOGGER_TAG
+import com.gwolf.coffeetea.util.UiText
 import com.gwolf.coffeetea.util.getPaymentDataRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class PaymentUiState(
+data class PaymentScreenState(
     val isGooglePayAvailable: Boolean = false,
     val paymentDataTask: Task<PaymentData>? = null,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: UiText = UiText.DynamicString("")
 )
 
-sealed class PaymentEvent {
-    data class RequestPayment(val price: String) : PaymentEvent()
+sealed class PaymentIntent {
+    data class RequestPayment(val price: String) : PaymentIntent()
 }
+
+sealed class PaymentEvent {
+    data object Idle : PaymentEvent()
+}
+
 @HiltViewModel
 class PaymentViewModel @Inject constructor(
     private val isReadyToGPayUseCase: IsReadyToGPayUseCase,
     private val paymentsClient: PaymentsClient
 ) : ViewModel() {
 
-    private val _paymentScreenState = mutableStateOf(PaymentUiState())
-    val paymentScreenState: State<PaymentUiState> = _paymentScreenState
+    private var _state = MutableStateFlow(PaymentScreenState())
+    val state: StateFlow<PaymentScreenState> = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = PaymentScreenState()
+    )
+
+    private var _event: Channel<PaymentEvent> = Channel()
+    val event = _event.receiveAsFlow()
     
-    fun onEvent(event: PaymentEvent) {
-        when (event) {
-            is PaymentEvent.RequestPayment -> {
-                getLoadPaymentDataTask(event.price)
+    fun onIntent(intent: PaymentIntent) {
+        when (intent) {
+            is PaymentIntent.RequestPayment -> {
+                getLoadPaymentDataTask(intent.price)
             }
         }
     }
 
     private suspend fun isGooglePayAvailable() {
-        _paymentScreenState.value =
-            _paymentScreenState.value.copy(
-                isLoading = true
-            )
         isReadyToGPayUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _paymentScreenState.value =
-                        _paymentScreenState.value.copy(
-                            isGooglePayAvailable = response.data,
-                            isLoading = false
-                        )
+                    _state.update { it.copy(isGooglePayAvailable = response.data) }
                 }
 
                 is DataResult.Error -> {
-                    _paymentScreenState.value =
-                        _paymentScreenState.value.copy(
-                            error = response.exception.message.toString(),
-                            isLoading = false
-                        )
+                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -74,18 +80,16 @@ class PaymentViewModel @Inject constructor(
         val paymentDataRequestJson = getPaymentDataRequest(price)
         val request = PaymentDataRequest.fromJson(paymentDataRequestJson.toString())
         val task = paymentsClient.loadPaymentData(request)
-        _paymentScreenState.value = _paymentScreenState.value.copy(
-            paymentDataTask = task
-        )
+        _state.update { it.copy(paymentDataTask = task) }
     }
 
     init {
-        _paymentScreenState.value = _paymentScreenState.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
 
             try {
-                _paymentScreenState.value = _paymentScreenState.value.copy(isLoading = false)
                 isGooglePayAvailable()
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Log.e(LOGGER_TAG, "Error loading payment page data: ${e.message}")
             }
