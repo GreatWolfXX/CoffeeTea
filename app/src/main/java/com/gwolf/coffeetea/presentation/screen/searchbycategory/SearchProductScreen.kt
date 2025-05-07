@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.searchbycategory
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,12 +53,15 @@ fun SearchProductScreen(
     navController: NavController,
     viewModel: SearchProductViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
     val state by viewModel.state.collectAsState()
 
     SearchProductContent(
+        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateToOtherScreen = { screen ->
@@ -72,6 +77,7 @@ fun SearchProductScreen(
 
 @Composable
 private fun SearchProductContent(
+    context: Context,
     state: SearchProductScreenState,
     isNetworkConnected: Boolean,
     navigateToOtherScreen: (Screen) -> Unit = {},
@@ -115,6 +121,7 @@ private fun SearchProductContent(
                 )
             } else {
                 SearchProductMainSection(
+                    context = context,
                     state = state,
                     navigateToOtherScreen = navigateToOtherScreen
                 )
@@ -145,9 +152,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = OnSurfaceColor
@@ -161,6 +166,7 @@ private fun TopMenu(
 
 @Composable
 private fun SearchProductMainSection(
+    context: Context,
     state: SearchProductScreenState,
     navigateToOtherScreen: (Screen) -> Unit
 ) {
@@ -171,6 +177,7 @@ private fun SearchProductMainSection(
     ) {
         if (state.productsList.isNotEmpty()) {
             ProductsList(
+                context = context,
                 productsList = state.productsList,
                 navigateToOtherScreen = navigateToOtherScreen
             )
@@ -186,6 +193,7 @@ private fun SearchProductMainSection(
 
 @Composable
 private fun ProductsList(
+    context: Context,
     productsList: List<Product>,
     navigateToOtherScreen: (Screen) -> Unit,
 ) {
@@ -199,6 +207,7 @@ private fun ProductsList(
     ) {
         items(productsList) { product ->
             ProductCard(
+                context = context,
                 modifier = Modifier.animateItem(),
                 product = product,
                 onClick = {
@@ -219,7 +228,10 @@ private fun ProductsList(
 @Preview
 @Composable
 private fun SearchProductScreenPreview() {
+    val context = LocalContext.current
+
     SearchProductContent(
+        context = context,
         state = SearchProductScreenState(),
         isNetworkConnected = true
     )

@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.favorite
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,12 +53,15 @@ fun FavoriteScreen(
     navController: NavController,
     viewModel: FavoriteViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
     val state by viewModel.state.collectAsState()
 
     FavoriteContent(
+        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateToOtherScreen = { screen ->
@@ -72,6 +77,7 @@ fun FavoriteScreen(
 
 @Composable
 private fun FavoriteContent(
+    context: Context,
     state: FavoriteScreenState,
     isNetworkConnected: Boolean,
     navigateToOtherScreen: (Screen) -> Unit = {},
@@ -101,6 +107,7 @@ private fun FavoriteContent(
                 )
             } else {
                 FavoriteForm(
+                    context = context,
                     state = state,
                     navigateToOtherScreen = navigateToOtherScreen
                 )
@@ -111,6 +118,7 @@ private fun FavoriteContent(
 
 @Composable
 private fun FavoriteForm(
+    context: Context,
     state: FavoriteScreenState,
     navigateToOtherScreen: (Screen) -> Unit
 ) {
@@ -121,6 +129,7 @@ private fun FavoriteForm(
     ) {
         if (state.favoritesList.isNotEmpty()) {
             ProductsList(
+                context = context,
                 navigateToOtherScreen = navigateToOtherScreen,
                 favoritesList = state.favoritesList
             )
@@ -155,9 +164,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = OnSurfaceColor
@@ -171,6 +178,7 @@ private fun TopMenu(
 
 @Composable
 private fun ProductsList(
+    context: Context,
     favoritesList: List<Favorite>,
     navigateToOtherScreen: (Screen) -> Unit
 ) {
@@ -184,6 +192,7 @@ private fun ProductsList(
     ) {
         items(favoritesList) { favorite ->
             ProductCard(
+                context = context,
                 modifier = Modifier.animateItem(),
                 product = favorite.product,
                 onClick = {
@@ -204,7 +213,10 @@ private fun ProductsList(
 @Preview
 @Composable
 private fun FavoriteScreenPreview() {
+    val context = LocalContext.current
+
     FavoriteContent(
+        context = context,
         state = FavoriteScreenState(),
         isNetworkConnected = true
     )

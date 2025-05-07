@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -35,6 +37,8 @@ fun PersonalInfoPage(
     viewModel: PersonalInfoViewModel = hiltViewModel(),
     nextStep: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+
     val state by viewModel.state.collectAsState()
     val event by viewModel.event.collectAsState(initial = PersonalInfoEvent.Idle)
 
@@ -48,6 +52,7 @@ fun PersonalInfoPage(
     }
 
     PersonalInfoContent(
+        context = context,
         state = state,
         onIntent = { intent ->
             viewModel.onIntent(intent)
@@ -59,6 +64,7 @@ fun PersonalInfoPage(
 
 @Composable
 private fun PersonalInfoContent(
+    context: Context,
     state: PersonalInfoScreenState,
     onIntent: (PersonalInfoIntent) -> Unit = {}
 ) {
@@ -78,6 +84,7 @@ private fun PersonalInfoContent(
             Spacer(modifier = Modifier.size(16.dp))
             val flag = Locale("uk", "UA").getFlagEmoji()
             CustomTextInput(
+                context = context,
                 prefixText = "$flag $UKRAINE_PHONE_CODE",
                 placeholder = R.string.new_phone_placeholder,
                 text = state.phone,
@@ -91,6 +98,7 @@ private fun PersonalInfoContent(
             )
             Spacer(modifier = Modifier.size(16.dp))
             CustomTextInput(
+                context = context,
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.first_name_placeholder,
                 text = state.firstName,
@@ -104,6 +112,7 @@ private fun PersonalInfoContent(
             )
             Spacer(modifier = Modifier.size(16.dp))
             CustomTextInput(
+                context = context,
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.last_name_placeholder,
                 text = state.lastName,
@@ -130,7 +139,10 @@ private fun PersonalInfoContent(
 @Preview
 @Composable
 private fun PersonalInfoPagePreview() {
+    val context = LocalContext.current
+
     PersonalInfoContent(
+        context = context,
         state = PersonalInfoScreenState()
     )
 }

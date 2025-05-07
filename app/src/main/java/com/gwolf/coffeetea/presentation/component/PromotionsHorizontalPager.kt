@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -41,7 +42,7 @@ import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
-fun PromotionsComponent(
+fun PromotionsHorizontalPager(
     promotionsList: List<Promotion>
 ) {
     val pagerState = rememberPagerState(
@@ -57,7 +58,7 @@ fun PromotionsComponent(
                 ),
             state = pagerState
         ) { position ->
-            PromotionScreen(
+            Promotion(
                 promotionsList[position],
                 context = context
             )
@@ -80,8 +81,7 @@ private fun BoxScope.PagerIndicator(
 
         repeat(pagerState.pageCount) { iteration ->
             val width by animateDpAsState(targetValue = if (pagerState.currentPage == iteration) 24.dp else 8.dp)
-            val color =
-                if (pagerState.currentPage == iteration) PrimaryDarkColor else Color.White
+            val color = if (pagerState.currentPage == iteration) PrimaryDarkColor else Color.White
             Box(
                 modifier = Modifier
                     .padding(4.dp)
@@ -94,7 +94,7 @@ private fun BoxScope.PagerIndicator(
 }
 
 @Composable
-private fun PromotionScreen(
+private fun Promotion(
     promotion: Promotion,
     context: Context
 ) {
@@ -131,7 +131,7 @@ private fun PromotionScreen(
                 Spacer(Modifier.size(4.dp))
                 Text(
                     modifier = Modifier.padding(end = 120.dp),
-                    text = promotion.description.orEmpty(),
+                    text = promotion.description,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
@@ -142,8 +142,10 @@ private fun PromotionScreen(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun PromotionScreenPreview() {
-//    PromotionScreen()
-//}
+@Preview(showBackground = true)
+@Composable
+private fun PromotionsHorizontalPagerPreview() {
+    PromotionsHorizontalPager(
+        promotionsList = listOf()
+    )
+}

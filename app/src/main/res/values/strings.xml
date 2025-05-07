@@ -143,4 +143,5 @@
     <string name="err_repeat_password_valid">Паролі повинні бути однаковими!</string>
     <string name="err_phone_number_valid">Номер телефону повинен починатися з + і складатися тільки з цифр!</string>
     <string name="err_new_password">Новий пароль повинен відрізнятись від старого!</string>
+    <string name="err_something_went_wrong">Something went wrong.!</string>
 </resources>

@@ -92,9 +92,7 @@ fun SearchBarBottomSheet(
                 trailingIcon = {
                     AnimatedVisibility(query.isNotBlank()) {
                         Icon(
-                            modifier = Modifier.clickable {
-                                onClear.invoke()
-                            },
+                            modifier = Modifier.clickable(onClick = onClear),
                             imageVector = Icons.Outlined.Cancel,
                             contentDescription = null,
                             tint = OnSurfaceColor

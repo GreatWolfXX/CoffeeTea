@@ -179,6 +179,7 @@ private fun ForgotPasswordForm(
     onIntent: (ForgotPasswordIntent) -> Unit
 ) {
     CustomTextInput(
+        context = context,
         icon = Icons.Outlined.MailOutline,
         placeholder = R.string.email_address,
         text = state.email,

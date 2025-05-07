@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gwolf.coffeetea.domain.entities.Category
@@ -27,9 +28,7 @@ fun CategorySmallCard(
     Card(
         modifier = modifier
             .width(80.dp)
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(PrimaryDarkColor),
         shape = RoundedCornerShape(4.dp),
         elevation = CardDefaults.cardElevation(4.dp)
@@ -47,8 +46,17 @@ fun CategorySmallCard(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun CategorySmallCardPreview() {
-//    CategorySmallCard()
-//}
+@Preview(showBackground = true)
+@Composable
+private fun CategorySmallCardPreview() {
+    val category = Category(
+        id = 0,
+        name = "Coffee",
+        imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRlkHl_qadBAMBqFScSWT-C_xhIgZPjlMxQ&s"
+    )
+
+    CategorySmallCard(
+        category = category,
+        onClick = {}
+    )
+}

@@ -46,7 +46,7 @@ fun StepProgressBar(
     modifier: Modifier = Modifier,
     stepsNumber: Int = 3,
     currentStep: Int = 0,
-    listTitles: List<String> = listOf<String>(),
+    listTitles: List<String> = listOf(),
     stepCircleSize: Dp = 32.dp,
     thickness: Dp = 4.dp,
     colorActive: Color = Color(0xFF002C21),

@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,13 +58,17 @@ fun SavedDeliveryAddressCard(
         element.value == typeString
     }
 
-    val icon = when (type!!) {
+    val icon = when (type) {
         SavedDeliveryAddressType.NovaPostDepartment, SavedDeliveryAddressType.NovaPostCabin -> {
-            R.drawable.nova_post
+            ImageVector.vectorResource(R.drawable.nova_post)
         }
 
         SavedDeliveryAddressType.Ukrposhta -> {
-            R.drawable.ukrposhta
+            ImageVector.vectorResource(R.drawable.ukrposhta)
+        }
+
+        else -> {
+            Icons.Default.Warning
         }
     }
 
@@ -78,6 +84,10 @@ fun SavedDeliveryAddressCard(
         SavedDeliveryAddressType.Ukrposhta -> {
             R.string.ukrposhta_departments
         }
+
+        else -> {
+            R.string.err_something_went_wrong
+        }
     }
 
 
@@ -88,6 +98,10 @@ fun SavedDeliveryAddressCard(
 
         SavedDeliveryAddressType.Ukrposhta -> {
             Color.Unspecified
+        }
+
+        else -> {
+            LightRedColor
         }
     }
 
@@ -105,9 +119,7 @@ fun SavedDeliveryAddressCard(
                 color = borderColor
             )
             .padding(16.dp)
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
@@ -121,7 +133,7 @@ fun SavedDeliveryAddressCard(
                 Row {
                     Icon(
                         modifier = Modifier.size(24.dp),
-                        imageVector = ImageVector.vectorResource(icon),
+                        imageVector = icon,
                         contentDescription = null,
                         tint = iconTint
                     )
@@ -197,9 +209,7 @@ fun SavedDeliveryAddressCard(
                         color = LightRedColor
                     )
                     .padding(horizontal = 4.dp, vertical = 8.dp)
-                    .clickable {
-                        onRemove.invoke()
-                    },
+                    .clickable(onClick = onRemove),
                 text = stringResource(R.string.btn_delete),
                 textAlign = TextAlign.Center,
                 fontFamily = robotoFontFamily,

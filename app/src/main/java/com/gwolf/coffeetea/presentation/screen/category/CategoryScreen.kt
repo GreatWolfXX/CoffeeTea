@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.category
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +54,8 @@ fun CategoryScreen(
     navController: NavController,
     viewModel: CategoryViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
@@ -65,6 +69,7 @@ fun CategoryScreen(
     }
 
     CategoryContent(
+        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateToOtherScreen = { screen ->
@@ -80,6 +85,7 @@ fun CategoryScreen(
 
 @Composable
 private fun CategoryContent(
+    context: Context,
     state: CategoryScreenState,
     isNetworkConnected: Boolean,
     navigateToOtherScreen: (Screen) -> Unit = {},
@@ -109,6 +115,7 @@ private fun CategoryContent(
                 )
             } else {
                 CartMainSection(
+                    context = context,
                     state = state,
                     navigateToOtherScreen = navigateToOtherScreen
                 )
@@ -138,9 +145,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = OnSurfaceColor
@@ -154,6 +159,7 @@ private fun TopMenu(
 
 @Composable
 private fun CartMainSection(
+    context: Context,
     state: CategoryScreenState,
     navigateToOtherScreen: (Screen) -> Unit
 ) {
@@ -164,6 +170,7 @@ private fun CartMainSection(
     ) {
         if (state.categoriesList.isNotEmpty()) {
             CategoryList(
+                context = context,
                 categoriesList = state.categoriesList,
                 navigateToOtherScreen = navigateToOtherScreen
             )
@@ -179,6 +186,7 @@ private fun CartMainSection(
 
 @Composable
 private fun CategoryList(
+    context: Context,
     categoriesList: List<Category>,
     navigateToOtherScreen: (Screen) -> Unit
 ) {
@@ -192,6 +200,7 @@ private fun CategoryList(
     ) {
         items(categoriesList) { category ->
             CategoryFullCard(
+                context = context,
                 modifier = Modifier.animateItem(),
                 category = category
             ) {
@@ -210,7 +219,10 @@ private fun CategoryList(
 @Preview
 @Composable
 private fun CategoryScreenPreview() {
+    val context = LocalContext.current
+
     CategoryContent(
+        context = context,
         state = CategoryScreenState(),
         isNetworkConnected = true
     )

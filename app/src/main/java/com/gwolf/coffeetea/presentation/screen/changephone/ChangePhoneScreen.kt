@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.changephone
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -57,6 +59,8 @@ fun ChangePhoneScreen(
     navController: NavController,
     viewModel: ChangePhoneViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
@@ -73,6 +77,7 @@ fun ChangePhoneScreen(
     }
 
     ChangePhoneContent(
+        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateBack = {
@@ -88,6 +93,7 @@ fun ChangePhoneScreen(
 
 @Composable
 private fun ChangePhoneContent(
+    context: Context,
     state: ChangePhoneScreenState,
     isNetworkConnected: Boolean,
     navigateBack: () -> Unit = {},
@@ -117,6 +123,7 @@ private fun ChangePhoneContent(
                 )
             } else {
                 ChangePhoneForm(
+                    context = context,
                     state = state,
                     onIntent = onIntent
                 )
@@ -146,9 +153,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = OnSurfaceColor
@@ -162,6 +167,7 @@ private fun TopMenu(
 
 @Composable
 private fun ChangePhoneForm(
+    context: Context,
     state: ChangePhoneScreenState,
     onIntent: (ChangePhoneIntent) -> Unit
 ) {
@@ -210,6 +216,7 @@ private fun ChangePhoneForm(
             Spacer(modifier = Modifier.size(16.dp))
             val flag = Locale("uk", "UA").getFlagEmoji()
             CustomTextInput(
+                context = context,
                 prefixText = "$flag $UKRAINE_PHONE_CODE",
                 placeholder = R.string.new_phone_placeholder,
                 text = state.phone,
@@ -235,7 +242,10 @@ private fun ChangePhoneForm(
 @Preview
 @Composable
 private fun ChangePhoneScreenPreview() {
+    val context = LocalContext.current
+
     ChangePhoneContent(
+        context = context,
         state = ChangePhoneScreenState(),
         isNetworkConnected = true
     )

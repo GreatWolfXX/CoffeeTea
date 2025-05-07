@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.component
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -43,21 +45,18 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun ProductCard(
+    context: Context,
     modifier: Modifier = Modifier,
     product: Product,
     onClick: () -> Unit,
     onClickBuy: () -> Unit,
     onClickToCart: () -> Unit
 ) {
-    val context = LocalContext.current
-
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(240.dp)
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
@@ -110,7 +109,7 @@ fun ProductCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if(product.cartId.isBlank()) {
+                    if (product.cartId.isBlank()) {
                         Column {
                             Text(
                                 modifier = Modifier,
@@ -132,13 +131,9 @@ fun ProductCard(
                             )
                         }
                         Spacer(Modifier.size(16.dp))
-                        ProductCardBuyBtn {
-                            onClickBuy.invoke()
-                        }
+                        ProductCardBuyBtn(onClick = onClickBuy)
                     } else {
-                        ProductCardToCartBtn {
-                            onClickToCart.invoke()
-                        }
+                        ProductCardToCartBtn(onClick = onClickToCart)
                     }
                 }
                 Spacer(Modifier.size(4.dp))
@@ -167,9 +162,7 @@ private fun ProductCardBuyBtn(
                 color = PrimaryDarkColor,
                 shape = RoundedCornerShape(4.dp)
             )
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -192,9 +185,7 @@ private fun ProductCardToCartBtn(
                 color = PrimaryDarkColor,
                 shape = RoundedCornerShape(4.dp)
             )
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -270,8 +261,31 @@ private fun ProductCardToCartBtn(
 //    }
 //}
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun ProductCardPreview() {
-//    ProductCard()
-//}
+@Preview(showBackground = true)
+@Composable
+private fun ProductCardPreview() {
+    val context = LocalContext.current
+    val product = Product(
+        id = 0,
+        name = "Coffee",
+        stockQuantity = 10,
+        amount = 10.0,
+        unit = "kg",
+        featuresDescription = "featuresDescription",
+        fullDescription = "fullDescription",
+        price = 1099.99,
+        rating = 0.0,
+        imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRlkHl_qadBAMBqFScSWT-C_xhIgZPjlMxQ&s",
+        categoryName = "Coffee",
+        favoriteId = "",
+        cartId = ""
+    )
+
+    ProductCard(
+        context = context,
+        product = product,
+        onClick = {},
+        onClickBuy = {},
+        onClickToCart = {}
+    )
+}

@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.aboutme
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -43,7 +45,7 @@ import com.gwolf.coffeetea.presentation.component.CustomTextInputStyle
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
-import com.gwolf.coffeetea.presentation.component.ProfileMenuComponent
+import com.gwolf.coffeetea.presentation.component.ProfileMenuButton
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
@@ -56,6 +58,8 @@ fun AboutMeScreen(
     navController: NavController,
     viewModel: AboutMeViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
@@ -69,6 +73,7 @@ fun AboutMeScreen(
     }
 
     AboutMeContent(
+        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateToOtherScreen = { screen ->
@@ -87,6 +92,7 @@ fun AboutMeScreen(
 
 @Composable
 private fun AboutMeContent(
+    context: Context,
     state: AboutMeScreenState,
     isNetworkConnected: Boolean,
     navigateToOtherScreen: (Screen) -> Unit = {},
@@ -115,6 +121,7 @@ private fun AboutMeContent(
                 )
             } else {
                 AboutMeForm(
+                    context = context,
                     state = state,
                     navigateToOtherScreen = navigateToOtherScreen,
                     onIntent = onIntent
@@ -145,9 +152,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = OnSurfaceColor
@@ -161,6 +166,7 @@ private fun TopMenu(
 
 @Composable
 private fun AboutMeForm(
+    context: Context,
     state: AboutMeScreenState,
     navigateToOtherScreen: (Screen) -> Unit,
     onIntent: (AboutMeIntent) -> Unit
@@ -184,6 +190,7 @@ private fun AboutMeForm(
             )
             Spacer(modifier = Modifier.size(24.dp))
             CustomTextInput(
+                context = context,
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.first_name_placeholder,
                 text = state.firstName,
@@ -197,6 +204,7 @@ private fun AboutMeForm(
             )
             Spacer(modifier = Modifier.size(8.dp))
             CustomTextInput(
+                context = context,
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.last_name_placeholder,
                 text = state.lastName,
@@ -210,6 +218,7 @@ private fun AboutMeForm(
             )
             Spacer(modifier = Modifier.size(8.dp))
             CustomTextInput(
+                context = context,
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.patronymic_placeholder,
                 text = state.patronymic,
@@ -231,7 +240,7 @@ private fun AboutMeForm(
                 color = Color.Black
             )
             Spacer(modifier = Modifier.size(16.dp))
-            ProfileMenuComponent(
+            ProfileMenuButton(
                 icon = Icons.Outlined.Email,
                 text = state.profile?.email.orEmpty()
             ) {
@@ -239,14 +248,14 @@ private fun AboutMeForm(
             }
             Spacer(modifier = Modifier.size(16.dp))
             val phoneEntered = state.profile?.phone.orEmpty().isNotEmpty()
-            ProfileMenuComponent(
+            ProfileMenuButton(
                 icon = Icons.Outlined.Phone,
                 text = if(phoneEntered) state.profile?.phone.orEmpty() else stringResource(R.string.add_phone)
             ) {
                 navigateToOtherScreen(Screen.ChangePhone(state.profile?.phone.orEmpty()))
             }
             Spacer(modifier = Modifier.size(16.dp))
-            ProfileMenuComponent(
+            ProfileMenuButton(
                 icon = Icons.Outlined.Lock,
                 text = stringResource(R.string.title_password_change)
             ) {
@@ -265,7 +274,10 @@ private fun AboutMeForm(
 @Preview
 @Composable
 private fun AboutMeScreenPreview() {
+    val context = LocalContext.current
+
     AboutMeContent(
+        context = context,
         state = AboutMeScreenState(),
         isNetworkConnected = true
     )

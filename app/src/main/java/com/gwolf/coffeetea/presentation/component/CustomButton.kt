@@ -44,6 +44,7 @@ fun CustomButton(
     val isStandardStyle = style == CustomButtonStyle.STANDARD
     val btnIcon = if(isStandardStyle) icon else ImageVector.vectorResource(R.drawable.google_ic)
     val bgColor = if(isStandardStyle) Color.Transparent else Color.White
+
     Button(
         modifier = Modifier
             .fillMaxWidth()
@@ -58,7 +59,7 @@ fun CustomButton(
         ),
         contentPadding = PaddingValues(16.dp),
         enabled = isEnabled,
-        onClick = { onClick.invoke() }
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -93,6 +94,7 @@ fun CustomButton(
 private fun CustomButtonPreview() {
     CustomButton(
         text = R.string.title_next,
-        style = CustomButtonStyle.STANDARD
-    ) { }
+        style = CustomButtonStyle.STANDARD,
+        onClick = {}
+    )
 }

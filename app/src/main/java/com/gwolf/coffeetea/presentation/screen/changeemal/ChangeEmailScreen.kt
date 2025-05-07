@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.changeemal
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -51,12 +53,13 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.connectivityState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangeEmailScreen(
     navController: NavController,
     viewModel: ChangeEmailViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
@@ -73,6 +76,7 @@ fun ChangeEmailScreen(
     }
 
     ChangeEmailContent(
+        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateBack = {
@@ -88,6 +92,7 @@ fun ChangeEmailScreen(
 
 @Composable
 private fun ChangeEmailContent(
+    context: Context,
     state: ChangeEmailScreenState,
     isNetworkConnected: Boolean,
     navigateBack: () -> Unit = {},
@@ -117,6 +122,7 @@ private fun ChangeEmailContent(
                 )
             } else {
                 ChangeEmailForm(
+                    context = context,
                     state = state,
                     onIntent = onIntent
                 )
@@ -146,9 +152,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = OnSurfaceColor
@@ -163,6 +167,7 @@ private fun TopMenu(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChangeEmailForm(
+    context: Context,
     state: ChangeEmailScreenState,
     onIntent: (ChangeEmailIntent) -> Unit
 ) {
@@ -210,6 +215,7 @@ private fun ChangeEmailForm(
             }
             Spacer(modifier = Modifier.size(16.dp))
             CustomTextInput(
+                context = context,
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.new_email_placeholder,
                 text = state.email,
@@ -251,7 +257,10 @@ private fun ChangeEmailForm(
 @Preview
 @Composable
 private fun ChangeEmailScreenPreview() {
+    val context = LocalContext.current
+
     ChangeEmailContent(
+        context = context,
         state = ChangeEmailScreenState(),
         isNetworkConnected = true
     )

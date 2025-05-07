@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.home
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -43,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,7 +63,7 @@ import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProductCard
 import com.gwolf.coffeetea.presentation.component.ProductSmallCard
-import com.gwolf.coffeetea.presentation.component.PromotionsComponent
+import com.gwolf.coffeetea.presentation.component.PromotionsHorizontalPager
 import com.gwolf.coffeetea.ui.theme.BackgroundColor
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
@@ -74,6 +76,8 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
@@ -90,6 +94,7 @@ fun HomeScreen(
     }
 
     HomeContent(
+        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateToOtherScreen = { screen ->
@@ -105,6 +110,7 @@ fun HomeScreen(
 
 @Composable
 private fun HomeContent(
+    context: Context,
     state: HomeScreenState,
     isNetworkConnected: Boolean,
     navigateToOtherScreen: (Screen) -> Unit = {},
@@ -128,6 +134,7 @@ private fun HomeContent(
             )
         } else {
             HomeMainSection(
+                context = context,
                 state = state,
                 navigateToOtherScreen = navigateToOtherScreen,
                 onIntent = onIntent
@@ -138,6 +145,7 @@ private fun HomeContent(
 
 @Composable
 private fun HomeMainSection(
+    context: Context,
     state: HomeScreenState,
     navigateToOtherScreen: (Screen) -> Unit,
     onIntent: (HomeIntent) -> Unit,
@@ -147,6 +155,7 @@ private fun HomeMainSection(
             .fillMaxSize(),
     ) {
         SearchBarComponent(
+            context = context,
             state = state,
             navigateToOtherScreen = navigateToOtherScreen,
             onIntent = onIntent
@@ -158,7 +167,7 @@ private fun HomeMainSection(
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
         ) {
-            PromotionsComponent(state.promotionsList)
+            PromotionsHorizontalPager(state.promotionsList)
             Spacer(modifier = Modifier.size(16.dp))
             CategoriesList(
                 categoriesList = state.categoriesList,
@@ -166,6 +175,7 @@ private fun HomeMainSection(
             )
             Spacer(modifier = Modifier.size(16.dp))
             ProductsList(
+                context = context,
                 productsList = state.productsList,
                 navigateToOtherScreen = navigateToOtherScreen,
                 onIntent = onIntent
@@ -177,6 +187,7 @@ private fun HomeMainSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchBarComponent(
+    context: Context,
     state: HomeScreenState,
     navigateToOtherScreen: (Screen) -> Unit,
     onIntent: (HomeIntent) -> Unit = {}
@@ -223,7 +234,7 @@ private fun SearchBarComponent(
                             AnimatedVisibility(expanded) {
                                 Icon(
                                     modifier = Modifier.clickable {
-                                        onIntent(HomeIntent.ClearSearch)
+
                                     },
                                     imageVector = Icons.Outlined.Cancel,
                                     contentDescription = null,
@@ -275,6 +286,7 @@ private fun SearchBarComponent(
                 ) {
                     items(state.searchProductsList) { product ->
                         ProductSmallCard(
+                            context = context,
                             modifier = Modifier.animateItem(),
                             product = product,
                             onClick = {
@@ -326,6 +338,7 @@ private fun CategoriesList(
 
 @Composable
 private fun ProductsList(
+    context: Context,
     productsList: List<Product>,
     navigateToOtherScreen: (Screen) -> Unit,
     onIntent: (HomeIntent) -> Unit,
@@ -344,6 +357,7 @@ private fun ProductsList(
     ) {
         items(productsList) { product ->
             ProductCard(
+                context = context,
                 modifier = Modifier.animateItem(),
                 product = product,
                 onClick = {
@@ -364,7 +378,10 @@ private fun ProductsList(
 @Preview
 @Composable
 private fun HomeScreenPreview() {
+    val context = LocalContext.current
+
     HomeContent(
+        context = context,
         state = HomeScreenState(),
         isNetworkConnected = true
     )

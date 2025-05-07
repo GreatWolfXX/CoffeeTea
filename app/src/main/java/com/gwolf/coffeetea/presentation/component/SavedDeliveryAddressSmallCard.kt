@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gwolf.coffeetea.R
+import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.NovaPostColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
@@ -40,13 +43,17 @@ fun SavedDeliveryAddressSmallCard(
         element.value == typeString
     }
 
-    val icon = when (type!!) {
+    val icon = when (type) {
         SavedDeliveryAddressType.NovaPostDepartment, SavedDeliveryAddressType.NovaPostCabin -> {
-            R.drawable.nova_post
+            ImageVector.vectorResource(R.drawable.nova_post)
         }
 
         SavedDeliveryAddressType.Ukrposhta -> {
-            R.drawable.ukrposhta
+            ImageVector.vectorResource(R.drawable.ukrposhta)
+        }
+
+        else -> {
+            Icons.Default.Warning
         }
     }
 
@@ -57,6 +64,10 @@ fun SavedDeliveryAddressSmallCard(
 
         SavedDeliveryAddressType.Ukrposhta -> {
             Color.Unspecified
+        }
+
+        else -> {
+            LightRedColor
         }
     }
 
@@ -78,15 +89,13 @@ fun SavedDeliveryAddressSmallCard(
                 horizontal = 8.dp,
                 vertical = 4.dp
             )
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Icon(
             modifier = Modifier.size(32.dp),
-            imageVector = ImageVector.vectorResource(icon),
+            imageVector = icon,
             contentDescription = null,
             tint = iconTint
         )

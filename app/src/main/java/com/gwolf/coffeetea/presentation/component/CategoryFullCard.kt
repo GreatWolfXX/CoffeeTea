@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.component
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,21 +31,18 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun CategoryFullCard(
+    context: Context,
     modifier: Modifier = Modifier,
     category: Category,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
-
     Card(
         modifier = modifier
             .size(
                 width = 116.dp,
                 height = 144.dp
             )
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(

@@ -134,10 +134,8 @@ private fun RowScope.Filter(
     Row(
         modifier = Modifier
             .weight(0.5f)
-            .clickable {
-                onClick.invoke()
-            }
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -190,9 +188,7 @@ private fun MenuSort(
                     .fillMaxSize()
                     .weight(0.25f)
                     .background(GrayAlpha05)
-                    .clickable {
-                        onDismiss.invoke()
-                    }
+                    .clickable(onClick = onDismiss)
             )
             Column(
                 modifier = Modifier
@@ -241,9 +237,7 @@ private fun MenuSort(
                     }
                     Row(
                         modifier = Modifier
-                            .clickable {
-                                onLowToHighClick.invoke()
-                            },
+                            .clickable(onClick = onLowToHighClick),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
@@ -267,9 +261,7 @@ private fun MenuSort(
                     Spacer(modifier = Modifier.size(16.dp))
                     Row(
                         modifier = Modifier
-                            .clickable {
-                                onHighToLowClick.invoke()
-                            },
+                            .clickable(onClick = onHighToLowClick),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
@@ -293,9 +285,7 @@ private fun MenuSort(
                 }
                 Column(
                     modifier = Modifier
-                        .clickable {
-                            onDismiss.invoke()
-                        }
+                        .clickable(onClick = onDismiss)
                 ) {
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
@@ -340,9 +330,7 @@ private fun MenuFilters(
                     .fillMaxSize()
                     .weight(0.25f)
                     .background(GrayAlpha05)
-                    .clickable {
-                        onDismiss.invoke()
-                    }
+                    .clickable(onClick = onDismiss)
             )
             Column(
                 modifier = Modifier
@@ -385,9 +373,7 @@ private fun MenuFilters(
                 }
                 Column(
                     modifier = Modifier
-                        .clickable {
-                            onDismiss.invoke()
-                        }
+                        .clickable(onClick = onDismiss)
                 ) {
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),

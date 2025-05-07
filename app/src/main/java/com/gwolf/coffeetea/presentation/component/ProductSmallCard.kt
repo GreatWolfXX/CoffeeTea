@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.component
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -44,20 +46,17 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
 fun ProductSmallCard(
+    context: Context,
     modifier: Modifier = Modifier,
     product: Product,
     onClick: () -> Unit,
     onClickBuy: () -> Unit
 ) {
-    val context = LocalContext.current
-
     Card(
         modifier = modifier
             .height(80.dp)
             .fillMaxWidth()
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
@@ -68,9 +67,9 @@ fun ProductSmallCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp),
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            horizontalArrangement = Arrangement.Absolute.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row {
                 AsyncImage(
                     modifier = Modifier
@@ -143,9 +142,7 @@ fun ProductSmallCard(
                     }
                 }
             }
-            ProductCardBuyBtn {
-                onClickBuy.invoke()
-            }
+            ProductCardBuyBtn(onClickBuy)
         }
     }
 }
@@ -162,9 +159,7 @@ private fun ProductCardBuyBtn(
                 color = PrimaryDarkColor,
                 shape = RoundedCornerShape(4.dp)
             )
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -174,4 +169,32 @@ private fun ProductCardBuyBtn(
             tint = Color.White
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProductSmallCardPreview() {
+    val context = LocalContext.current
+    val product = Product(
+        id = 0,
+        name = "Coffee",
+        stockQuantity = 10,
+        amount = 10.0,
+        unit = "kg",
+        featuresDescription = "featuresDescription",
+        fullDescription = "fullDescription",
+        price = 1099.99,
+        rating = 0.0,
+        imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRlkHl_qadBAMBqFScSWT-C_xhIgZPjlMxQ&s",
+        categoryName = "Coffee",
+        favoriteId = "",
+        cartId = ""
+    )
+
+    ProductSmallCard(
+        context = context,
+        product = product,
+        onClick = {},
+        onClickBuy = {}
+    )
 }

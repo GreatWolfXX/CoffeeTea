@@ -55,7 +55,7 @@ import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
-import com.gwolf.coffeetea.presentation.component.ProfileMenuComponent
+import com.gwolf.coffeetea.presentation.component.ProfileMenuButton
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
@@ -170,9 +170,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = OnSurfaceColor
@@ -219,41 +217,41 @@ private fun ProfileMainSection(
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
         Spacer(modifier = Modifier.size(38.dp))
-        ProfileMenuComponent(
+        ProfileMenuButton(
             icon = Icons.Outlined.AccountCircle,
             text = stringResource(R.string.title_about_me)
         ) {
             navigateToOtherScreen(Screen.AboutMe)
         }
         Spacer(modifier = Modifier.size(16.dp))
-        ProfileMenuComponent(
+        ProfileMenuButton(
             icon = Icons.AutoMirrored.Outlined.ListAlt,
             text = stringResource(R.string.title_my_order)
         ) { }
 //        Spacer(modifier = Modifier.size(16.dp))
-//        ProfileMenuComponent(
+//        ProfileMenuButton(
 //            icon = Icons.Outlined.FavoriteBorder,
 //            text = R.string.title_favorites
 //        ){ }
         Spacer(modifier = Modifier.size(16.dp))
-        ProfileMenuComponent(
+        ProfileMenuButton(
             icon = Icons.Outlined.Explore,
             text = stringResource(R.string.title_addresses)
         ) {
             navigateToOtherScreen(Screen.SavedAddresses)
         }
 //        Spacer(modifier = Modifier.size(16.dp))
-//        ProfileMenuComponent(
+//        ProfileMenuButton(
 //            icon = Icons.Outlined.AccountBalanceWallet,
 //            text = R.string.title_my_cards
 //        ) { }
         Spacer(modifier = Modifier.size(16.dp))
-        ProfileMenuComponent(
+        ProfileMenuButton(
             icon = Icons.Outlined.Notifications,
             text = stringResource(R.string.title_notifications)
         ) { }
         Spacer(modifier = Modifier.size(16.dp))
-        ProfileMenuComponent(
+        ProfileMenuButton(
             icon = Icons.AutoMirrored.Outlined.Logout,
             text = stringResource(R.string.title_logout),
             isVisibleArrow = false,
@@ -274,9 +272,7 @@ private fun AccountInfo(
 ) {
     Box(
         modifier = Modifier
-            .clickable {
-                onClick.invoke()
-            }
+            .clickable(onClick = onClick)
     ) {
         val profileMockImg = painterResource(R.drawable.profile_img)
         val profileImg = ImageRequest.Builder(context)

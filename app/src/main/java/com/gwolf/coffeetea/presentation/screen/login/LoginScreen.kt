@@ -196,9 +196,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = Color.White
@@ -218,6 +216,7 @@ private fun LoginForm(
     onIntent: (LoginIntent) -> Unit
 ) {
     CustomTextInput(
+        context = context,
         icon = Icons.Outlined.MailOutline,
         placeholder = R.string.email_address,
         text = state.email,
@@ -231,6 +230,7 @@ private fun LoginForm(
     )
     Spacer(modifier = Modifier.size(4.dp))
     CustomTextInput(
+        context = context,
         icon = Icons.Outlined.Lock,
         placeholder = R.string.password_placeholder,
         text = state.password,

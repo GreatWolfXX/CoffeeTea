@@ -103,7 +103,7 @@ fun OtpBottomSheet(
             Spacer(modifier = Modifier.size(16.dp))
             OhTeePeeInput(
                 value = otpValue,
-                onValueChange = { newValue, isValid ->
+                onValueChange = { newValue, _ ->
                     otpValue = newValue
                 },
                 autoFocusByDefault = false,
@@ -130,7 +130,7 @@ fun OtpBottomSheet(
                 text = R.string.btn_save,
                 isEnabled = otpValue.isNotBlank(),
                 onClick = {
-                    onClickConfirm.invoke(otpValue)
+                    onClickConfirm(otpValue)
                 }
             )
             Spacer(modifier = Modifier.size(8.dp))
@@ -147,9 +147,7 @@ fun OtpBottomSheet(
             Text(
                 modifier = Modifier
                     .padding(4.dp)
-                    .clickable {
-                        onClickResendCode.invoke()
-                    },
+                    .clickable(onClick = onClickResendCode),
                 text = stringResource(id = R.string.resend_code),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,

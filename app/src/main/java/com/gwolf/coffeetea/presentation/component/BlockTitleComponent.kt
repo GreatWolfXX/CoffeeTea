@@ -25,9 +25,7 @@ fun BlockTitleComponent(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(

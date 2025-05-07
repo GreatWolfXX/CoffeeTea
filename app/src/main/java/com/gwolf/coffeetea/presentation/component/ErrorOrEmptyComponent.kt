@@ -45,6 +45,7 @@ fun ErrorOrEmptyComponent(
         ErrorOrEmptyStyle.FAVORITE_EMPTY -> R.drawable.favorites_empty
         ErrorOrEmptyStyle.NETWORK -> R.drawable.network_illustration
     }
+
     Column(
         modifier = Modifier.padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -78,10 +79,7 @@ fun ErrorOrEmptyComponent(
             Box(
                 modifier = Modifier.padding(horizontal = 64.dp)
             ) {
-                CustomButton(text = R.string.btn_back)
-                {
-                    onClick.invoke()
-                }
+                CustomButton(text = R.string.btn_back, onClick = onClick)
             }
         }
     }

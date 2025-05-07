@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.screen.changepassword
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -50,6 +52,8 @@ fun ChangePasswordScreen(
     navController: NavController,
     viewModel: ChangePasswordViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
@@ -66,6 +70,7 @@ fun ChangePasswordScreen(
     }
 
     ChangePasswordContent(
+        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateBack = {
@@ -81,6 +86,7 @@ fun ChangePasswordScreen(
 
 @Composable
 private fun ChangePasswordContent(
+    context: Context,
     state: ChangePasswordScreenState,
     isNetworkConnected: Boolean,
     navigateBack: () -> Unit = {},
@@ -110,6 +116,7 @@ private fun ChangePasswordContent(
                 )
             } else {
                 ChangePasswordForm(
+                    context = context,
                     state = state,
                     onIntent = onIntent
                 )
@@ -139,9 +146,7 @@ private fun TopMenu(
             Icon(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable {
-                        navigateBack()
-                    },
+                    .clickable(onClick = navigateBack),
                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = null,
                 tint = OnSurfaceColor
@@ -155,6 +160,7 @@ private fun TopMenu(
 
 @Composable
 private fun ChangePasswordForm(
+    context: Context,
     state: ChangePasswordScreenState,
     onIntent: (ChangePasswordIntent) -> Unit
 ) {
@@ -169,6 +175,7 @@ private fun ChangePasswordForm(
         Column {
             Spacer(modifier = Modifier.size(16.dp))
             CustomTextInput(
+                context = context,
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.new_password,
                 text = state.newPassword,
@@ -186,6 +193,7 @@ private fun ChangePasswordForm(
             )
             Spacer(modifier = Modifier.size(16.dp))
             CustomTextInput(
+                context = context,
                 icon = Icons.Outlined.MailOutline,
                 placeholder = R.string.repeat_new_password,
                 text = state.repeatNewPassword,
@@ -215,7 +223,10 @@ private fun ChangePasswordForm(
 @Preview
 @Composable
 private fun ChangePasswordScreenPreview() {
+    val context = LocalContext.current
+
     ChangePasswordContent(
+        context = context,
         state = ChangePasswordScreenState(),
         isNetworkConnected = true
     )

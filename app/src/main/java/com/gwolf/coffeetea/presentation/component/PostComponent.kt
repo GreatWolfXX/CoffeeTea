@@ -148,9 +148,7 @@ fun PostComponent(
                         shape = RoundedCornerShape(4.dp)
                     )
                     .padding(16.dp)
-                    .clickable {
-                        onAddressClick.invoke()
-                    },
+                    .clickable(onClick = onAddressClick),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {

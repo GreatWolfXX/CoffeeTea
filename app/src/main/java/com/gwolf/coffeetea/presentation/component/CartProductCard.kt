@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -82,7 +83,7 @@ fun CartProductCard(
             .height(98.dp)
             .fillMaxWidth()
             .clickable {
-                onClick.invoke(product)
+                onClick(product)
             },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -160,9 +161,7 @@ fun CartProductCard(
                     .padding(end = 8.dp),
                 horizontalAlignment = Alignment.End
             ) {
-                CartProductDeleteBtn {
-                    onClickDelete.invoke()
-                }
+                CartProductDeleteBtn(onClick = onClickDelete)
                 Spacer(Modifier.size(10.dp))
                 Text(
                     modifier = Modifier,
@@ -198,9 +197,7 @@ private fun CartProductDeleteBtn(
                 color = LightRedColor,
                 shape = RoundedCornerShape(4.dp)
             )
-            .clickable {
-                onClick.invoke()
-            },
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -240,7 +237,7 @@ private fun CartProductChangeCount(
                 )
                 .clickable {
                     if (enabledMinus) {
-                        onMinus.invoke()
+                        onMinus()
                     }
                 },
             contentAlignment = Alignment.Center
@@ -276,7 +273,7 @@ private fun CartProductChangeCount(
                 )
                 .clickable {
                     if (enabledAdd) {
-                        onAdd.invoke()
+                        onAdd()
                     }
                 },
             contentAlignment = Alignment.Center
@@ -289,4 +286,37 @@ private fun CartProductChangeCount(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CartProductCardPreview() {
+    val product = Product(
+        id = 0,
+        name = "Coffee",
+        stockQuantity = 10,
+        amount = 10.0,
+        unit = "kg",
+        featuresDescription = "featuresDescription",
+        fullDescription = "fullDescription",
+        price = 1099.99,
+        rating = 0.0,
+        imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRlkHl_qadBAMBqFScSWT-C_xhIgZPjlMxQ&s",
+        categoryName = "Coffee",
+        favoriteId = "",
+        cartId = ""
+    )
+    val cart = Cart(
+        cartId = "",
+        productId = 0,
+        quantity = 1,
+        product = product
+    )
+
+    CartProductCard(
+        cart = cart,
+        onClick = {},
+        onClickDelete = {},
+        saveQuantity = {}
+    )
 }

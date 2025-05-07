@@ -30,7 +30,7 @@ import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 
 @Composable
-fun ProfileMenuComponent(
+fun ProfileMenuButton(
     icon: ImageVector,
     text: String,
     isVisibleArrow: Boolean = true,
@@ -40,7 +40,7 @@ fun ProfileMenuComponent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick.invoke() }
+            .clickable(onClick = onClick)
     ) {
         Spacer(modifier = Modifier.size(8.dp))
         Row(
@@ -88,8 +88,8 @@ fun ProfileMenuComponent(
 
 @Preview(showBackground = true)
 @Composable
-private fun ProfileMenuComponentPreview() {
-    ProfileMenuComponent(
+private fun ProfileMenuButtonPreview() {
+    ProfileMenuButton(
         icon = Icons.Outlined.AccountCircle,
         text = stringResource(R.string.title_welcome)
     ) {}

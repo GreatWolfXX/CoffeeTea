@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.component
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
@@ -22,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +47,7 @@ enum class CustomTextInputStyle {
 
 @Composable
 fun CustomTextInput(
+    context: Context,
     icon: ImageVector? = null,
     prefixText: String = "",
     @StringRes placeholder: Int,
@@ -60,8 +61,6 @@ fun CustomTextInput(
     style: CustomTextInputStyle = CustomTextInputStyle.STANDARD
 
 ) {
-    val context = LocalContext.current
-
     val typeKeyboardOptions = when(style) {
         CustomTextInputStyle.PHONE ->  KeyboardOptions(keyboardType = KeyboardType.Phone)
         CustomTextInputStyle.PASSWORD -> KeyboardOptions(keyboardType = KeyboardType.Password)
