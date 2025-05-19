@@ -17,7 +17,7 @@ datastore = "1.1.1"
 googleFonts = "1.7.5"
 materialIcons = "1.7.5"
 splashscreen = "1.0.1"
-supabaseVersion = "3.0.1"
+supabaseVersion = "3.1.4"
 ktorClient = "3.0.1"
 coil = "2.6.0"
 pagingVersion = "3.3.5"
@@ -27,6 +27,7 @@ googlePay = "19.4.0"
 googlePayBtn = "1.1.0"
 coroutinesPlayServices = "1.7.1"
 animationAndroid = "1.7.5"
+timber = "5.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -75,6 +76,7 @@ google-pay = { group = "com.google.android.gms", name = "play-services-wallet", 
 google-pay-btn = { group = "com.google.pay.button", name = "compose-pay-button", version.ref = "googlePayBtn" }
 coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
 androidx-animation-android = { group = "androidx.compose.animation", name = "animation-android", version.ref = "animationAndroid" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

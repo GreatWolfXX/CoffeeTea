@@ -8,4 +8,10 @@ interface ProductRepository {
     fun getProductById(productId: Int): Flow<ProductEntity?>
     fun getProductsByCategory(categoryId: Int): Flow<List<ProductEntity>>
     fun searchProducts(search: String): Flow<List<ProductEntity>>
+    fun getMinAndMaxProductPriceByCategory(categoryId: Int): Flow<ClosedFloatingPointRange<Float>>
+    fun getProductsByCategoryWithFilters(
+        categoryId: Int,
+        isDescending: Boolean,
+        priceRange: ClosedFloatingPointRange<Float>
+    ): Flow<List<ProductEntity>>
 }

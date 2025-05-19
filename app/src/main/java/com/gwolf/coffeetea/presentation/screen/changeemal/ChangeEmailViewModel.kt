@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.changeemal
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,7 +9,6 @@ import com.gwolf.coffeetea.domain.usecase.database.update.ChangeEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -21,6 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class ChangeEmailScreenState(
@@ -161,7 +160,7 @@ class ChangeEmailViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading change email screen data: ${e.message}")
+                Timber.d("Error loading change email screen data: ${e.message}")
             }
         }
     }

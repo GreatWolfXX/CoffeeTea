@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 
-class GetCartProductsListUseCase @Inject constructor(
+class GetCartProductsUseCase @Inject constructor(
     private val cartRepository: CartRepository,
     private val storage: Storage
 ) {

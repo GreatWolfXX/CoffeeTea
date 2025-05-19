@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.aboutme
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Profile
@@ -8,7 +7,6 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateNameInfoUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -21,6 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class AboutMeScreenState(
@@ -151,7 +150,7 @@ class AboutMeViewModel @Inject constructor(
                 awaitAll(profile)
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading about me screen data: ${e.message}")
+                Timber.d("Error loading about me screen data: ${e.message}")
             }
         }
     }

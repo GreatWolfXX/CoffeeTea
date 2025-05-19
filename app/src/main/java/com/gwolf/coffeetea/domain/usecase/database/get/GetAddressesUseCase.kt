@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
-class GetAddressListUseCase @Inject constructor(
+class GetAddressesUseCase @Inject constructor(
     private val addressRepository: AddressRepository,
     private val storage: Storage
 ) {

@@ -1,15 +1,13 @@
 package com.gwolf.coffeetea.presentation.screen.cart
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Cart
-import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveCartProductUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateCartProductQuantityUseCase
 import com.gwolf.coffeetea.presentation.screen.login.LoginEvent
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -22,6 +20,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class CartScreenState(
@@ -43,7 +42,7 @@ sealed class CartEvent {
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val getCartProductsListUseCase: GetCartProductsListUseCase,
+    private val getCartProductsListUseCase: GetCartProductsUseCase,
     private val removeCartProductUseCase: RemoveCartProductUseCase,
     private val updateCartProductQuantityUseCase: UpdateCartProductQuantityUseCase
 ) : ViewModel() {
@@ -153,9 +152,9 @@ class CartViewModel @Inject constructor(
 
             try {
                 awaitAll(product)
-                _state.update { it.copy(isLoading = false,) }
+                _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading cart screen data: ${e.message}")
+                Timber.d("Error loading cart screen data: ${e.message}")
             }
         }
     }

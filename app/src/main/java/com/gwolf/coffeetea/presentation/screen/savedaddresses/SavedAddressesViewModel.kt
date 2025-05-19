@@ -1,14 +1,12 @@
 package com.gwolf.coffeetea.presentation.screen.savedaddresses
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Address
-import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressesUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveSavedDeliveryUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateSavedAddressUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -19,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class SavedAddressesScreenState(
@@ -34,7 +33,7 @@ sealed class SavedAddressesIntent {
 
 @HiltViewModel
 class SavedAddressesViewModel @Inject constructor(
-    private val getAddressListUseCase: GetAddressListUseCase,
+    private val getAddressListUseCase: GetAddressesUseCase,
     private val updateSavedAddressUseCase: UpdateSavedAddressUseCase,
     private val removeSavedDeliveryUseCase: RemoveSavedDeliveryUseCase,
 ) : ViewModel() {
@@ -140,7 +139,7 @@ class SavedAddressesViewModel @Inject constructor(
                 awaitAll(addresses)
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading saved addresses screen data: ${e.message}")
+                Timber.d("Error loading saved addresses screen data: ${e.message}")
             }
         }
     }

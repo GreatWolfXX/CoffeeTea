@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.home
 
-import android.util.Log
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,13 +7,12 @@ import com.gwolf.coffeetea.domain.entities.Category
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.domain.entities.Promotion
 import com.gwolf.coffeetea.domain.usecase.database.add.AddCartProductUseCase
-import com.gwolf.coffeetea.domain.usecase.database.get.GetCategoriesListUseCase
-import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsListUseCase
-import com.gwolf.coffeetea.domain.usecase.database.get.GetPromotionsListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetCategoriesUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetPromotionsUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.SearchProductsUseCase
 import com.gwolf.coffeetea.util.ADD_TO_CART_COUNT
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
@@ -32,6 +30,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class HomeScreenState(
@@ -63,9 +62,9 @@ sealed class HomeEvent {
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getPromotionsListUseCase: GetPromotionsListUseCase,
-    private val getCategoriesListUseCase: GetCategoriesListUseCase,
-    private val getProductsListUseCase: GetProductsListUseCase,
+    private val getPromotionsListUseCase: GetPromotionsUseCase,
+    private val getCategoriesListUseCase: GetCategoriesUseCase,
+    private val getProductsListUseCase: GetProductsUseCase,
     private val searchProductsUseCase: SearchProductsUseCase,
     private val addCartProductUseCase: AddCartProductUseCase,
 ) : ViewModel() {
@@ -133,12 +132,10 @@ class HomeViewModel @Inject constructor(
             .debounce(1000)
             .distinctUntilChanged()
             .onEach {
-                Log.d("Coffee&TeaLogger", "EACH")
                 _state.update { it.copy(searchProductsList = listOf()) }
             }
             .filter { it.isNotBlank() }
             .collect { query ->
-                Log.d("Coffee&TeaLogger", "COLLECT")
                 getSearchProducts(query)
             }
     }
@@ -222,7 +219,7 @@ class HomeViewModel @Inject constructor(
                 setupSearchDebounce()
 
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading home screen data: ${e.message}")
+                Timber.d("Error loading home screen data: ${e.message}")
             }
         }
     }

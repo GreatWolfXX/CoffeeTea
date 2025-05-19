@@ -22,7 +22,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -31,7 +30,6 @@ import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.navigation.SetupNavGraph
 import com.gwolf.coffeetea.presentation.component.BottomBar
 import com.gwolf.coffeetea.ui.theme.CoffeeTeaTheme
-import com.gwolf.coffeetea.ui.theme.StatusBarBackgroundColor
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -49,13 +47,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(
-                scrim = StatusBarBackgroundColor.toArgb(),
-            ),
-            navigationBarStyle = SystemBarStyle.light(
-                scrim = Color.TRANSPARENT,
-                darkScrim = Color.TRANSPARENT
-            )
+            statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
         )
 
         setContent {
@@ -122,34 +114,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-//fun Activity.updateStatusBarIconColor() {
-//    val statusBarColor = window.statusBarColor
-//    val isColorLight = ColorUtils.calculateLuminance(statusBarColor) > 0.5
-//
-//    if (isColorLight) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            window?.insetsController?.setSystemBarsAppearance(
-//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-//            )
-//        } else {
-//            val windowInsetController = window?.decorView?.let {
-//                ViewCompat.getWindowInsetsController(it)
-//            }
-//            windowInsetController?.isAppearanceLightStatusBars = true
-//        }
-//    } else {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            window?.insetsController?.setSystemBarsAppearance(
-//                0,
-//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-//            )
-//        } else {
-//            val windowInsetController = window?.decorView?.let {
-//                ViewCompat.getWindowInsetsController(it)
-//            }
-//            windowInsetController?.isAppearanceLightStatusBars = false
-//        }
-//    }
-//}

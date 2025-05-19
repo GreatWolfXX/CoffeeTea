@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.productinfo
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +11,6 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetProductByIdUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveFavoriteUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.PRODUCT_ADD_CART_QUANTITY
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +24,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class ProductInfoScreenState(
@@ -187,7 +186,7 @@ class ProductInfoViewModel @Inject constructor(
                 awaitAll(product)
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading product info screen data: ${e.message}")
+                Timber.d("Error loading product info screen data: ${e.message}")
             }
         }
     }

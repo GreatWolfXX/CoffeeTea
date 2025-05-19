@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Profile
@@ -8,7 +7,6 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePhoneUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UKRAINE_PHONE_CODE
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +20,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class PersonalInfoScreenState(
@@ -126,7 +125,7 @@ class PersonalInfoViewModel @Inject constructor(
 
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading personal info page data: ${e.message}")
+                Timber.d("Error loading personal info page data: ${e.message}")
             }
         }
     }

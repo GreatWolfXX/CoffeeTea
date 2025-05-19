@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.tasks.Task
@@ -9,7 +8,6 @@ import com.google.android.gms.wallet.PaymentDataRequest
 import com.google.android.gms.wallet.PaymentsClient
 import com.gwolf.coffeetea.domain.usecase.googlepay.IsReadyToGPayUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import com.gwolf.coffeetea.util.getPaymentDataRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class PaymentScreenState(
@@ -53,7 +52,7 @@ class PaymentViewModel @Inject constructor(
 
     private var _event: Channel<PaymentEvent> = Channel()
     val event = _event.receiveAsFlow()
-    
+
     fun onIntent(intent: PaymentIntent) {
         when (intent) {
             is PaymentIntent.RequestPayment -> {
@@ -91,9 +90,9 @@ class PaymentViewModel @Inject constructor(
                 isGooglePayAvailable()
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading payment page data: ${e.message}")
+                Timber.d("Error loading payment page data: ${e.message}")
             }
         }
     }
-    
+
 }

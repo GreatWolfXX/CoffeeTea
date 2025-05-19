@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
-import android.util.Log
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,12 +7,11 @@ import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.entities.City
 import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.domain.usecase.database.add.AddAddressUseCase
-import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressesUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetCityBySearchUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetDepartmentsUseCase
 import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressType
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
@@ -31,6 +29,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class DeliveryScreenState(
@@ -83,7 +82,7 @@ sealed class DeliveryEvent {
 class DeliveryViewModel @Inject constructor(
     private val getCityBySearchUseCase: GetCityBySearchUseCase,
     private val getDepartmentsUseCase: GetDepartmentsUseCase,
-    private val getAddressUseCase: GetAddressListUseCase,
+    private val getAddressUseCase: GetAddressesUseCase,
     private val addAddressUseCase: AddAddressUseCase
 ) : ViewModel() {
 
@@ -357,7 +356,7 @@ class DeliveryViewModel @Inject constructor(
                 setupSearchAddressDebounce()
                 setupSearchDepartmentDebounce()
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading delivery page data: ${e.message}")
+                Timber.d("Error loading delivery page data: ${e.message}")
             }
         }
     }

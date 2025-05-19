@@ -1,12 +1,10 @@
 package com.gwolf.coffeetea.presentation.screen.favorite
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Favorite
-import com.gwolf.coffeetea.domain.usecase.database.get.GetFavoritesListUseCase
+import com.gwolf.coffeetea.domain.usecase.database.get.GetFavoritesUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -17,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class FavoriteScreenState(
@@ -27,7 +26,7 @@ data class FavoriteScreenState(
 
 @HiltViewModel
 class FavoriteViewModel @Inject constructor(
-    private val getFavoritesListUseCase: GetFavoritesListUseCase
+    private val getFavoritesListUseCase: GetFavoritesUseCase
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(FavoriteScreenState())
@@ -60,7 +59,7 @@ class FavoriteViewModel @Inject constructor(
                 awaitAll(productsList)
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading favorite screen data: ${e.message}")
+                Timber.d("Error loading favorite screen data: ${e.message}")
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.changepassword
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.R
@@ -8,7 +7,6 @@ import com.gwolf.coffeetea.domain.usecase.database.update.ChangePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateRepeatPasswordUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.LOGGER_TAG
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -19,6 +17,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class ChangePasswordScreenState(
@@ -118,7 +117,7 @@ class ChangePasswordViewModel @Inject constructor(
             try {
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Log.e(LOGGER_TAG, "Error loading change password screen data: ${e.message}")
+                Timber.d("Error loading change password screen data: ${e.message}")
             }
         }
     }
