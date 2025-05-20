@@ -109,7 +109,7 @@ fun ProductCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (product.cartId.isBlank()) {
+                    if (product.cartItemId.isBlank()) {
                         Column {
                             Text(
                                 modifier = Modifier,
@@ -266,19 +266,19 @@ private fun ProductCardToCartBtn(
 private fun ProductCardPreview() {
     val context = LocalContext.current
     val product = Product(
-        id = 0,
+        id = "",
         name = "Coffee",
         stockQuantity = 10,
-        amount = 10.0,
+        amount = "10.0",
         unit = "kg",
         featuresDescription = "featuresDescription",
         fullDescription = "fullDescription",
         price = 1099.99,
         rating = 0.0,
         imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRlkHl_qadBAMBqFScSWT-C_xhIgZPjlMxQ&s",
-        categoryName = "Coffee",
+        categoryName = "",
         favoriteId = "",
-        cartId = ""
+        cartItemId = ""
     )
 
     ProductCard(

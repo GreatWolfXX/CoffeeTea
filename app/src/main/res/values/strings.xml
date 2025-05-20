@@ -132,6 +132,8 @@
     <string name="title_to">до</string>
     <string name="title_categories_empty">Список категорій порожній</string>
     <string name="desc_categories_empty">Наразі cписок категорій порожній.\nВ найближчий час ця сторінка буде заповнена!</string>
+    <string name="quantity">Кількість: %1$d</string>
+    <string name="product_list">Список товарів</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_field_must_contains_letters">Поле має містити лише літери!</string>

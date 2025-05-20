@@ -50,7 +50,7 @@ class ProductInfoViewModel @Inject constructor(
     private val getProductByIdUseCase: GetProductByIdUseCase,
     private val addFavoriteUseCase: AddFavoriteUseCase,
     private val removeFavoriteUseCase: RemoveFavoriteUseCase,
-    private val addCartProductUseCase: AddCartProductUseCase,
+    private val addCartItemProductUseCase: AddCartProductUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -82,7 +82,7 @@ class ProductInfoViewModel @Inject constructor(
 
     private fun addToCart() {
         viewModelScope.launch {
-            addCartProductUseCase.invoke(
+            addCartItemProductUseCase.invoke(
                 _state.value.product?.id!!,
                 PRODUCT_ADD_CART_QUANTITY
             )
@@ -133,7 +133,12 @@ class ProductInfoViewModel @Inject constructor(
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
-                            _state.update { it.copy(isFavorite = true) }
+                            _state.update { it.copy(
+                                isFavorite = true,
+                                product = it.product?.copy(
+                                    favoriteId = response.data.id
+                                )
+                            ) }
                         }
 
                         is DataResult.Error -> {
@@ -149,7 +154,7 @@ class ProductInfoViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getProduct(productId: Int) {
+    private suspend fun getProduct(productId: String) {
         getProductByIdUseCase.invoke(productId).collect { response ->
             when (response) {
                 is DataResult.Success -> {
@@ -157,7 +162,7 @@ class ProductInfoViewModel @Inject constructor(
                         it.copy(
                             product = response.data,
                             isFavorite = response.data.favoriteId.isNotBlank(),
-                            isInCart = response.data.cartId.isNotBlank()
+                            isInCart = response.data.cartItemId.isNotBlank()
                         )
                     }
                 }

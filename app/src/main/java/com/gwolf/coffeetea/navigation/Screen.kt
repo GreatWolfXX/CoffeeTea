@@ -26,11 +26,11 @@ sealed class Screen() {
 
     @Serializable
     data class ProductInfo(
-        val productId: Int
+        val productId: String
     ): Screen()
     @Serializable
     data class SearchByCategory(
-        val categoryId: Int,
+        val categoryId: String,
         val categoryName: String
     ): Screen()
     @Serializable

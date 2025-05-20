@@ -2,8 +2,8 @@ package com.gwolf.coffeetea.data.repository.remote.api
 
 import com.gwolf.coffeetea.BuildConfig
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostBody
-import com.gwolf.coffeetea.data.dto.novapost.NovaPostCityEntity
-import com.gwolf.coffeetea.data.dto.novapost.NovaPostDepartmentsEntity
+import com.gwolf.coffeetea.data.dto.novapost.NovaPostCityDto
+import com.gwolf.coffeetea.data.dto.novapost.NovaPostDepartmentsDto
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostProperties
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostResponse
 import com.gwolf.coffeetea.domain.repository.remote.api.NovaPostRepository
@@ -25,7 +25,7 @@ import javax.inject.Inject
 class NovaPostRepositoryImpl @Inject constructor(
     private val httpClient: HttpClient
 ) : NovaPostRepository {
-    override fun getCitiesBySearch(query: String): Flow<List<NovaPostCityEntity>> = callbackFlow {
+    override fun getCitiesBySearch(query: String): Flow<List<NovaPostCityDto>> = callbackFlow {
         val novaPostProperties = NovaPostProperties.GetCity(
             findByString = query
         )
@@ -38,7 +38,7 @@ class NovaPostRepositoryImpl @Inject constructor(
         val response = httpClient.post(NOVA_POST_API) {
             contentType(ContentType.Application.Json)
             setBody(novaPostBody)
-        }.body<NovaPostResponse<NovaPostCityEntity>>().data
+        }.body<NovaPostResponse<NovaPostCityDto>>().data
         trySend(response)
         close()
         awaitClose()
@@ -48,7 +48,7 @@ class NovaPostRepositoryImpl @Inject constructor(
         typeByRef: String,
         cityRef: String,
         query: String
-    ): Flow<List<NovaPostDepartmentsEntity>> = callbackFlow {
+    ): Flow<List<NovaPostDepartmentsDto>> = callbackFlow {
         val novaPostProperties = NovaPostProperties.GetDepartments(
             cityRef = cityRef,
             typeOfWarehouseRef = typeByRef,
@@ -63,7 +63,7 @@ class NovaPostRepositoryImpl @Inject constructor(
         val response = httpClient.post(NOVA_POST_API) {
             contentType(ContentType.Application.Json)
             setBody(novaPostBody)
-        }.body<NovaPostResponse<NovaPostDepartmentsEntity>>().data
+        }.body<NovaPostResponse<NovaPostDepartmentsDto>>().data
         trySend(response)
         close()
         awaitClose()

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
+import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
@@ -85,6 +86,9 @@ fun CheckoutScreen(
     CheckoutContent(
         state = state,
         isNetworkConnected = isNetworkConnected,
+        navigateToOtherScreen = { screen ->
+            navController.navigate(screen)
+        },
         navigateBack = {
             navController.navigateUp()
         },
@@ -101,6 +105,7 @@ fun CheckoutScreen(
 private fun CheckoutContent(
     state: CheckoutScreenState,
     isNetworkConnected: Boolean,
+    navigateToOtherScreen: (Screen) -> Unit,
     navigateBack: () -> Unit = {},
     onIntent: (CheckoutIntent) -> Unit = {},
     pagerState: PagerState
@@ -133,6 +138,7 @@ private fun CheckoutContent(
             } else {
                 CheckoutMainSection(
                     state = state,
+                    navigateToOtherScreen = navigateToOtherScreen,
                     onIntent = onIntent,
                     pagerState = pagerState
                 )
@@ -186,6 +192,7 @@ private fun TopMenu(
 @Composable
 private fun CheckoutMainSection(
     state: CheckoutScreenState,
+    navigateToOtherScreen: (Screen) -> Unit,
     onIntent: (CheckoutIntent) -> Unit,
     pagerState: PagerState
 ) {
@@ -218,7 +225,8 @@ private fun CheckoutMainSection(
                 when (position) {
                     0 -> {
                         DeliveryPage {
-                            onIntent(CheckoutIntent.SetStepBar(state.currentStepBar.inc()))
+                            val step = state.currentStepBar.inc()
+                            onIntent(CheckoutIntent.SetStepBar(step))
                         }
                     }
 
@@ -229,7 +237,7 @@ private fun CheckoutMainSection(
                     }
 
                     2 -> {
-                        PaymentPage()
+                        PaymentPage(navigateToOtherScreen)
                     }
                 }
             }

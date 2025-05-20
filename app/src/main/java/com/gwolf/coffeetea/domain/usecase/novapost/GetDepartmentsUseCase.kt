@@ -5,7 +5,7 @@ import com.gwolf.coffeetea.domain.repository.remote.api.NovaPostRepository
 import com.gwolf.coffeetea.util.NOVA_POST_CARGO_DEPARTMENT_REF
 import com.gwolf.coffeetea.util.NOVA_POST_DEPARTMENT_REF
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.domain.toDomain
+import com.gwolf.coffeetea.data.toDomain
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

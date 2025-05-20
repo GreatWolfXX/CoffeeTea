@@ -66,7 +66,7 @@ class HomeViewModel @Inject constructor(
     private val getCategoriesListUseCase: GetCategoriesUseCase,
     private val getProductsListUseCase: GetProductsUseCase,
     private val searchProductsUseCase: SearchProductsUseCase,
-    private val addCartProductUseCase: AddCartProductUseCase,
+    private val addCartItemProductUseCase: AddCartProductUseCase,
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(HomeScreenState())
@@ -97,7 +97,7 @@ class HomeViewModel @Inject constructor(
 
     private fun addToCart(product: Product) {
         viewModelScope.launch {
-            addCartProductUseCase.invoke(product.id, ADD_TO_CART_COUNT)
+            addCartItemProductUseCase.invoke(product.id, ADD_TO_CART_COUNT)
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
@@ -109,7 +109,7 @@ class HomeViewModel @Inject constructor(
                                             ?.let { index ->
                                                 val cartProduct =
                                                     _state.value.productsList[index].copy(
-                                                        cartId = response.data
+                                                        id = response.data
                                                     )
                                                 set(index, cartProduct)
                                             }

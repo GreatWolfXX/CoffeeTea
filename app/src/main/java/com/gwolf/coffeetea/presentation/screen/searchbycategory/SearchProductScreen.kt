@@ -177,6 +177,7 @@ private fun SearchProductContent(
 
         MenuSort(
             isOpen = menuStateSort,
+            isDescending = state.isDescending,
             onSortingStateChanged = { value ->
                 onIntent(SearchProductIntent.ChangeSort(isDescending = value))
             },

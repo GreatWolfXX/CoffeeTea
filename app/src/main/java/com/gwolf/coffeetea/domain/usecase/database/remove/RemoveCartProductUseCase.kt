@@ -12,7 +12,7 @@ class RemoveCartProductUseCase @Inject constructor(
 ) {
     operator fun invoke(cartId: String): Flow<DataResult<Unit>> = callbackFlow {
         try {
-            cartRepository.removeCart(cartId).collect { response ->
+            cartRepository.removeCartItem(cartId).collect { response ->
                 trySend(DataResult.Success(data = response))
             }
         } catch (e: Exception) {

@@ -5,12 +5,12 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
     fun getProducts(): Flow<List<ProductEntity>>
-    fun getProductById(productId: Int): Flow<ProductEntity?>
-    fun getProductsByCategory(categoryId: Int): Flow<List<ProductEntity>>
+    fun getProductById(productId: String): Flow<ProductEntity?>
+    fun getProductsByCategory(categoryId: String): Flow<List<ProductEntity>>
     fun searchProducts(search: String): Flow<List<ProductEntity>>
-    fun getMinAndMaxProductPriceByCategory(categoryId: Int): Flow<ClosedFloatingPointRange<Float>>
+    fun getMinAndMaxProductPriceByCategory(categoryId: String): Flow<ClosedFloatingPointRange<Float>>
     fun getProductsByCategoryWithFilters(
-        categoryId: Int,
+        categoryId: String,
         isDescending: Boolean,
         priceRange: ClosedFloatingPointRange<Float>
     ): Flow<List<ProductEntity>>

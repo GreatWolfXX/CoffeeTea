@@ -10,9 +10,9 @@ import javax.inject.Inject
 class AddCartProductUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    operator fun invoke(productId: Int, quantity: Int): Flow<DataResult<String>> = callbackFlow {
+    operator fun invoke(productId: String, quantity: Int): Flow<DataResult<String>> = callbackFlow {
         try {
-            cartRepository.addCart(productId, quantity).collect { response ->
+            cartRepository.addCartItem(productId, quantity).collect { response ->
                 if (response != null) {
                     trySend(DataResult.Success(data = response))
                 } else {

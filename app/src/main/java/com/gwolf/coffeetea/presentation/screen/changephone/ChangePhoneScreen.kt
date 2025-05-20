@@ -71,7 +71,7 @@ fun ChangePhoneScreen(
         when (event) {
             is ChangePhoneEvent.Idle -> {}
             is ChangePhoneEvent.Navigate -> {
-                navController.popBackStack()
+                navController.navigateUp()
             }
         }
     }

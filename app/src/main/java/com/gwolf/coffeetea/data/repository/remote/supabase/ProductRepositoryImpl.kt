@@ -24,9 +24,9 @@ class ProductRepositoryImpl @Inject constructor(
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(PRODUCTS_TABLE)
-                .select(Columns.raw("*, cart: cart(*)")) {
+                .select(Columns.raw("*, cart_items(*)")) {
                     filter {
-                        eq("cart.user_id", id)
+                        eq("cart_items.user_id", id)
                     }
                 }
                 .decodeList<ProductEntity>()
@@ -34,15 +34,15 @@ class ProductRepositoryImpl @Inject constructor(
         emit(response)
     }
 
-    override fun getProductById(productId: Int): Flow<ProductEntity?> = flow {
+    override fun getProductById(productId: String): Flow<ProductEntity?> = flow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(PRODUCTS_TABLE)
-                .select(Columns.raw("*, categories(*), favorites(*), cart(*)")) {
+                .select(Columns.raw("*, categories(*), favorites(*), cart_items(*)")) {
                     filter {
-                        eq("product_id", productId)
+                        eq("id", productId)
                         eq("favorites.user_id", id)
-                        eq("cart.user_id", id)
+                        eq("cart_items.user_id", id)
                     }
                     limit(1)
                 }
@@ -51,7 +51,7 @@ class ProductRepositoryImpl @Inject constructor(
         emit(response)
     }
 
-    override fun getProductsByCategory(categoryId: Int): Flow<List<ProductEntity>> = flow {
+    override fun getProductsByCategory(categoryId: String): Flow<List<ProductEntity>> = flow {
         val response = withContext(Dispatchers.IO) {
             postgrest.from(PRODUCTS_TABLE)
                 .select(Columns.raw("*, categories(*)")) {
@@ -82,7 +82,7 @@ class ProductRepositoryImpl @Inject constructor(
         emit(response)
     }
 
-    override fun getMinAndMaxProductPriceByCategory(categoryId: Int): Flow<ClosedFloatingPointRange<Float>> =
+    override fun getMinAndMaxProductPriceByCategory(categoryId: String): Flow<ClosedFloatingPointRange<Float>> =
         flow {
             val response = withContext(Dispatchers.IO) {
                 postgrest.from(PRODUCTS_TABLE)
@@ -99,7 +99,7 @@ class ProductRepositoryImpl @Inject constructor(
         }
 
     override fun getProductsByCategoryWithFilters(
-        categoryId: Int,
+        categoryId: String,
         isDescending: Boolean,
         priceRange: ClosedFloatingPointRange<Float>
     ): Flow<List<ProductEntity>> = flow {

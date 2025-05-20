@@ -6,11 +6,15 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.wallet.PaymentData
 import com.google.android.gms.wallet.PaymentDataRequest
 import com.google.android.gms.wallet.PaymentsClient
+import com.gwolf.coffeetea.domain.entities.CartItem
+import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsUseCase
 import com.gwolf.coffeetea.domain.usecase.googlepay.IsReadyToGPayUseCase
 import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import com.gwolf.coffeetea.util.getPaymentDataRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +27,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 data class PaymentScreenState(
+    val cartProductsList: List<CartItem> = listOf(),
     val isGooglePayAvailable: Boolean = false,
     val paymentDataTask: Task<PaymentData>? = null,
     val isLoading: Boolean = false,
@@ -30,7 +35,7 @@ data class PaymentScreenState(
 )
 
 sealed class PaymentIntent {
-    data class RequestPayment(val price: String) : PaymentIntent()
+    data object RequestPayment : PaymentIntent()
 }
 
 sealed class PaymentEvent {
@@ -39,6 +44,7 @@ sealed class PaymentEvent {
 
 @HiltViewModel
 class PaymentViewModel @Inject constructor(
+    private val getCartItemProductsListUseCase: GetCartProductsUseCase,
     private val isReadyToGPayUseCase: IsReadyToGPayUseCase,
     private val paymentsClient: PaymentsClient
 ) : ViewModel() {
@@ -56,7 +62,7 @@ class PaymentViewModel @Inject constructor(
     fun onIntent(intent: PaymentIntent) {
         when (intent) {
             is PaymentIntent.RequestPayment -> {
-                getLoadPaymentDataTask(intent.price)
+                getLoadPaymentDataTask()
             }
         }
     }
@@ -75,18 +81,39 @@ class PaymentViewModel @Inject constructor(
         }
     }
 
-    private fun getLoadPaymentDataTask(price: String) {
-        val paymentDataRequestJson = getPaymentDataRequest(price)
+    private fun getLoadPaymentDataTask() {
+        val paymentDataRequestJson = getPaymentDataRequest(state.value.cartProductsList)
+        Timber.d("Payment Data Request: $paymentDataRequestJson")
         val request = PaymentDataRequest.fromJson(paymentDataRequestJson.toString())
         val task = paymentsClient.loadPaymentData(request)
         _state.update { it.copy(paymentDataTask = task) }
     }
 
+    private suspend fun getProducts() {
+        getCartItemProductsListUseCase.invoke().collect { response ->
+            when (response) {
+                is DataResult.Success -> {
+                    _state.update { it.copy(cartProductsList = response.data) }
+                }
+
+                is DataResult.Error -> {
+                    _state.update {
+                        it.copy(
+                            error = UiText.DynamicString(response.exception.message.orEmpty())
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     init {
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
+            val product = async { getProducts() }
 
             try {
+                awaitAll(product)
                 isGooglePayAvailable()
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {

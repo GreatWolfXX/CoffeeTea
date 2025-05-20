@@ -1,8 +1,10 @@
 package com.gwolf.coffeetea.util
 
+import com.gwolf.coffeetea.domain.entities.CartItem
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import timber.log.Timber
 
 private val baseRequest = JSONObject()
     .put("apiVersion", 2)
@@ -48,17 +50,36 @@ fun isReadyToPayRequest(): JSONObject? =
 private val merchantInfo: JSONObject =
     JSONObject().put("merchantName", "Example Merchant")
 
-private fun getTransactionInfo(price: String): JSONObject =
-    JSONObject()
-        .put("totalPrice", price)
-        .put("totalPriceStatus", "FINAL")
+private fun getTransactionInfo(cartItems: List<CartItem>): JSONObject {
+    val totalPrice = cartItems.sumOf { it.product.price * it.quantity }
+
+    val displayItems = JSONArray().apply {
+        cartItems.forEach { item ->
+            val label = "${item.product.name} ${item.product.amount} ${item.product.unit} x${item.quantity}"
+            val price = item.product.price * item.quantity
+            Timber.d("Google Pay product order label: $label")
+            put(JSONObject().apply {
+                put("label", label)
+                put("type", "LINE_ITEM")
+                put("price", "$price")
+            })
+        }
+    }
+
+    return JSONObject()
+        .put("displayItems", displayItems)
         .put("countryCode", COUNTRY_CODE)
         .put("currencyCode", CURRENCY_CODE)
+        .put("totalPriceStatus", "FINAL")
+        .put("totalPrice", "$totalPrice")
+        .put("totalPriceLabel", "Total")
+}
 
-fun getPaymentDataRequest(price: String): JSONObject =
+
+fun getPaymentDataRequest(products: List<CartItem>): JSONObject =
     baseRequest
         .put("allowedPaymentMethods", allowedPaymentMethods)
-        .put("transactionInfo", getTransactionInfo(price))
+        .put("transactionInfo", getTransactionInfo(products))
         .put("merchantInfo", merchantInfo)
 //            .put("shippingAddressRequired", false)
 //            .put("shippingAddressParameters", JSONObject()

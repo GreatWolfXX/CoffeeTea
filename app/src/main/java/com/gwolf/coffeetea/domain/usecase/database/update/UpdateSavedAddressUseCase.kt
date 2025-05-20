@@ -3,7 +3,7 @@ package com.gwolf.coffeetea.domain.usecase.database.update
 import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.repository.remote.supabase.AddressRepository
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.domain.toDomain
+import com.gwolf.coffeetea.data.toDomain
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

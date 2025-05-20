@@ -4,7 +4,7 @@ import com.gwolf.coffeetea.data.dto.supabase.ProfileEntity
 import com.gwolf.coffeetea.domain.repository.remote.supabase.ProfileRepository
 import com.gwolf.coffeetea.util.PNG_FORMAT
 import com.gwolf.coffeetea.util.PROFILES_BUCKET_ID
-import com.gwolf.coffeetea.util.PROFILE_TABLE
+import com.gwolf.coffeetea.util.PROFILES_TABLE
 import com.gwolf.coffeetea.util.PROFILE_USER_IMAGE
 import com.gwolf.coffeetea.util.USERS_TABLE
 import io.github.jan.supabase.auth.Auth
@@ -25,7 +25,7 @@ class ProfileRepositoryImpl @Inject constructor(
     override fun getProfile(): Flow<ProfileEntity?> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
-            postgrest.from(PROFILE_TABLE)
+            postgrest.from(PROFILES_TABLE)
                 .select {
                     filter {
                         eq("user_id", id)

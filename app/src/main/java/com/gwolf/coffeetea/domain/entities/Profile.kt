@@ -1,9 +1,7 @@
 package com.gwolf.coffeetea.domain.entities
 
-import java.util.UUID
-
 data class Profile(
-    val id: UUID,
+    val id: String,
     val email: String,
     val firstName: String,
     val lastName: String,

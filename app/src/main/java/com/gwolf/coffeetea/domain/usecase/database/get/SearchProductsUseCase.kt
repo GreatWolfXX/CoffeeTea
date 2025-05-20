@@ -4,7 +4,7 @@ import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.domain.repository.remote.supabase.ProductRepository
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.domain.toDomain
+import com.gwolf.coffeetea.data.toDomain
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

@@ -70,7 +70,7 @@ fun ChangeEmailScreen(
         when (event) {
             is ChangeEmailEvent.Idle -> {}
             is ChangeEmailEvent.Navigate -> {
-                navController.popBackStack()
+                navController.navigateUp()
             }
         }
     }

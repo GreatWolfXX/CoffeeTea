@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.gwolf.coffeetea.domain.entities.Category
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
@@ -176,19 +177,19 @@ private fun ProductCardBuyBtn(
 private fun ProductSmallCardPreview() {
     val context = LocalContext.current
     val product = Product(
-        id = 0,
+        id = "",
         name = "Coffee",
         stockQuantity = 10,
-        amount = 10.0,
+        amount = "10.0",
         unit = "kg",
         featuresDescription = "featuresDescription",
         fullDescription = "fullDescription",
         price = 1099.99,
         rating = 0.0,
         imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRlkHl_qadBAMBqFScSWT-C_xhIgZPjlMxQ&s",
-        categoryName = "Coffee",
+        categoryName = "",
         favoriteId = "",
-        cartId = ""
+        cartItemId = ""
     )
 
     ProductSmallCard(

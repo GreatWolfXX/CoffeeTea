@@ -1,10 +1,10 @@
 package com.gwolf.coffeetea.domain.usecase.database.get
 
+import com.gwolf.coffeetea.data.toDomain
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.domain.repository.remote.supabase.ProductRepository
-import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.domain.toDomain
+import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +16,7 @@ class GetProductsByCategoryUseCase @Inject constructor(
     private val productRepository: ProductRepository,
     private val storage: Storage
 ) {
-    operator fun invoke(categoryId: Int): Flow<DataResult<List<Product>>> = callbackFlow {
+    operator fun invoke(categoryId: String): Flow<DataResult<List<Product>>> = callbackFlow {
         try {
             productRepository.getProductsByCategory(categoryId).collect { response ->
                 val data = response.map { product ->

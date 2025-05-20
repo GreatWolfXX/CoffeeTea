@@ -165,55 +165,58 @@ class DeliveryViewModel @Inject constructor(
                 val selectedCity = _state.value.selection.selectedCity != null
                 val selectedDepartment = _state.value.selection.selectedDepartment != null
                 if (selectedCity && selectedDepartment) {
-                    addAddress()
-                }
-            }
-        }
-    }
-
-    private fun addAddress() {
-        val selectedCity = _state.value.selection.selectedCity
-        val selectedDepartment = _state.value.selection.selectedDepartment
-        val isDefault = _state.value.listAddresses.isEmpty()
-        val type = when {
-            _state.value.selection.selectedNovaPostDepartments -> {
-                SavedDeliveryAddressType.NovaPostDepartment.value
-            }
-
-            _state.value.selection.selectedNovaPostCabin -> {
-                SavedDeliveryAddressType.NovaPostCabin.value
-            }
-
-            else -> {
-                ""
-            }
-        }
-        viewModelScope.launch {
-            addAddressUseCase.invoke(
-                type = type,
-                refCity = selectedCity?.ref.orEmpty(),
-                refAddress = selectedDepartment?.ref.orEmpty(),
-                city = selectedCity?.name.orEmpty(),
-                address = selectedDepartment?.name.orEmpty(),
-                isDefault = isDefault
-            ).collect { response ->
-                when (response) {
-                    is DataResult.Success -> {
+                    viewModelScope.launch {
                         _event.send(DeliveryEvent.Navigate)
                     }
-
-                    is DataResult.Error -> {
-                        _state.update {
-                            it.copy(
-                                error = UiText.DynamicString(response.exception.message.orEmpty()),
-                                isLoading = false
-                            )
-                        }
-                    }
                 }
             }
         }
     }
+
+//    private fun addAddress() {
+//        val selectedCity = _state.value.selection.selectedCity
+//        val selectedDepartment = _state.value.selection.selectedDepartment
+//        val isDefault = _state.value.listAddresses.isEmpty()
+//        val type = when {
+//            _state.value.selection.selectedNovaPostDepartments -> {
+//                SavedDeliveryAddressType.NovaPostDepartment.value
+//            }
+//
+//            _state.value.selection.selectedNovaPostCabin -> {
+//                SavedDeliveryAddressType.NovaPostCabin.value
+//            }
+//
+//            else -> {
+//                ""
+//            }
+//        }
+//        viewModelScope.launch {
+//            addAddressUseCase.invoke(
+//                type = type,
+//                refCity = selectedCity?.ref.orEmpty(),
+//                refAddress = selectedDepartment?.ref.orEmpty(),
+//                city = selectedCity?.name.orEmpty(),
+//                address = selectedDepartment?.name.orEmpty(),
+//                isDefault = isDefault
+//            ).collect { response ->
+//                when (response) {
+//                    is DataResult.Success -> {
+//                        _event.send(DeliveryEvent.Navigate)
+//                    }
+//
+//                    is DataResult.Error -> {
+//                        Timber.d("is: ${response.exception.message}")
+//                        _state.update {
+//                            it.copy(
+//                                error = UiText.DynamicString(response.exception.message.orEmpty()),
+//                                isLoading = false
+//                            )
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private suspend fun getAddresses() {
         getAddressUseCase.invoke().collect { response ->

@@ -2,7 +2,6 @@ package com.gwolf.coffeetea.util
 
 import com.google.android.gms.wallet.WalletConstants
 
-const val LOGGER_TAG = "Coffee&TeaLogger"
 const val NOVA_POST_API = "https://api.novaposhta.ua/v2.0/json/"
 const val NOVA_POST_DEPARTMENT_REF = "841339c7-591a-42e2-8233-7a0a00f0ed6f"
 const val NOVA_POST_CARGO_DEPARTMENT_REF = "9a68df70-0267-42a8-bb5c-37f427e36ee4"
@@ -25,13 +24,13 @@ const val PRODUCT_ADD_CART_QUANTITY = 1
 
 const val PROFILES_BUCKET_ID = "profiles"
 const val USERS_TABLE = "users"
-const val PROFILE_TABLE = "user_profile"
+const val PROFILES_TABLE = "user_profiles"
 const val PRODUCTS_TABLE = "products"
 const val FAVORITES_TABLE = "favorites"
 const val PROMOTIONS_TABLE = "promotions"
 const val CATEGORIES_TABLE = "categories"
-const val DELIVERY_ADDRESSES_TABLE = "deliveryaddresses"
-const val CART_TABLE = "cart"
+const val DELIVERY_ADDRESSES_TABLE = "delivery_addresses"
+const val CART_ITEMS_TABLE = "cart_items"
 const val PROFILE_USER_IMAGE = "profile_user_image_"
 const val PNG_FORMAT = ".png"
 const val UKRAINE_PHONE_CODE = "+38"

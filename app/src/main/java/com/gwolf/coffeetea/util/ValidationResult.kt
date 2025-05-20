@@ -1,6 +1,4 @@
-package com.gwolf.coffeetea.domain.entities
-
-import com.gwolf.coffeetea.util.UiText
+package com.gwolf.coffeetea.util
 
 data class ValidationResult(
     val successful: Boolean,

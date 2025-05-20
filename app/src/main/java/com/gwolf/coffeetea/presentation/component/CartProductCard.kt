@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.entities.Cart
+import com.gwolf.coffeetea.domain.entities.CartItem
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
@@ -60,14 +60,14 @@ import kotlinx.coroutines.delay
 @Composable
 fun CartProductCard(
     modifier: Modifier = Modifier,
-    cart: Cart,
+    cartItem: CartItem,
     onClickDelete: () -> Unit,
     onClick: (product: Product) -> Unit,
     saveQuantity: (quantity: Int) -> Unit
 ) {
-    var quantity by rememberSaveable { mutableIntStateOf(cart.quantity) }
-    var lastSentQuantity by rememberSaveable { mutableIntStateOf(cart.quantity) }
-    val product = cart.product
+    var quantity by rememberSaveable { mutableIntStateOf(cartItem.quantity) }
+    var lastSentQuantity by rememberSaveable { mutableIntStateOf(cartItem.quantity) }
+    val product = cartItem.product
     val context = LocalContext.current
 
     LaunchedEffect(quantity) {
@@ -120,7 +120,7 @@ fun CartProductCard(
                 ) {
                     Text(
                         modifier = Modifier
-                            .fillMaxWidth(0.7f),
+                            .fillMaxWidth(0.6f),
                         text = product.name,
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Medium,
@@ -132,7 +132,7 @@ fun CartProductCard(
                     )
                     Text(
                         modifier = Modifier
-                            .fillMaxWidth(0.6f),
+                            .fillMaxWidth(0.5f),
                         text = product.featuresDescription,
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Medium,
@@ -150,15 +150,14 @@ fun CartProductCard(
                         onMinus = {
                             quantity = quantity.dec()
                         },
-                        stockQuantity = cart.product.stockQuantity,
+                        stockQuantity = cartItem.product.stockQuantity,
                         quantity = quantity
                     )
                 }
             }
             Column(
                 modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(end = 8.dp),
+                    .wrapContentWidth(),
                 horizontalAlignment = Alignment.End
             ) {
                 CartProductDeleteBtn(onClick = onClickDelete)
@@ -292,29 +291,28 @@ private fun CartProductChangeCount(
 @Composable
 private fun CartProductCardPreview() {
     val product = Product(
-        id = 0,
+        id = "",
         name = "Coffee",
         stockQuantity = 10,
-        amount = 10.0,
+        amount = "10.0",
         unit = "kg",
         featuresDescription = "featuresDescription",
         fullDescription = "fullDescription",
         price = 1099.99,
         rating = 0.0,
         imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRlkHl_qadBAMBqFScSWT-C_xhIgZPjlMxQ&s",
-        categoryName = "Coffee",
+        categoryName = "",
         favoriteId = "",
-        cartId = ""
+        cartItemId = ""
     )
-    val cart = Cart(
-        cartId = "",
-        productId = 0,
-        quantity = 1,
-        product = product
+    val cartItem = CartItem(
+        id = "",
+        product = product,
+        quantity = 5
     )
 
     CartProductCard(
-        cart = cart,
+        cartItem = cartItem,
         onClick = {},
         onClickDelete = {},
         saveQuantity = {}

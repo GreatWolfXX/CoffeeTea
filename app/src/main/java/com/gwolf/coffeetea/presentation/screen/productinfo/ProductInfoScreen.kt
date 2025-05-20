@@ -70,6 +70,7 @@ import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.connectivityState
+import timber.log.Timber
 
 @Composable
 fun ProductInfoScreen(
@@ -139,6 +140,7 @@ private fun ProductInfoContent(
                     title = title,
                     desc = desc
                 )
+                Timber.d(state.error.asString())
             } else {
                 ProductInfoMainSection(
                     context = context,

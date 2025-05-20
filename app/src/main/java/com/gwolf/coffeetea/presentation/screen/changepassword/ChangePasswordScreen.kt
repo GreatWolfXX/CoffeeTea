@@ -64,7 +64,7 @@ fun ChangePasswordScreen(
         when (event) {
             is ChangePasswordEvent.Idle -> {}
             is ChangePasswordEvent.Navigate -> {
-                navController.popBackStack()
+                navController.navigateUp()
             }
         }
     }

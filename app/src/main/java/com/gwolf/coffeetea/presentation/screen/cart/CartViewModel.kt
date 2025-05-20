@@ -2,11 +2,10 @@ package com.gwolf.coffeetea.presentation.screen.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.entities.Cart
+import com.gwolf.coffeetea.domain.entities.CartItem
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveCartProductUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateCartProductQuantityUseCase
-import com.gwolf.coffeetea.presentation.screen.login.LoginEvent
 import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,14 +23,14 @@ import timber.log.Timber
 import javax.inject.Inject
 
 data class CartScreenState(
-    val cartProductsList: List<Cart> = listOf(),
+    val cartProductsList: List<CartItem> = listOf(),
     val isLoading: Boolean = false,
     val error: UiText = UiText.DynamicString(""),
 )
 
 sealed class CartIntent {
-    data class RemoveFromCart(val cartId: String) : CartIntent()
-    data class UpdateProductQuantity(val cartId: String, val quantity: Int) : CartIntent()
+    data class RemoveFromCart(val cartItemId: String) : CartIntent()
+    data class UpdateProductQuantity(val cartItemId: String, val quantity: Int) : CartIntent()
     data object Submit : CartIntent()
 }
 
@@ -42,9 +41,9 @@ sealed class CartEvent {
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val getCartProductsListUseCase: GetCartProductsUseCase,
-    private val removeCartProductUseCase: RemoveCartProductUseCase,
-    private val updateCartProductQuantityUseCase: UpdateCartProductQuantityUseCase
+    private val getCartItemProductsListUseCase: GetCartProductsUseCase,
+    private val removeCartItemProductUseCase: RemoveCartProductUseCase,
+    private val updateCartItemProductQuantityUseCase: UpdateCartProductQuantityUseCase
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(CartScreenState())
@@ -54,38 +53,38 @@ class CartViewModel @Inject constructor(
         initialValue = CartScreenState()
     )
 
-    private var _event: Channel<LoginEvent> = Channel()
+    private var _event: Channel<CartEvent> = Channel()
     val event = _event.receiveAsFlow()
 
     fun onIntent(intent: CartIntent) {
         when (intent) {
             is CartIntent.RemoveFromCart -> {
-                removeFavorite(intent.cartId)
+                removeFromCart(intent.cartItemId)
             }
 
             is CartIntent.UpdateProductQuantity -> {
-                updateCartProductQuantity(intent.cartId, intent.quantity)
+                updateCartItemProductQuantity(intent.cartItemId, intent.quantity)
             }
 
             is CartIntent.Submit -> {
                 if (_state.value.cartProductsList.isNotEmpty()) {
                     viewModelScope.launch {
-                        _event.send(LoginEvent.Navigate)
+                        _event.send(CartEvent.Navigate)
                     }
                 }
             }
         }
     }
 
-    private fun removeFavorite(cartId: String) {
+    private fun removeFromCart(cartItemId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            removeCartProductUseCase.invoke(cartId)
+            removeCartItemProductUseCase.invoke(cartItemId)
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
                             val cartList =
-                                _state.value.cartProductsList.filter { it.cartId != cartId }
+                                _state.value.cartProductsList.filter { it.id != cartItemId }
                             _state.update { it.copy(cartProductsList = cartList) }
                         }
 
@@ -103,10 +102,10 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    private fun updateCartProductQuantity(cartId: String, quantity: Int) {
+    private fun updateCartItemProductQuantity(cartId: String, quantity: Int) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            updateCartProductQuantityUseCase.invoke(cartId, quantity)
+            updateCartItemProductQuantityUseCase.invoke(cartId, quantity)
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
@@ -128,7 +127,7 @@ class CartViewModel @Inject constructor(
     }
 
     private suspend fun getProducts() {
-        getCartProductsListUseCase.invoke().collect { response ->
+        getCartItemProductsListUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
                     _state.update { it.copy(cartProductsList = response.data) }

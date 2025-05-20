@@ -12,7 +12,7 @@ class UpdateCartProductQuantityUseCase @Inject constructor(
 ) {
     operator fun invoke(cartId: String, quantity: Int): Flow<DataResult<Unit>> = callbackFlow {
         try {
-            cartRepository.updateCartProductQuantity(cartId, quantity)
+            cartRepository.updateCartItemProductQuantity(cartId, quantity)
                 .collect { response ->
                     trySend(DataResult.Success(data = response))
                 }

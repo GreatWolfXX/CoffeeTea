@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddressEntity(
-    @SerialName("address_id") val id: String = "",
-    @SerialName("user_id") val userId: String = "",
+    @SerialName("id") val id: String = "",
+    @SerialName("user_id") val userId: String,
     @SerialName("delivery_type") val deliveryType: String,
     @SerialName("ref_city") val refCity: String,
     @SerialName("ref_address") val refAddress: String,

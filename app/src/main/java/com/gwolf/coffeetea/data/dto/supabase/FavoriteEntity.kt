@@ -5,8 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FavoriteEntity(
-    @SerialName("favorite_id") val id: String = "",
-    @SerialName("product_id") val productId: Int,
+    @SerialName("id") val id: String = "",
     @SerialName("user_id") val userId: String,
-    @SerialName("products") val product: ProductEntity? = null,
+    @SerialName("product_id") val productId: String,
+
+    @SerialName("products") val product: ProductEntity? = null
 )

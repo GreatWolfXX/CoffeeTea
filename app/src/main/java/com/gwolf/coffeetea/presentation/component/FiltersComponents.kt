@@ -67,7 +67,6 @@ import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.PrimaryColor
 import com.gwolf.coffeetea.ui.theme.PrimaryDarkColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
-import timber.log.Timber
 
 @Composable
 fun RowScope.FilterItem(
@@ -114,10 +113,10 @@ fun RowScope.FilterItem(
 @Composable
 fun MenuSort(
     isOpen: Boolean,
+    isDescending: Boolean,
     onSortingStateChanged: (isDescending: Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var isDescending by remember { mutableStateOf(false) }
 
     AnimatedVisibility(
         visible = isOpen,
@@ -169,15 +168,13 @@ fun MenuSort(
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         val onLowToHighClick = {
-                            isDescending = false
                             onSortingStateChanged(
-                                isDescending
+                                false
                             )
                         }
                         val onHighToLowClick = {
-                            isDescending = true
                             onSortingStateChanged(
-                                isDescending
+                                true
                             )
                         }
                         Row(
@@ -358,7 +355,6 @@ fun MenuFilters(
             }
         }
     }
-    Timber.d("${sliderRangeState} - $minAndMaxPriceRange")
 }
 
 @Composable
@@ -574,6 +570,7 @@ private fun MenuSortPreview() {
 
     MenuSort(
         isOpen = menuStateSort,
+        isDescending = true,
         onSortingStateChanged = { value ->
             isDescending = value
         },

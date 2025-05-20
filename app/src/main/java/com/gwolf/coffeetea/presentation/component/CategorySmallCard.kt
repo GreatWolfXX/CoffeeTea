@@ -50,7 +50,7 @@ fun CategorySmallCard(
 @Composable
 private fun CategorySmallCardPreview() {
     val category = Category(
-        id = 0,
+        id = "",
         name = "Coffee",
         imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRlkHl_qadBAMBqFScSWT-C_xhIgZPjlMxQ&s"
     )

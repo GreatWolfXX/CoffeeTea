@@ -5,7 +5,7 @@ import com.gwolf.coffeetea.data.repository.local.DataStoreRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.api.NovaPostRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.AddressRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.AuthRepositoryImpl
-import com.gwolf.coffeetea.data.repository.remote.supabase.CartRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.CartItemRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.CategoryRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.FavoriteRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.ProductRepositoryImpl
@@ -87,7 +87,7 @@ object RepositoryModule {
     fun provideCartRepository(
         postgrest: Postgrest,
         auth: Auth
-    ): CartRepository = CartRepositoryImpl(postgrest, auth)
+    ): CartRepository = CartItemRepositoryImpl(postgrest, auth)
 
     @Provides
     @Singleton

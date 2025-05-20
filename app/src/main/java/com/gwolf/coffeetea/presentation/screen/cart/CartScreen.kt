@@ -157,15 +157,15 @@ private fun CartMainSection(
                     items(state.cartProductsList) { cartProduct ->
                         CartProductCard(
                             modifier = Modifier.animateItem(),
-                            cart = cartProduct,
+                            cartItem = cartProduct,
                             onClickDelete = {
-                                onIntent(CartIntent.RemoveFromCart(cartProduct.cartId))
+                                onIntent(CartIntent.RemoveFromCart(cartProduct.id))
                             },
                             onClick = {
-                                navigateToOtherScreen(Screen.ProductInfo(productId = cartProduct.productId))
+                                navigateToOtherScreen(Screen.ProductInfo(productId = cartProduct.product.id))
                             },
                             saveQuantity = { count ->
-                                onIntent(CartIntent.UpdateProductQuantity(cartProduct.cartId, count))
+                                onIntent(CartIntent.UpdateProductQuantity(cartProduct.id, count))
                             }
                         )
                     }
@@ -202,9 +202,7 @@ private fun CartMainSection(
                     lineHeight = TextUnit(28f, TextUnitType.Sp),
                     color = OnSurfaceColor
                 )
-                val price = state.cartProductsList.sumOf { cart ->
-                    cart.product.price
-                }
+                val price = state.cartProductsList.sumOf { cart -> cart.product.price }
                 Text(
                     modifier = Modifier,
                     text = "$price₴",

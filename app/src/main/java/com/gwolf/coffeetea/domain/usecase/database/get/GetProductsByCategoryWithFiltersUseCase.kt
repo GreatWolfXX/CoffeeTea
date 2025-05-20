@@ -1,8 +1,8 @@
 package com.gwolf.coffeetea.domain.usecase.database.get
 
+import com.gwolf.coffeetea.data.toDomain
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.domain.repository.remote.supabase.ProductRepository
-import com.gwolf.coffeetea.domain.toDomain
 import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import io.github.jan.supabase.storage.Storage
@@ -16,7 +16,7 @@ class GetProductsByCategoryWithFiltersUseCase @Inject constructor(
     private val storage: Storage
 ) {
     operator fun invoke(
-        categoryId: Int,
+        categoryId: String,
         isDescending: Boolean,
         priceRange: ClosedFloatingPointRange<Float>
     ): Flow<DataResult<List<Product>>> = flow {

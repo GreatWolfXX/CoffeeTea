@@ -33,16 +33,18 @@ class FavoriteRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override fun addFavorite(productId: Int): Flow<Unit> = callbackFlow {
+    override fun addFavorite(productId: String): Flow<FavoriteEntity> = callbackFlow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val favorite = FavoriteEntity(
             productId = productId,
             userId = id
         )
-        withContext(Dispatchers.IO) {
-            postgrest.from(FAVORITES_TABLE).insert(favorite)
-        }
-        trySend(Unit)
+        val response = withContext(Dispatchers.IO) {
+            postgrest.from(FAVORITES_TABLE).insert(favorite) {
+                select()
+            }
+        }.decodeSingle<FavoriteEntity>()
+        trySend(response)
         close()
         awaitClose()
     }
@@ -52,7 +54,7 @@ class FavoriteRepositoryImpl @Inject constructor(
             postgrest.from(FAVORITES_TABLE)
                 .delete {
                     filter {
-                        eq("favorite_id", favoriteId)
+                        eq("id", favoriteId)
                     }
                 }
         }

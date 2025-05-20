@@ -23,7 +23,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 data class SearchProductScreenState(
-    val categoryId: Int = -1,
+    val categoryId: String = "",
     val productsList: List<Product> = listOf(),
     val categoryName: String = "",
     val textLow: String = "",
@@ -68,6 +68,9 @@ class SearchProductViewModel @Inject constructor(
 
             is SearchProductIntent.ChangeSort -> {
                 _state.update { it.copy(isDescending = intent.isDescending) }
+                viewModelScope.launch {
+                    getProducts(_state.value.priceRangeState)
+                }
             }
 
             is SearchProductIntent.ChangePriceRangeState -> {

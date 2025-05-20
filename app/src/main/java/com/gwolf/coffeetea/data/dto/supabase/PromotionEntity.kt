@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PromotionEntity(
-    @SerialName("promotion_id") val id: Int = -1,
+    @SerialName("id") val id: String = "",
     @SerialName("title") val title: String,
     @SerialName("description") val description: String,
     @SerialName("start_date") val startDate: String,

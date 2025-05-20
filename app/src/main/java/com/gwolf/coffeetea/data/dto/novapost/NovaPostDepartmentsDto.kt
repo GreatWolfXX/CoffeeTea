@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NovaPostCityEntity (
+data class NovaPostDepartmentsDto (
     @SerialName("Ref") val ref: String,
     @SerialName("Description") val name: String
 )

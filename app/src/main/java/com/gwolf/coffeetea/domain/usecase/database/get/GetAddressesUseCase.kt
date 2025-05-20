@@ -1,18 +1,16 @@
 package com.gwolf.coffeetea.domain.usecase.database.get
 
+import com.gwolf.coffeetea.data.toDomain
 import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.repository.remote.supabase.AddressRepository
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.domain.toDomain
-import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
 class GetAddressesUseCase @Inject constructor(
-    private val addressRepository: AddressRepository,
-    private val storage: Storage
+    private val addressRepository: AddressRepository
 ) {
     operator fun invoke(): Flow<DataResult<List<Address>>> = callbackFlow {
         try {

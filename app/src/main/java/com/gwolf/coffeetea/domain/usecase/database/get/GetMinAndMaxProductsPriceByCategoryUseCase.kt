@@ -10,7 +10,7 @@ class GetMinAndMaxProductsPriceByCategoryUseCase @Inject constructor(
     private val productRepository: ProductRepository
 ) {
     operator fun invoke(
-        categoryId: Int
+        categoryId: String
     ): Flow<DataResult<ClosedFloatingPointRange<Float>>> = flow {
         try {
             productRepository.getMinAndMaxProductPriceByCategory(categoryId)

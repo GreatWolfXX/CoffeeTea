@@ -52,7 +52,7 @@ class AddressRepositoryImpl @Inject constructor(
             isDefault = isDefault
         )
         withContext(Dispatchers.IO) {
-            postgrest.from(DELIVERY_ADDRESSES_TABLE).insert(cart)
+            postgrest.from(DELIVERY_ADDRESSES_TABLE).upsert(cart)
         }
         trySend(Unit)
         close()
