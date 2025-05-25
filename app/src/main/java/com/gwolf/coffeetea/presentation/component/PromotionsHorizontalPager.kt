@@ -108,10 +108,7 @@ private fun Promotion(
         ) {
             AsyncImage(
                 modifier = Modifier.fillMaxWidth(),
-                model = ImageRequest.Builder(context)
-                    .data(promotion.imageUrl)
-                    .crossfade(true)
-                    .build(),
+                model = promotion.imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )

@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.CustomButton
@@ -212,10 +211,7 @@ private fun ProductInfoMainSection(
                         .height(348.dp)
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp)),
-                    model = ImageRequest.Builder(context)
-                        .data(state.product?.imageUrl)
-                        .crossfade(true)
-                        .build(),
+                    model = state.product?.imageUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )

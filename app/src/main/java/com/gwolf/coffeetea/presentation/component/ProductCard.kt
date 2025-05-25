@@ -72,10 +72,7 @@ fun ProductCard(
                     modifier = Modifier
                         .height(130.dp)
                         .fillMaxWidth(),
-                    model = ImageRequest.Builder(context)
-                        .data(product.imageUrl)
-                        .crossfade(true)
-                        .build(),
+                    model = product.imageUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )

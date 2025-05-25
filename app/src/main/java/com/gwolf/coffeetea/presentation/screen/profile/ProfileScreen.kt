@@ -277,7 +277,6 @@ private fun AccountInfo(
         val profileMockImg = painterResource(R.drawable.profile_img)
         val profileImg = ImageRequest.Builder(context)
             .data(imageUrl)
-            .crossfade(true)
             .build()
         Image(
             modifier = Modifier

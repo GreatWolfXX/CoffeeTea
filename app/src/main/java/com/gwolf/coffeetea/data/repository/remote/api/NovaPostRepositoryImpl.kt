@@ -6,7 +6,8 @@ import com.gwolf.coffeetea.data.dto.novapost.NovaPostCityDto
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostDepartmentsDto
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostProperties
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostResponse
-import com.gwolf.coffeetea.data.toDomain
+import com.gwolf.coffeetea.data.toListCityDomain
+import com.gwolf.coffeetea.data.toListDepartmentDomain
 import com.gwolf.coffeetea.domain.entities.City
 import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.domain.repository.remote.api.NovaPostRepository
@@ -41,7 +42,7 @@ class NovaPostRepositoryImpl @Inject constructor(
             contentType(ContentType.Application.Json)
             setBody(novaPostBody)
         }.body<NovaPostResponse<NovaPostCityDto>>().data
-        emit(response.toDomain())
+        emit(response.toListCityDomain())
     }
 
     override fun getDepartments(
@@ -64,6 +65,6 @@ class NovaPostRepositoryImpl @Inject constructor(
             contentType(ContentType.Application.Json)
             setBody(novaPostBody)
         }.body<NovaPostResponse<NovaPostDepartmentsDto>>().data
-        emit(response.toDomain())
+        emit(response.toListDepartmentDomain())
     }
 }

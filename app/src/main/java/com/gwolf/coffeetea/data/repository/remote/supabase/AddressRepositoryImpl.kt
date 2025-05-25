@@ -2,6 +2,7 @@ package com.gwolf.coffeetea.data.repository.remote.supabase
 
 import com.gwolf.coffeetea.data.dto.supabase.AddressDto
 import com.gwolf.coffeetea.data.toDomain
+import com.gwolf.coffeetea.data.toListAddressDomain
 import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.repository.remote.supabase.AddressRepository
 import com.gwolf.coffeetea.util.DELIVERY_ADDRESSES_TABLE
@@ -27,7 +28,7 @@ class AddressRepositoryImpl @Inject constructor(
                 }
                 .decodeList<AddressDto>()
         }
-        emit(response.toDomain())
+        emit(response.toListAddressDomain())
     }
 
     override fun addDeliveryAddress(

@@ -81,10 +81,7 @@ fun OrderProductCard(
                             .width(116.dp)
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(8.dp)),
-                        model = ImageRequest.Builder(context)
-                            .data(product.imageUrl)
-                            .crossfade(true)
-                            .build(),
+                        model = product.imageUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop
                     )

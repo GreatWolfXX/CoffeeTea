@@ -51,21 +51,24 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun providePromotionRepository(
-        postgrest: Postgrest
-    ): PromotionRepository = PromotionRepositoryImpl(postgrest)
+        postgrest: Postgrest,
+        storage: Storage
+    ): PromotionRepository = PromotionRepositoryImpl(postgrest, storage)
 
     @Provides
     @Singleton
     fun provideCategoryRepository(
-        postgrest: Postgrest
-    ): CategoryRepository = CategoryRepositoryImpl(postgrest)
+        postgrest: Postgrest,
+        storage: Storage
+    ): CategoryRepository = CategoryRepositoryImpl(postgrest, storage)
 
     @Provides
     @Singleton
     fun provideProductRepository(
         auth: Auth,
-        postgrest: Postgrest
-    ): ProductRepository = ProductRepositoryImpl(auth, postgrest)
+        postgrest: Postgrest,
+        storage: Storage
+    ): ProductRepository = ProductRepositoryImpl(auth, postgrest, storage)
 
     @Provides
     @Singleton
@@ -79,15 +82,17 @@ object RepositoryModule {
     @Singleton
     fun provideFavoriteRepository(
         auth: Auth,
-        postgrest: Postgrest
-    ): FavoriteRepository = FavoriteRepositoryImpl(auth, postgrest)
+        postgrest: Postgrest,
+        storage: Storage
+    ): FavoriteRepository = FavoriteRepositoryImpl(auth, postgrest, storage)
 
     @Provides
     @Singleton
     fun provideCartRepository(
         postgrest: Postgrest,
-        auth: Auth
-    ): CartRepository = CartItemRepositoryImpl(postgrest, auth)
+        auth: Auth,
+        storage: Storage
+    ): CartRepository = CartItemRepositoryImpl(postgrest, storage, auth)
 
     @Provides
     @Singleton

@@ -76,14 +76,14 @@ fun NovaPostCityDto.toDomain() = City(
     name = name
 )
 
-fun List<NovaPostCityDto>.toDomain() = this.map { it.toDomain() }
+fun List<NovaPostCityDto>.toListCityDomain() = this.map { it.toDomain() }
 
 fun NovaPostDepartmentsDto.toDomain() = Department(
     ref = ref,
     name = name
 )
 
-fun List<NovaPostDepartmentsDto>.toDomain() = this.map { it.toDomain() }
+fun List<NovaPostDepartmentsDto>.toListDepartmentDomain() = this.map { it.toDomain() }
 
 fun AddressDto.toDomain() = Address(
     id = id,
@@ -96,4 +96,4 @@ fun AddressDto.toDomain() = Address(
     isDefault = isDefault
 )
 
-fun List<AddressDto>.toDomain() = this.map { it.toDomain() }
+fun List<AddressDto>.toListAddressDomain() = this.map { it.toDomain() }

@@ -58,10 +58,7 @@ fun CategoryFullCard(
                 modifier = Modifier
                     .height(116.dp)
                     .fillMaxWidth(),
-                model = ImageRequest.Builder(context)
-                    .data(category.imageUrl)
-                    .crossfade(true)
-                    .build(),
+                model = category.imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
