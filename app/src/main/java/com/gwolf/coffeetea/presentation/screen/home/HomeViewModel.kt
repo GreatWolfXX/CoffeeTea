@@ -13,7 +13,7 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetPromotionsUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.SearchProductsUseCase
 import com.gwolf.coffeetea.util.ADD_TO_CART_COUNT
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -40,7 +40,7 @@ data class HomeScreenState(
     val searchProductsList: List<Product> = listOf(),
     val searchText: String = "",
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class HomeIntent {
@@ -119,7 +119,7 @@ class HomeViewModel @Inject constructor(
                         }
 
                         is DataResult.Error -> {
-                            _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                            _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                         }
                     }
                 }
@@ -148,7 +148,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -162,7 +162,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -176,7 +176,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -192,13 +192,13 @@ class HomeViewModel @Inject constructor(
                     }
 
                     is DataResult.Error -> {
-                        _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                        _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                     }
                 }
             }
             _state.update {
                 it.copy(
-                    error = UiText.DynamicString(""),
+                    error = LocalizedText.DynamicString(""),
                     isLoading = false
                 )
             }

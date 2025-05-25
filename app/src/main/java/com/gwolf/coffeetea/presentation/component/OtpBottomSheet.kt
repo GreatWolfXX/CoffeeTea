@@ -40,7 +40,7 @@ import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +49,7 @@ fun OtpBottomSheet(
     @StringRes title: Int,
     @StringRes desc: Int,
     isError: Boolean,
-    errorMessage: UiText? = null,
+    errorMessage: LocalizedText? = null,
     onClickConfirm: (otpValue: String) -> Unit,
     onClickResendCode: () -> Unit,
     onDismiss: () -> Unit

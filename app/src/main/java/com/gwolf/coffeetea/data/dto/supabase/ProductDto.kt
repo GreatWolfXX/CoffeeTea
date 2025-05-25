@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ProductEntity(
+data class ProductDto(
     @SerialName("id") val id: String = "",
     @SerialName("category_id") val categoryId: String,
     @SerialName("name") val name: String,
@@ -18,7 +18,7 @@ data class ProductEntity(
     @SerialName("bucket_id") val bucketId: String,
     @SerialName("image_path") val imagePath: String,
 
-    @SerialName("categories") val category: CategoryEntity? = null,
-    @SerialName("favorites") val favorite: List<FavoriteEntity> = emptyList(),
-    @SerialName("cart_items") val cartItem: List<CartItemEntity> = emptyList()
+    @SerialName("categories") val category: CategoryDto? = null,
+    @SerialName("favorites") val favorite: List<FavoriteDto> = emptyList(),
+    @SerialName("cart_items") val cartItem: List<CartItemDto> = emptyList()
 )

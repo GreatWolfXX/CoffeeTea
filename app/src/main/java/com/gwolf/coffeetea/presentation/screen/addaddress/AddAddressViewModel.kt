@@ -13,7 +13,7 @@ import com.gwolf.coffeetea.domain.usecase.novapost.GetDepartmentsUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressType
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
@@ -35,7 +35,7 @@ data class AddAddressScreenState(
     val selection: AddAddressSelectionState = AddAddressSelectionState(),
     val search: AddAddressSearchState = AddAddressSearchState(),
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 data class AddAddressSelectionState(
@@ -199,7 +199,7 @@ class AddAddressViewModel @Inject constructor(
 
                     is DataResult.Error -> {
                         _state.update {
-                            it.copy(error = UiText.DynamicString(response.exception.message.orEmpty()))
+                            it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty()))
                         }
                     }
                 }
@@ -207,7 +207,7 @@ class AddAddressViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isLoading = false,
-                    error = UiText.DynamicString("")
+                    error = LocalizedText.DynamicString("")
                 )
             }
         }
@@ -256,7 +256,7 @@ class AddAddressViewModel @Inject constructor(
 
                 is DataResult.Error -> {
                     _state.update {
-                        it.copy(error = UiText.DynamicString(response.exception.message.orEmpty()))
+                        it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty()))
                     }
                 }
             }
@@ -276,7 +276,7 @@ class AddAddressViewModel @Inject constructor(
 
                 is DataResult.Error -> {
                     _state.update {
-                        it.copy(error = UiText.DynamicString(response.exception.message.orEmpty()))
+                        it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty()))
                     }
                 }
             }

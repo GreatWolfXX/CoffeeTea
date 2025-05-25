@@ -8,7 +8,7 @@ import com.gwolf.coffeetea.domain.usecase.preference.SaveBooleanPreferenceUseCas
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,12 +22,12 @@ import javax.inject.Inject
 
 data class LoginScreenState(
     val email: String = "",
-    val emailError: UiText = UiText.DynamicString(""),
+    val emailError: LocalizedText = LocalizedText.DynamicString(""),
     val password: String = "",
-    val passwordError: UiText = UiText.DynamicString(""),
+    val passwordError: LocalizedText = LocalizedText.DynamicString(""),
     val isRemember: Boolean = false,
     val passwordVisible: Boolean = false,
-    val signInError: UiText = UiText.DynamicString(""),
+    val signInError: LocalizedText = LocalizedText.DynamicString(""),
     val isLoading: Boolean = false,
 )
 
@@ -109,14 +109,14 @@ class LoginViewModel @Inject constructor(
                     }
 
                     is DataResult.Error -> {
-                        _state.update { it.copy(signInError = UiText.DynamicString(result.exception.message.orEmpty())) }
+                        _state.update { it.copy(signInError = LocalizedText.DynamicString(result.exception.message.orEmpty())) }
                     }
                 }
             }
             _state.update {
                 it.copy(
                     isLoading = false,
-                    signInError = UiText.DynamicString("")
+                    signInError = LocalizedText.DynamicString("")
                 )
             }
         }

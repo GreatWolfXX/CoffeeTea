@@ -6,6 +6,9 @@ import com.gwolf.coffeetea.data.dto.novapost.NovaPostCityDto
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostDepartmentsDto
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostProperties
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostResponse
+import com.gwolf.coffeetea.data.toDomain
+import com.gwolf.coffeetea.domain.entities.City
+import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.domain.repository.remote.api.NovaPostRepository
 import com.gwolf.coffeetea.util.NOVA_POST_ADDRESS_MODEL
 import com.gwolf.coffeetea.util.NOVA_POST_API
@@ -17,15 +20,14 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class NovaPostRepositoryImpl @Inject constructor(
     private val httpClient: HttpClient
 ) : NovaPostRepository {
-    override fun getCitiesBySearch(query: String): Flow<List<NovaPostCityDto>> = callbackFlow {
+    override fun getCitiesBySearch(query: String): Flow<List<City>> = flow {
         val novaPostProperties = NovaPostProperties.GetCity(
             findByString = query
         )
@@ -39,16 +41,14 @@ class NovaPostRepositoryImpl @Inject constructor(
             contentType(ContentType.Application.Json)
             setBody(novaPostBody)
         }.body<NovaPostResponse<NovaPostCityDto>>().data
-        trySend(response)
-        close()
-        awaitClose()
+        emit(response.toDomain())
     }
 
     override fun getDepartments(
         typeByRef: String,
         cityRef: String,
         query: String
-    ): Flow<List<NovaPostDepartmentsDto>> = callbackFlow {
+    ): Flow<List<Department>> = flow {
         val novaPostProperties = NovaPostProperties.GetDepartments(
             cityRef = cityRef,
             typeOfWarehouseRef = typeByRef,
@@ -64,8 +64,6 @@ class NovaPostRepositoryImpl @Inject constructor(
             contentType(ContentType.Application.Json)
             setBody(novaPostBody)
         }.body<NovaPostResponse<NovaPostDepartmentsDto>>().data
-        trySend(response)
-        close()
-        awaitClose()
+        emit(response.toDomain())
     }
 }

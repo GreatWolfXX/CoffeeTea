@@ -2,25 +2,21 @@ package com.gwolf.coffeetea.domain.usecase.database.update
 
 import com.gwolf.coffeetea.domain.repository.remote.supabase.CartRepository
 import com.gwolf.coffeetea.util.DataResult
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class UpdateCartProductQuantityUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    operator fun invoke(cartId: String, quantity: Int): Flow<DataResult<Unit>> = callbackFlow {
+    operator fun invoke(cartId: String, quantity: Int): Flow<DataResult<Unit>> = flow {
         try {
             cartRepository.updateCartItemProductQuantity(cartId, quantity)
                 .collect { response ->
-                    trySend(DataResult.Success(data = response))
+                    emit(DataResult.Success(data = response))
                 }
         } catch (e: Exception) {
-            trySend(DataResult.Error(exception = e))
-        } finally {
-            close()
+            emit(DataResult.Error(exception = e))
         }
-        awaitClose()
     }
 }

@@ -36,7 +36,7 @@ import com.gwolf.coffeetea.ui.theme.LightRedColor
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 
 enum class CustomTextInputStyle {
     STANDARD,
@@ -55,7 +55,7 @@ fun CustomTextInput(
     isError: Boolean,
     passwordVisible: Boolean = false,
     onPasswordVisibleChanged: (Boolean) -> Unit = {},
-    errorMessage: UiText? = null,
+    errorMessage: LocalizedText? = null,
     onValueChange: (String) -> Unit,
     imeAction: ImeAction = ImeAction.Done,
     style: CustomTextInputStyle = CustomTextInputStyle.STANDARD

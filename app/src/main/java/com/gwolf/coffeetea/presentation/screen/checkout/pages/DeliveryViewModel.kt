@@ -12,7 +12,7 @@ import com.gwolf.coffeetea.domain.usecase.novapost.GetCityBySearchUseCase
 import com.gwolf.coffeetea.domain.usecase.novapost.GetDepartmentsUseCase
 import com.gwolf.coffeetea.presentation.component.SavedDeliveryAddressType
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -37,7 +37,7 @@ data class DeliveryScreenState(
     val selection: DeliverySelectionState = DeliverySelectionState(),
     val search: DeliverySearchState = DeliverySearchState(),
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 data class DeliverySelectionState(
@@ -239,7 +239,7 @@ class DeliveryViewModel @Inject constructor(
                 is DataResult.Error -> {
                     _state.update {
                         it.copy(
-                            error = UiText.DynamicString(response.exception.message.orEmpty()),
+                            error = LocalizedText.DynamicString(response.exception.message.orEmpty()),
                             isLoading = false
                         )
                     }
@@ -325,7 +325,7 @@ class DeliveryViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -341,7 +341,7 @@ class DeliveryViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }

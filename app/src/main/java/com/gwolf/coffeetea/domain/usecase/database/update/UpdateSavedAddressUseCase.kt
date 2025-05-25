@@ -3,10 +3,8 @@ package com.gwolf.coffeetea.domain.usecase.database.update
 import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.repository.remote.supabase.AddressRepository
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.data.toDomain
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class UpdateSavedAddressUseCase @Inject constructor(
@@ -20,7 +18,7 @@ class UpdateSavedAddressUseCase @Inject constructor(
         city: String,
         address: String,
         isDefault: Boolean
-    ): Flow<DataResult<Address>> = callbackFlow {
+    ): Flow<DataResult<Address>> = flow {
         try {
             addressRepository.updateDeliveryAddress(
                 addressId = addressId,
@@ -31,13 +29,10 @@ class UpdateSavedAddressUseCase @Inject constructor(
                 address = address,
                 isDefault = isDefault
             ).collect { response ->
-                trySend(DataResult.Success(data = response.toDomain()))
+                emit(DataResult.Success(data = response))
             }
         } catch (e: Exception) {
-            trySend(DataResult.Error(exception = e))
-        } finally {
-            close()
+            emit(DataResult.Error(exception = e))
         }
-        awaitClose()
     }
 }

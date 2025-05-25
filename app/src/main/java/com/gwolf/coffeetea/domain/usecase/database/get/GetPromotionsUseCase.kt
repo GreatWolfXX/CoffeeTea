@@ -2,35 +2,21 @@ package com.gwolf.coffeetea.domain.usecase.database.get
 
 import com.gwolf.coffeetea.domain.entities.Promotion
 import com.gwolf.coffeetea.domain.repository.remote.supabase.PromotionRepository
-import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.data.toDomain
-import io.github.jan.supabase.storage.Storage
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.hours
 
 class GetPromotionsUseCase @Inject constructor(
-    private val promotionRepository: PromotionRepository,
-    private val storage: Storage
+    private val promotionRepository: PromotionRepository
 ) {
-    operator fun invoke(): Flow<DataResult<List<Promotion>>> = callbackFlow {
+    operator fun invoke(): Flow<DataResult<List<Promotion>>> = flow {
         try {
             promotionRepository.getPromotions().collect { response ->
-                val data = response.map { promotion ->
-                    val imageUrl = storage.from(promotion.bucketId)
-                        .createSignedUrl(promotion.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                    return@map promotion.toDomain(imageUrl)
-                }
-                trySend(DataResult.Success(data = data))
+                emit(DataResult.Success(data = response))
             }
         } catch (e: Exception) {
-            trySend(DataResult.Error(exception = e))
-        } finally {
-            close()
+            emit(DataResult.Error(exception = e))
         }
-        awaitClose()
     }
 }

@@ -5,12 +5,12 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
-sealed class UiText {
-    data class DynamicString(val value: String) : UiText()
+sealed class LocalizedText {
+    data class DynamicString(val value: String) : LocalizedText()
     class StringResource(
         @StringRes val resId: Int,
         vararg val args: Any
-    ) : UiText()
+    ) : LocalizedText()
 
     @Composable
     fun asString(): String {

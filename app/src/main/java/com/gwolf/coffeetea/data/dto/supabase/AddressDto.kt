@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AddressEntity(
+data class AddressDto(
     @SerialName("id") val id: String = "",
     @SerialName("user_id") val userId: String,
     @SerialName("delivery_type") val deliveryType: String,

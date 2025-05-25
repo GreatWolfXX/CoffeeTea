@@ -9,7 +9,7 @@ import com.gwolf.coffeetea.domain.usecase.validate.ValidatePhoneUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UKRAINE_PHONE_CODE
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,9 +25,9 @@ import javax.inject.Inject
 data class ChangePhoneScreenState(
     val currentPhone: String = "",
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
     val phone: String = "",
-    val phoneError: UiText = UiText.DynamicString("")
+    val phoneError: LocalizedText = LocalizedText.DynamicString("")
 )
 
 sealed class ChangePhoneIntent {
@@ -88,7 +88,7 @@ class ChangePhoneViewModel @Inject constructor(
                     }
 
                     is DataResult.Error -> {
-                        _state.update { it.copy(error = UiText.DynamicString(result.exception.message.orEmpty())) }
+                        _state.update { it.copy(error = LocalizedText.DynamicString(result.exception.message.orEmpty())) }
                     }
                 }
             }
@@ -96,7 +96,7 @@ class ChangePhoneViewModel @Inject constructor(
         _state.update {
             it.copy(
                 isLoading = false,
-                error = UiText.DynamicString(""),
+                error = LocalizedText.DynamicString(""),
             )
         }
     }

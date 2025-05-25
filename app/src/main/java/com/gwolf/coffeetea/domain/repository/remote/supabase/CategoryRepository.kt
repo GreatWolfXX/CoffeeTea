@@ -1,8 +1,8 @@
 package com.gwolf.coffeetea.domain.repository.remote.supabase
 
-import com.gwolf.coffeetea.data.dto.supabase.CategoryEntity
+import com.gwolf.coffeetea.domain.entities.Category
 import kotlinx.coroutines.flow.Flow
 
 interface CategoryRepository {
-    fun getCategories(): Flow<List<CategoryEntity>>
+    fun getCategories(): Flow<List<Category>>
 }

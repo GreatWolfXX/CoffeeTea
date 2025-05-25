@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Category
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCategoriesUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -23,7 +23,7 @@ import javax.inject.Inject
 data class CategoryScreenState(
     val categoriesList: List<Category> = listOf(),
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class CategoryEvent {
@@ -53,7 +53,7 @@ class CategoryViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }

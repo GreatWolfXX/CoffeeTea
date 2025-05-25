@@ -7,7 +7,7 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateNameInfoUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -26,13 +26,13 @@ data class AboutMeScreenState(
     val profile: Profile? = null,
     val isLoading: Boolean = false,
     val updatedNameInfo: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
     val firstName: String = "",
-    val firstNameError: UiText = UiText.DynamicString(""),
+    val firstNameError: LocalizedText = LocalizedText.DynamicString(""),
     val lastName: String = "",
-    val lastNameError: UiText = UiText.DynamicString(""),
+    val lastNameError: LocalizedText = LocalizedText.DynamicString(""),
     val patronymic: String = "",
-    val patronymicError: UiText = UiText.DynamicString(""),
+    val patronymicError: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class AboutMeIntent {
@@ -108,7 +108,7 @@ class AboutMeViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -128,14 +128,14 @@ class AboutMeViewModel @Inject constructor(
                     }
 
                     is DataResult.Error -> {
-                        _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                        _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                     }
                 }
             }
             _state.update {
                 it.copy(
                     isLoading = false,
-                    error = UiText.DynamicString("")
+                    error = LocalizedText.DynamicString("")
                 )
             }
         }

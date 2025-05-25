@@ -9,7 +9,7 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetMinAndMaxProductsPrice
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProductsByCategoryWithFiltersUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,7 +32,7 @@ data class SearchProductScreenState(
     val minAndMaxPriceRange: ClosedFloatingPointRange<Float> = 0f..0f,
     val priceRangeState: ClosedFloatingPointRange<Float> = 0f..0f,
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class SearchProductIntent {
@@ -100,7 +100,7 @@ class SearchProductViewModel @Inject constructor(
                     }
 
                     is DataResult.Error -> {
-                        _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                        _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                     }
                 }
             }
@@ -118,7 +118,7 @@ class SearchProductViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }

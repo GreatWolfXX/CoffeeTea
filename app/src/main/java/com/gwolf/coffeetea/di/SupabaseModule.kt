@@ -49,11 +49,9 @@ object SupabaseModule {
         return client.auth
     }
 
-
     @Provides
     @Singleton
     fun provideSupabaseStorage(client: SupabaseClient): Storage {
         return client.storage
     }
-
 }

@@ -8,7 +8,7 @@ import com.gwolf.coffeetea.domain.usecase.validate.ValidatePhoneUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateTextUseCase
 import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.UKRAINE_PHONE_CODE
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -26,13 +26,13 @@ import javax.inject.Inject
 data class PersonalInfoScreenState(
     val profile: Profile? = null,
     val phone: String = "",
-    val phoneError: UiText = UiText.DynamicString(""),
+    val phoneError: LocalizedText = LocalizedText.DynamicString(""),
     val firstName: String = "",
-    val firstNameError: UiText = UiText.DynamicString(""),
+    val firstNameError: LocalizedText = LocalizedText.DynamicString(""),
     val lastName: String = "",
-    val lastNameError: UiText = UiText.DynamicString(""),
+    val lastNameError: LocalizedText = LocalizedText.DynamicString(""),
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class PersonalInfoIntent {
@@ -109,7 +109,7 @@ class PersonalInfoViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }

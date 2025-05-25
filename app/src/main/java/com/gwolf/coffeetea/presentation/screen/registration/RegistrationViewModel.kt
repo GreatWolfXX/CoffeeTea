@@ -7,7 +7,7 @@ import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidatePasswordUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateRepeatPasswordUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,13 +21,13 @@ import javax.inject.Inject
 
 data class RegistrationScreenState(
     val email: String = "",
-    val emailError: UiText = UiText.DynamicString(""),
+    val emailError: LocalizedText = LocalizedText.DynamicString(""),
     val password: String = "",
-    val passwordError: UiText = UiText.DynamicString(""),
+    val passwordError: LocalizedText = LocalizedText.DynamicString(""),
     val repeatPassword: String = "",
-    val repeatPasswordError: UiText = UiText.DynamicString(""),
+    val repeatPasswordError: LocalizedText = LocalizedText.DynamicString(""),
     val passwordVisible: Boolean = false,
-    val signUpError: UiText = UiText.DynamicString(""),
+    val signUpError: LocalizedText = LocalizedText.DynamicString(""),
     val isLoading: Boolean = false,
 )
 
@@ -106,14 +106,14 @@ class RegistrationViewModel @Inject constructor(
                         }
 
                         is DataResult.Error -> {
-                             _state.update { it.copy(signUpError = UiText.DynamicString(result.exception.message.orEmpty())) }
+                             _state.update { it.copy(signUpError = LocalizedText.DynamicString(result.exception.message.orEmpty())) }
                         }
                     }
                 }
             _state.update {
                 it.copy(
                     isLoading = true,
-                    signUpError = UiText.DynamicString("")
+                    signUpError = LocalizedText.DynamicString("")
                 )
             }
         }

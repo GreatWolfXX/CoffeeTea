@@ -3,7 +3,7 @@ package com.gwolf.coffeetea.presentation.screen.forgotpassword
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,9 +17,9 @@ import javax.inject.Inject
 
 data class ForgotPasswordScreenState(
     val email: String = "",
-    val emailError: UiText = UiText.DynamicString(""),
+    val emailError: LocalizedText = LocalizedText.DynamicString(""),
     val forgotPasswordSuccess: Boolean = false,
-    val forgotPasswordError: UiText = UiText.DynamicString(""),
+    val forgotPasswordError: LocalizedText = LocalizedText.DynamicString(""),
     val isLoading: Boolean = false
 )
 

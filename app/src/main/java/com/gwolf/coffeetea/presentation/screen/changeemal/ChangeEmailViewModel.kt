@@ -9,7 +9,7 @@ import com.gwolf.coffeetea.domain.usecase.database.update.ChangeEmailUseCase
 import com.gwolf.coffeetea.domain.usecase.validate.ValidateEmailUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,11 +25,11 @@ import javax.inject.Inject
 data class ChangeEmailScreenState(
     val currentEmail: String = "",
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
     val showOtpModalSheet: Boolean = false,
-    val otpError: UiText = UiText.DynamicString(""),
+    val otpError: LocalizedText = LocalizedText.DynamicString(""),
     val email: String = "",
-    val emailError: UiText = UiText.DynamicString(""),
+    val emailError: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class ChangeEmailIntent {
@@ -104,7 +104,7 @@ class ChangeEmailViewModel @Inject constructor(
                     is DataResult.Error -> {
                         _state.update {
                             it.copy(
-                                error = UiText.DynamicString(result.exception.message.orEmpty())
+                                error = LocalizedText.DynamicString(result.exception.message.orEmpty())
                             )
                         }
                     }
@@ -113,7 +113,7 @@ class ChangeEmailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isLoading = false,
-                    error = UiText.DynamicString("")
+                    error = LocalizedText.DynamicString("")
                 )
             }
         }
@@ -132,7 +132,7 @@ class ChangeEmailViewModel @Inject constructor(
                     is DataResult.Error -> {
                         _state.update {
                             it.copy(
-                                otpError = UiText.DynamicString(result.exception.message.orEmpty()),
+                                otpError = LocalizedText.DynamicString(result.exception.message.orEmpty()),
                             )
                         }
                     }
@@ -141,7 +141,7 @@ class ChangeEmailViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isLoading = false,
-                    otpError = UiText.DynamicString("")
+                    otpError = LocalizedText.DynamicString("")
                 )
             }
         }

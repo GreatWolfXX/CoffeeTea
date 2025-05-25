@@ -2,13 +2,13 @@ package com.gwolf.coffeetea.data
 
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostCityDto
 import com.gwolf.coffeetea.data.dto.novapost.NovaPostDepartmentsDto
-import com.gwolf.coffeetea.data.dto.supabase.AddressEntity
-import com.gwolf.coffeetea.data.dto.supabase.CartItemEntity
-import com.gwolf.coffeetea.data.dto.supabase.CategoryEntity
-import com.gwolf.coffeetea.data.dto.supabase.FavoriteEntity
-import com.gwolf.coffeetea.data.dto.supabase.ProductEntity
-import com.gwolf.coffeetea.data.dto.supabase.ProfileEntity
-import com.gwolf.coffeetea.data.dto.supabase.PromotionEntity
+import com.gwolf.coffeetea.data.dto.supabase.AddressDto
+import com.gwolf.coffeetea.data.dto.supabase.CartItemDto
+import com.gwolf.coffeetea.data.dto.supabase.CategoryDto
+import com.gwolf.coffeetea.data.dto.supabase.FavoriteDto
+import com.gwolf.coffeetea.data.dto.supabase.ProductDto
+import com.gwolf.coffeetea.data.dto.supabase.ProfileDto
+import com.gwolf.coffeetea.data.dto.supabase.PromotionDto
 import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.entities.CartItem
 import com.gwolf.coffeetea.domain.entities.Category
@@ -19,7 +19,7 @@ import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.domain.entities.Profile
 import com.gwolf.coffeetea.domain.entities.Promotion
 
-fun PromotionEntity.toDomain(imageUrl: String = "") = Promotion(
+fun PromotionDto.toDomain(imageUrl: String) = Promotion(
     id = this.id,
     title = this.title,
     description = this.description,
@@ -28,13 +28,13 @@ fun PromotionEntity.toDomain(imageUrl: String = "") = Promotion(
     imageUrl = imageUrl
 )
 
-fun CategoryEntity.toDomain(imageUrl: String = "") = Category(
+fun CategoryDto.toDomain(imageUrl: String) = Category(
     id = this.id,
     name = this.name,
     imageUrl = imageUrl
 )
 
-fun ProductEntity.toDomain(imageUrl: String = "") = Product(
+fun ProductDto.toDomain(imageUrl: String) = Product(
     id = this.id,
     name = this.name,
     stockQuantity = this.stockQuantity,
@@ -50,24 +50,24 @@ fun ProductEntity.toDomain(imageUrl: String = "") = Product(
     cartItemId = this.cartItem.takeIf { it.isNotEmpty() }?.first()?.id.orEmpty()
 )
 
-fun ProfileEntity.toDomain(imageUrl: String = "") = Profile(
+fun ProfileDto.toDomain(imageUrl: String) = Profile(
     id = this.id,
     firstName = this.firstName,
     lastName = this.lastName,
     patronymic = this.patronymic,
-    phone = if(this.phone.isNotEmpty()) "+${this.phone}" else "",
+    phone = if (this.phone.isNotEmpty()) "+${this.phone}" else "",
     email = this.email,
     imageUrl = imageUrl
 )
 
-fun FavoriteEntity.toDomain(productImageUrl: String = "") = Favorite(
+fun FavoriteDto.toDomain(imageUrl: String) = Favorite(
     id = this.id,
-    product = this.product?.toDomain(productImageUrl)!!
+    product = this.product?.toDomain(imageUrl)!!
 )
 
-fun CartItemEntity.toDomain(productImageUrl: String = "") = CartItem(
+fun CartItemDto.toDomain(imageUrl: String) = CartItem(
     id = this.id,
-    product = product?.toDomain(productImageUrl)!!,
+    product = product?.toDomain(imageUrl)!!,
     quantity = this.quantity,
 )
 
@@ -76,12 +76,16 @@ fun NovaPostCityDto.toDomain() = City(
     name = name
 )
 
+fun List<NovaPostCityDto>.toDomain() = this.map { it.toDomain() }
+
 fun NovaPostDepartmentsDto.toDomain() = Department(
     ref = ref,
     name = name
 )
 
-fun AddressEntity.toDomain() = Address(
+fun List<NovaPostDepartmentsDto>.toDomain() = this.map { it.toDomain() }
+
+fun AddressDto.toDomain() = Address(
     id = id,
     userId = userId,
     deliveryType = deliveryType,
@@ -91,3 +95,5 @@ fun AddressEntity.toDomain() = Address(
     address = address,
     isDefault = isDefault
 )
+
+fun List<AddressDto>.toDomain() = this.map { it.toDomain() }

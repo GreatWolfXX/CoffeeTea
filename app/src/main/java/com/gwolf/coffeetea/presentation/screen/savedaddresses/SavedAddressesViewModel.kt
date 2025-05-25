@@ -7,7 +7,7 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetAddressesUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveSavedDeliveryUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateSavedAddressUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -23,7 +23,7 @@ import javax.inject.Inject
 data class SavedAddressesScreenState(
     val listAddresses: List<Address> = listOf(),
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class SavedAddressesIntent {
@@ -73,7 +73,7 @@ class SavedAddressesViewModel @Inject constructor(
                     }
 
                     is DataResult.Error -> {
-                        _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                        _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                     }
                 }
             }
@@ -108,7 +108,7 @@ class SavedAddressesViewModel @Inject constructor(
                     }
 
                     is DataResult.Error -> {
-                        _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                        _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                     }
                 }
             }
@@ -124,7 +124,7 @@ class SavedAddressesViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }

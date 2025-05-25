@@ -8,7 +8,7 @@ import com.gwolf.coffeetea.domain.usecase.database.add.AddImageProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetProfileUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateProfileImageUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import com.gwolf.coffeetea.util.bitmapToByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.Auth
@@ -28,7 +28,7 @@ import javax.inject.Inject
 data class ProfileScreenState(
     val profile: Profile? = null,
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class ProfileIntent {
@@ -89,7 +89,7 @@ class ProfileViewModel @Inject constructor(
                 is DataResult.Error -> {
                     _state.update {
                         it.copy(
-                            error = UiText.DynamicString(response.exception.message.orEmpty())
+                            error = LocalizedText.DynamicString(response.exception.message.orEmpty())
                         )
                     }
                 }
@@ -115,7 +115,7 @@ class ProfileViewModel @Inject constructor(
                 is DataResult.Error -> {
                     _state.update {
                         it.copy(
-                            error = UiText.DynamicString(response.exception.message.orEmpty()),
+                            error = LocalizedText.DynamicString(response.exception.message.orEmpty()),
                             isLoading = false
                         )
                     }
@@ -133,7 +133,7 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }

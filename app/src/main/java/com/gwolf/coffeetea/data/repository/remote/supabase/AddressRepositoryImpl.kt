@@ -1,15 +1,16 @@
 package com.gwolf.coffeetea.data.repository.remote.supabase
 
-import com.gwolf.coffeetea.data.dto.supabase.AddressEntity
+import com.gwolf.coffeetea.data.dto.supabase.AddressDto
+import com.gwolf.coffeetea.data.toDomain
+import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.repository.remote.supabase.AddressRepository
 import com.gwolf.coffeetea.util.DELIVERY_ADDRESSES_TABLE
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -17,20 +18,16 @@ class AddressRepositoryImpl @Inject constructor(
     private val postgrest: Postgrest,
     private val auth: Auth
 ) : AddressRepository {
-    override fun getDeliveryAddresses(): Flow<List<AddressEntity>> = callbackFlow {
+    override fun getDeliveryAddresses(): Flow<List<Address>> = flow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(DELIVERY_ADDRESSES_TABLE)
                 .select(Columns.raw("*")) {
-                    filter {
-                        eq("user_id", id)
-                    }
+                    filter { eq("user_id", id) }
                 }
-                .decodeList<AddressEntity>()
+                .decodeList<AddressDto>()
         }
-        trySend(response)
-        close()
-        awaitClose()
+        emit(response.toDomain())
     }
 
     override fun addDeliveryAddress(
@@ -40,9 +37,9 @@ class AddressRepositoryImpl @Inject constructor(
         city: String,
         address: String,
         isDefault: Boolean
-    ): Flow<Unit> = callbackFlow {
+    ): Flow<Unit> = flow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
-        val cart = AddressEntity(
+        val cart = AddressDto(
             userId = id,
             deliveryType = type,
             refCity = refCity,
@@ -54,9 +51,7 @@ class AddressRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO) {
             postgrest.from(DELIVERY_ADDRESSES_TABLE).upsert(cart)
         }
-        trySend(Unit)
-        close()
-        awaitClose()
+        emit(Unit)
     }
 
     override fun updateDeliveryAddress(
@@ -67,7 +62,7 @@ class AddressRepositoryImpl @Inject constructor(
         city: String,
         address: String,
         isDefault: Boolean
-    ): Flow<AddressEntity> = callbackFlow {
+    ): Flow<Address> = flow {
         val response = withContext(Dispatchers.IO) {
             postgrest.from(DELIVERY_ADDRESSES_TABLE).update(
                 {
@@ -80,27 +75,19 @@ class AddressRepositoryImpl @Inject constructor(
                 }
             ) {
                 select()
-                filter {
-                    eq("address_id", addressId)
-                }
-            }.decodeSingle<AddressEntity>()
+                filter { eq("address_id", addressId) }
+            }.decodeSingle<AddressDto>()
         }
-        trySend(response)
-        close()
-        awaitClose()
+        emit(response.toDomain())
     }
 
-    override fun removeDeliveryAddress(addressId: String): Flow<Unit> = callbackFlow {
+    override fun removeDeliveryAddress(addressId: String): Flow<Unit> = flow {
         withContext(Dispatchers.IO) {
             postgrest.from(DELIVERY_ADDRESSES_TABLE)
                 .delete {
-                    filter {
-                        eq("address_id", addressId)
-                    }
+                    filter { eq("address_id", addressId) }
                 }
         }
-        trySend(Unit)
-        close()
-        awaitClose()
+        emit(Unit)
     }
 }

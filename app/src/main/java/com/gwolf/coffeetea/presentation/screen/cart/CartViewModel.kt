@@ -7,7 +7,7 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveCartProductUseCase
 import com.gwolf.coffeetea.domain.usecase.database.update.UpdateCartProductQuantityUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,7 +25,7 @@ import javax.inject.Inject
 data class CartScreenState(
     val cartProductsList: List<CartItem> = listOf(),
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class CartIntent {
@@ -89,14 +89,14 @@ class CartViewModel @Inject constructor(
                         }
 
                         is DataResult.Error -> {
-                            _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                            _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                         }
                     }
                 }
             _state.update {
                 it.copy(
                     isLoading = false,
-                    error = UiText.DynamicString("")
+                    error = LocalizedText.DynamicString("")
                 )
             }
         }
@@ -113,14 +113,14 @@ class CartViewModel @Inject constructor(
                         }
 
                         is DataResult.Error -> {
-                            _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                            _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                         }
                     }
                 }
             _state.update {
                 it.copy(
                     isLoading = false,
-                    error = UiText.DynamicString("")
+                    error = LocalizedText.DynamicString("")
                 )
             }
         }
@@ -136,7 +136,7 @@ class CartViewModel @Inject constructor(
                 is DataResult.Error -> {
                     _state.update {
                         it.copy(
-                            error = UiText.DynamicString(response.exception.message.orEmpty())
+                            error = LocalizedText.DynamicString(response.exception.message.orEmpty())
                         )
                     }
                 }

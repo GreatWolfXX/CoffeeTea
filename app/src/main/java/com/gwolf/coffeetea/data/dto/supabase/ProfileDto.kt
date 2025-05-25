@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ProfileEntity(
+data class ProfileDto(
     @SerialName("user_id") val id: String = "",
     @SerialName("email") val email: String,
     @SerialName("first_name") val firstName: String,

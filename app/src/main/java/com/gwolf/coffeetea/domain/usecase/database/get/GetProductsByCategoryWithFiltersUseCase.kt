@@ -1,19 +1,14 @@
 package com.gwolf.coffeetea.domain.usecase.database.get
 
-import com.gwolf.coffeetea.data.toDomain
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.domain.repository.remote.supabase.ProductRepository
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.HOURS_EXPIRES_IMAGE_URL
-import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.hours
 
 class GetProductsByCategoryWithFiltersUseCase @Inject constructor(
-    private val productRepository: ProductRepository,
-    private val storage: Storage
+    private val productRepository: ProductRepository
 ) {
     operator fun invoke(
         categoryId: String,
@@ -23,12 +18,7 @@ class GetProductsByCategoryWithFiltersUseCase @Inject constructor(
         try {
             productRepository.getProductsByCategoryWithFilters(categoryId, isDescending, priceRange)
                 .collect { response ->
-                    val data = response.map { product ->
-                        val imageUrl = storage.from(product.bucketId)
-                            .createSignedUrl(product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
-                        product.toDomain(imageUrl)
-                    }
-                    emit(DataResult.Success(data = data))
+                    emit(DataResult.Success(data = response))
                 }
         } catch (e: Exception) {
             emit(DataResult.Error(exception = e))

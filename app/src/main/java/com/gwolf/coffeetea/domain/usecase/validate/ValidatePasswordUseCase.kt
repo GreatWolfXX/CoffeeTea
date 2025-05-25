@@ -3,7 +3,7 @@ package com.gwolf.coffeetea.domain.usecase.validate
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.util.ValidationResult
 import com.gwolf.coffeetea.util.MIN_PASSWORD_LENGTH
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import com.gwolf.coffeetea.util.isPasswordValid
 import javax.inject.Inject
 
@@ -12,14 +12,14 @@ class ValidatePasswordUseCase @Inject constructor() {
         if (input.length < MIN_PASSWORD_LENGTH) {
             return ValidationResult(
                 successful = false,
-                errorMessage = UiText.StringResource(resId = R.string.err_password_length, MIN_PASSWORD_LENGTH),
+                errorMessage = LocalizedText.StringResource(resId = R.string.err_password_length, MIN_PASSWORD_LENGTH),
             )
         }
 
         if (!isPasswordValid(input)) {
             return ValidationResult(
                 successful = false,
-                errorMessage = UiText.StringResource(resId = R.string.err_password_valid),
+                errorMessage = LocalizedText.StringResource(resId = R.string.err_password_valid),
             )
         }
         return ValidationResult(

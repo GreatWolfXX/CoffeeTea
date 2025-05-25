@@ -12,7 +12,7 @@ import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveFavoriteUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.PRODUCT_ADD_CART_QUANTITY
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,7 +32,7 @@ data class ProductInfoScreenState(
     val isLoading: Boolean = false,
     val isFavorite: Boolean = false,
     val isInCart: Boolean = false,
-    val error: UiText = UiText.DynamicString(""),
+    val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 sealed class ProductInfoIntent {
@@ -95,7 +95,7 @@ class ProductInfoViewModel @Inject constructor(
                         is DataResult.Error -> {
                             _state.update {
                                 it.copy(
-                                    error = UiText.DynamicString(response.exception.message.orEmpty()),
+                                    error = LocalizedText.DynamicString(response.exception.message.orEmpty()),
                                     isInCart = false
                                 )
                             }
@@ -117,7 +117,7 @@ class ProductInfoViewModel @Inject constructor(
                         is DataResult.Error -> {
                             _state.update {
                                 it.copy(
-                                    error = UiText.DynamicString(response.exception.message.orEmpty()),
+                                    error = LocalizedText.DynamicString(response.exception.message.orEmpty()),
                                     isFavorite = true
                                 )
                             }
@@ -144,7 +144,7 @@ class ProductInfoViewModel @Inject constructor(
                         is DataResult.Error -> {
                             _state.update {
                                 it.copy(
-                                    error = UiText.DynamicString(response.exception.message.orEmpty()),
+                                    error = LocalizedText.DynamicString(response.exception.message.orEmpty()),
                                     isFavorite = false
                                 )
                             }
@@ -170,7 +170,7 @@ class ProductInfoViewModel @Inject constructor(
                 is DataResult.Error -> {
                     _state.update {
                         it.copy(
-                            error = UiText.DynamicString(response.exception.message.orEmpty()),
+                            error = LocalizedText.DynamicString(response.exception.message.orEmpty()),
                             isFavorite = false,
                             isInCart = false
                         )

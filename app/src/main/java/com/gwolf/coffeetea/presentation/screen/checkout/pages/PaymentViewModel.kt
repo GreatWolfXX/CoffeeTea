@@ -10,7 +10,7 @@ import com.gwolf.coffeetea.domain.entities.CartItem
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsUseCase
 import com.gwolf.coffeetea.domain.usecase.googlepay.IsReadyToGPayUseCase
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import com.gwolf.coffeetea.util.getPaymentDataRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -31,7 +31,7 @@ data class PaymentScreenState(
     val isGooglePayAvailable: Boolean = false,
     val paymentDataTask: Task<PaymentData>? = null,
     val isLoading: Boolean = false,
-    val error: UiText = UiText.DynamicString("")
+    val error: LocalizedText = LocalizedText.DynamicString("")
 )
 
 sealed class PaymentIntent {
@@ -75,7 +75,7 @@ class PaymentViewModel @Inject constructor(
                 }
 
                 is DataResult.Error -> {
-                    _state.update { it.copy(error = UiText.DynamicString(response.exception.message.orEmpty())) }
+                    _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                 }
             }
         }
@@ -99,7 +99,7 @@ class PaymentViewModel @Inject constructor(
                 is DataResult.Error -> {
                     _state.update {
                         it.copy(
-                            error = UiText.DynamicString(response.exception.message.orEmpty())
+                            error = LocalizedText.DynamicString(response.exception.message.orEmpty())
                         )
                     }
                 }

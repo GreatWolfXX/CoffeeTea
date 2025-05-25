@@ -2,7 +2,7 @@ package com.gwolf.coffeetea.domain.usecase.validate
 
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.util.ValidationResult
-import com.gwolf.coffeetea.util.UiText
+import com.gwolf.coffeetea.util.LocalizedText
 import com.gwolf.coffeetea.util.isEmailValid
 import javax.inject.Inject
 
@@ -11,13 +11,13 @@ class ValidateEmailUseCase @Inject constructor() {
         if (input.isBlank()) {
             return ValidationResult(
                 successful = false,
-                errorMessage = UiText.StringResource(resId = R.string.err_field_empty)
+                errorMessage = LocalizedText.StringResource(resId = R.string.err_field_empty)
             )
         }
         if (!isEmailValid(input)) {
             return ValidationResult(
                 successful = false,
-                errorMessage = UiText.StringResource(resId = R.string.err_email_valid)
+                errorMessage = LocalizedText.StringResource(resId = R.string.err_email_valid)
             )
         }
         return ValidationResult(

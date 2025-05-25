@@ -1,10 +1,10 @@
 package com.gwolf.coffeetea.domain.repository.remote.supabase
 
-import com.gwolf.coffeetea.data.dto.supabase.ProfileEntity
+import com.gwolf.coffeetea.domain.entities.Profile
 import kotlinx.coroutines.flow.Flow
 
 interface ProfileRepository {
-    fun getProfile(): Flow<ProfileEntity?>
+    fun getProfile(): Flow<Profile?>
     fun uploadProfileImage(byteArray: ByteArray): Flow<String>
     fun updateProfileImagePath(imagePath: String): Flow<Unit>
     fun updateEmail(newEmail: String): Flow<Unit>
