@@ -59,6 +59,10 @@
     <string name="desc_favorite_empty">Наразі обрані продукти відсутні.\nВибирайте цікаві вам продукти та зберігайте їх, вони будуть відображатись саме тут!</string>
     <string name="title_cart_empty">Кошик пустий</string>
     <string name="desc_cart_empty">Наразі кошик пустий.\nВибирайте цікаві вам продукти та додавайте до кошика, вони будуть відображатись саме тут!</string>
+    <string name="title_notifications_empty">Повідомлення відсутні</string>
+    <string name="desc_notifications_empty">Наразі повідомлення відсутні.\Нові повідомлення будуть відображатись саме тут!</string>
+    <string name="title_orders_empty">Історія замовлення відсутня</string>
+    <string name="desc_orders_empty">Наразі історія замовлень відсутня.\Історія замовлень буде відображатись саме тут!</string>
     <string name="title_error">Упс…</string>
     <string name="desc_error">Вибачте, щось пішло не так.\nСпробуйте перезапустити застосунок!</string>
     <string name="title_network">Відсутній інтернет зв\'язок</string>
@@ -91,7 +95,7 @@
     <string name="new_password">Новий пароль</string>
     <string name="repeat_new_password">Повторіть новий пароль</string>
     <string name="empty_phone">Ви ще не пов\'язували свій номер телефону</string>
-    <string name="title_checkout">Оформленняя замовлення</string>
+    <string name="title_checkout">Оформлення замовлення</string>
     <string name="delivery">Доставка</string>
     <string name="recipient">Отримувач</string>
     <string name="payment">Оплата</string>

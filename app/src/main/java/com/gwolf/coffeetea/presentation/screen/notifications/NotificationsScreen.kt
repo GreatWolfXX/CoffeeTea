@@ -1,4 +1,4 @@
-package com.gwolf.coffeetea.presentation.screen.orders
+package com.gwolf.coffeetea.presentation.screen.notifications
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,11 +30,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.entities.Order
+import com.gwolf.coffeetea.domain.entities.Notification
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
-import com.gwolf.coffeetea.presentation.component.OrderComponent
+import com.gwolf.coffeetea.presentation.component.NotificationComponent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
@@ -43,16 +43,16 @@ import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.connectivityState
 
 @Composable
-fun OrdersScreen(
+fun NotificationsScreen(
     navController: NavController,
-    viewModel: OrdersViewModel = hiltViewModel()
+    viewModel: NotificationsViewModel = hiltViewModel()
 ) {
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
     val state by viewModel.state.collectAsState()
 
-    OrdersContent(
+    NotificationsContent(
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateBack = {
@@ -64,8 +64,8 @@ fun OrdersScreen(
 }
 
 @Composable
-private fun OrdersContent(
-    state: OrdersScreenState,
+private fun NotificationsContent(
+    state: NotificationsScreenState,
     isNetworkConnected: Boolean,
     navigateBack: () -> Unit = {},
 ) {
@@ -92,7 +92,7 @@ private fun OrdersContent(
                     desc = desc
                 )
             } else {
-                OrdersMainSection(
+                NotificationsMainSection(
                     state = state
                 )
             }
@@ -101,21 +101,21 @@ private fun OrdersContent(
 }
 
 @Composable
-private fun OrdersMainSection(
-    state: OrdersScreenState
+private fun NotificationsMainSection(
+    state: NotificationsScreenState
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
     ) {
-        if (state.orderList.isNotEmpty()) {
-            OrdersList(state.orderList)
+        if (state.notificationList.isNotEmpty()) {
+            NotificationsList(state.notificationList)
         } else {
             ErrorOrEmptyComponent(
                 style = ErrorOrEmptyStyle.EMPTY,
-                title = R.string.title_orders_empty,
-                desc = R.string.desc_orders_empty
+                title = R.string.title_notifications_empty,
+                desc = R.string.desc_notifications_empty
             )
         }
     }
@@ -131,7 +131,7 @@ private fun TopMenu(
         title = {
             Text(
                 modifier = Modifier.padding(start = 4.dp),
-                text = stringResource(id = R.string.title_my_order),
+                text = stringResource(id = R.string.title_notifications),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 22.sp,
@@ -155,8 +155,8 @@ private fun TopMenu(
 }
 
 @Composable
-private fun OrdersList(
-    ordersList: List<Order>
+private fun NotificationsList(
+    notificationList: List<Notification>
 ) {
     LazyColumn(
         modifier = Modifier
@@ -164,17 +164,17 @@ private fun OrdersList(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
-        items(ordersList) { order ->
-            OrderComponent(order)
+        items(notificationList) { notification ->
+            NotificationComponent(notification)
         }
     }
 }
 
 @Preview
 @Composable
-private fun OrdersScreenPreview() {
-    OrdersContent(
-        state = OrdersScreenState(),
+private fun NotificationsScreenPreview() {
+    NotificationsContent(
+        state = NotificationsScreenState(),
         isNetworkConnected = true
     )
 }

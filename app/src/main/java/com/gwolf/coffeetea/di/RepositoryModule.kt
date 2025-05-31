@@ -8,6 +8,7 @@ import com.gwolf.coffeetea.data.repository.remote.supabase.AuthRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.CartItemRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.CategoryRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.FavoriteRepositoryImpl
+import com.gwolf.coffeetea.data.repository.remote.supabase.NotificationRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.OrdersRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.ProductRepositoryImpl
 import com.gwolf.coffeetea.data.repository.remote.supabase.ProfileRepositoryImpl
@@ -19,6 +20,7 @@ import com.gwolf.coffeetea.domain.repository.remote.supabase.AuthRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.CartRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.CategoryRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.FavoriteRepository
+import com.gwolf.coffeetea.domain.repository.remote.supabase.NotificationRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.OrdersRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.ProductRepository
 import com.gwolf.coffeetea.domain.repository.remote.supabase.ProfileRepository
@@ -116,4 +118,11 @@ object RepositoryModule {
         auth: Auth,
         storage: Storage
     ): OrdersRepository = OrdersRepositoryImpl(postgrest, auth, storage)
+
+    @Provides
+    @Singleton
+    fun provideNotificationRepository(
+        postgrest: Postgrest,
+        auth: Auth
+    ): NotificationRepository = NotificationRepositoryImpl(postgrest, auth)
 }

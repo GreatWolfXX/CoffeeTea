@@ -33,6 +33,7 @@ import com.gwolf.coffeetea.presentation.screen.favorite.FavoriteScreen
 import com.gwolf.coffeetea.presentation.screen.forgotpassword.ForgotPasswordScreen
 import com.gwolf.coffeetea.presentation.screen.home.HomeScreen
 import com.gwolf.coffeetea.presentation.screen.login.LoginScreen
+import com.gwolf.coffeetea.presentation.screen.notifications.NotificationsScreen
 import com.gwolf.coffeetea.presentation.screen.orders.OrdersScreen
 import com.gwolf.coffeetea.presentation.screen.productinfo.ProductInfoScreen
 import com.gwolf.coffeetea.presentation.screen.profile.ProfileScreen
@@ -48,15 +49,22 @@ fun SetupNavGraph(
     showBottomBar: Boolean,
     paddingValues: PaddingValues
 ) {
-    val animatePadding by animateDpAsState(targetValue =
-        if (showBottomBar) paddingValues.calculateBottomPadding() / 1.17f else 0.dp)
+    val animatePadding by animateDpAsState(
+        targetValue =
+            if (showBottomBar) paddingValues.calculateBottomPadding() / 1.17f else 0.dp
+    )
 
     val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
         { fadeIn(tween(1000)) }
     val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
         { fadeOut(tween(700)) }
     val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(700)) }
+        {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.End,
+                animationSpec = tween(700)
+            )
+        }
 
     NavHost(
         modifier = Modifier
@@ -188,13 +196,22 @@ fun SetupNavGraph(
             )
         }
 
-
         composable<Screen.MyOrders>(
             enterTransition = enterTransition,
             exitTransition = exitTransition,
             popEnterTransition = popEnterTransition
         ) {
             OrdersScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.Notifications>(
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            popEnterTransition = popEnterTransition
+        ) {
+            NotificationsScreen(
                 navController = navController
             )
         }

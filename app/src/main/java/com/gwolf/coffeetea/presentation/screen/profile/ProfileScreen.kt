@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -265,11 +266,13 @@ private fun ProfileMainSection(
 //            icon = Icons.Outlined.AccountBalanceWallet,
 //            text = R.string.title_my_cards
 //        ) { }
-//        Spacer(modifier = Modifier.size(16.dp))
-//        ProfileMenuButton(
-//            icon = Icons.Outlined.Notifications,
-//            text = stringResource(R.string.title_notifications)
-//        ) { }
+        Spacer(modifier = Modifier.size(16.dp))
+        ProfileMenuButton(
+            icon = Icons.Outlined.Notifications,
+            text = stringResource(R.string.title_notifications)
+        ) {
+            navigateToOtherScreen(Screen.Notifications)
+        }
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuButton(
             icon = Icons.AutoMirrored.Outlined.Logout,

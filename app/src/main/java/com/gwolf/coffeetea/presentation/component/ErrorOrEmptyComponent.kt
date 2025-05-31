@@ -28,7 +28,8 @@ enum class ErrorOrEmptyStyle {
     ERROR,
     NETWORK,
     PRODUCT_EMPTY,
-    FAVORITE_EMPTY
+    FAVORITE_EMPTY,
+    EMPTY
 }
 
 @Composable
@@ -44,6 +45,7 @@ fun ErrorOrEmptyComponent(
         ErrorOrEmptyStyle.PRODUCT_EMPTY -> R.drawable.products_empty
         ErrorOrEmptyStyle.FAVORITE_EMPTY -> R.drawable.favorites_empty
         ErrorOrEmptyStyle.NETWORK -> R.drawable.network_illustration
+        ErrorOrEmptyStyle.EMPTY -> R.drawable.error_empty
     }
 
     Column(

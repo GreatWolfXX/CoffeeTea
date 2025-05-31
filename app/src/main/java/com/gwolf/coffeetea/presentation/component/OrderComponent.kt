@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,7 +72,7 @@ fun OrderComponent(
             modifier = Modifier
                 .height(120.dp)
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 16.dp)
                 .padding(top = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -100,7 +99,7 @@ fun OrderComponent(
                 ) {
                     Text(
                         modifier = Modifier
-                            .fillMaxWidth(0.6f),
+                            .fillMaxWidth(),
                         text = stringResource(R.string.order_number, order.orderNumber),
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Medium,
@@ -135,8 +134,7 @@ fun OrderComponent(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    val locale = LocalConfiguration.current.locales.get(0)
-                    val date = DateTimeUtils.formatDateTimeFromString(order.createdAt, locale)
+                    val date = DateTimeUtils.formatDateTimeFromString(order.createdAt)
                     Text(
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -217,6 +215,7 @@ fun PreviewOrderComponent() {
     )
 
     val address = Address(
+        id = "",
         userId = "",
         deliveryType = "",
         refCity = "",
@@ -230,7 +229,7 @@ fun PreviewOrderComponent() {
         orderNumber = 1254,
         userId = "",
         totalPrice = 900.00,
-        createdAt = "30.05.2025",
+        createdAt = "2025-05-31T10:38:28+00:00",
         orderItems = orderItems,
         address = address
     )

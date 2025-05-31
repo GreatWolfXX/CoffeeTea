@@ -116,7 +116,15 @@ class CartViewModel @Inject constructor(
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
-
+                            val list = _state.value.cartProductsList
+                            val updateList = list.map { cartItem ->
+                                if (cartItem.id == cartId) {
+                                    cartItem.copy(quantity = quantity)
+                                } else {
+                                    cartItem
+                                }
+                            }
+                            _state.update { it.copy(cartProductsList = updateList) }
                         }
 
                         is DataResult.Error -> {

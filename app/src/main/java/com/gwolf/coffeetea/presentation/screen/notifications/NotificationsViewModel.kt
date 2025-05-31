@@ -1,9 +1,9 @@
-package com.gwolf.coffeetea.presentation.screen.orders
+package com.gwolf.coffeetea.presentation.screen.notifications
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gwolf.coffeetea.domain.entities.Order
-import com.gwolf.coffeetea.domain.usecase.database.get.GetOrdersUseCase
+import com.gwolf.coffeetea.domain.entities.Notification
+import com.gwolf.coffeetea.domain.usecase.database.get.GetNotificationsUseCase
 import com.gwolf.coffeetea.util.DataResult
 import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,29 +18,29 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-data class OrdersScreenState(
-    val orderList: List<Order> = listOf(),
+data class NotificationsScreenState(
+    val notificationList: List<Notification> = listOf(),
     val isLoading: Boolean = false,
     val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
 @HiltViewModel
-class OrdersViewModel @Inject constructor(
-    private val getOrdersUseCase: GetOrdersUseCase
+class NotificationsViewModel @Inject constructor(
+    private val getNotificationsUseCase: GetNotificationsUseCase
 ) : ViewModel() {
 
-    private var _state = MutableStateFlow(OrdersScreenState())
-    val state: StateFlow<OrdersScreenState> = _state.stateIn(
+    private var _state = MutableStateFlow(NotificationsScreenState())
+    val state: StateFlow<NotificationsScreenState> = _state.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
-        initialValue = OrdersScreenState()
+        initialValue = NotificationsScreenState()
     )
 
-    private suspend fun getOrders() {
-        getOrdersUseCase.invoke().collect { response ->
+    private suspend fun getNotifications() {
+        getNotificationsUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(orderList = response.data) }
+                    _state.update { it.copy(notificationList = response.data) }
                 }
 
                 is DataResult.Error -> {
@@ -53,13 +53,13 @@ class OrdersViewModel @Inject constructor(
     init {
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            val orderList = async { getOrders() }
+            val notificationList = async { getNotifications() }
 
             try {
-                awaitAll(orderList)
+                awaitAll(notificationList)
                 _state.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
-                Timber.d("Error loading orders screen data: ${e.message}")
+                Timber.d("Error loading notification screen data: ${e.message}")
             }
         }
     }

@@ -6,6 +6,7 @@ import com.gwolf.coffeetea.data.dto.supabase.AddressDto
 import com.gwolf.coffeetea.data.dto.supabase.CartItemDto
 import com.gwolf.coffeetea.data.dto.supabase.CategoryDto
 import com.gwolf.coffeetea.data.dto.supabase.FavoriteDto
+import com.gwolf.coffeetea.data.dto.supabase.NotificationDto
 import com.gwolf.coffeetea.data.dto.supabase.OrderDto
 import com.gwolf.coffeetea.data.dto.supabase.OrderItemDto
 import com.gwolf.coffeetea.data.dto.supabase.ProductDto
@@ -17,6 +18,7 @@ import com.gwolf.coffeetea.domain.entities.Category
 import com.gwolf.coffeetea.domain.entities.City
 import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.domain.entities.Favorite
+import com.gwolf.coffeetea.domain.entities.Notification
 import com.gwolf.coffeetea.domain.entities.Order
 import com.gwolf.coffeetea.domain.entities.OrderItem
 import com.gwolf.coffeetea.domain.entities.Product
@@ -119,3 +121,15 @@ fun OrderItemDto.toDomain(imageUrl: String) = OrderItem(
     product = product?.toDomain(imageUrl)!!,
     quantity = quantity
 )
+
+fun NotificationDto.toDomain() = Notification(
+    id = id,
+    userId = userId.orEmpty(),
+    title = title,
+    body = body,
+    timestamp = timestamp,
+    type = type,
+    isRead = isRead
+)
+
+fun List<NotificationDto>.toListNotificationDomain() = this.map { it.toDomain() }
