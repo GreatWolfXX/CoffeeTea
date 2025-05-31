@@ -1,5 +1,6 @@
 package com.gwolf.coffeetea.presentation.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,9 +33,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
-import com.gwolf.coffeetea.domain.entities.CartItem
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.ui.theme.GrayAlpha05
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
@@ -45,12 +43,10 @@ import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 @Composable
 fun OrderProductCard(
     modifier: Modifier = Modifier,
-    cartItem: CartItem,
+    product: Product,
+    quantity: Int,
     onClick: (product: Product) -> Unit
 ) {
-    val product = cartItem.product
-    val context = LocalContext.current
-
     Card(
         modifier = modifier
             .height(140.dp)
@@ -79,6 +75,10 @@ fun OrderProductCard(
                     AsyncImage(
                         modifier = Modifier
                             .width(116.dp)
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(8.dp)
+                            )
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(8.dp)),
                         model = product.imageUrl,
@@ -119,7 +119,7 @@ fun OrderProductCard(
                         Text(
                             modifier = Modifier
                                 .fillMaxWidth(0.5f),
-                            text = stringResource(R.string.quantity, cartItem.quantity),
+                            text = stringResource(R.string.quantity, quantity),
                             fontFamily = robotoFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 11.sp,
@@ -180,7 +180,7 @@ fun OrderProductCard(
                     lineHeight = TextUnit(16f, TextUnitType.Sp),
                     color = OnSurfaceColor
                 )
-                val totalPrice = product.price * cartItem.quantity
+                val totalPrice = product.price * quantity
                 Text(
                     modifier = Modifier,
                     text = "$totalPrice₴",
@@ -213,14 +213,10 @@ private fun OrderProductCardPreview() {
         favoriteId = "",
         cartItemId = ""
     )
-    val cartItem = CartItem(
-        id = "",
-        product = product,
-        quantity = 5
-    )
 
     OrderProductCard(
-        cartItem = cartItem,
+        product = product,
+        quantity = 5,
         onClick = {}
     )
 }

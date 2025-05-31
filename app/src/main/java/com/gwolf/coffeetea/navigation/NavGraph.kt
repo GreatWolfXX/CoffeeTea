@@ -33,6 +33,7 @@ import com.gwolf.coffeetea.presentation.screen.favorite.FavoriteScreen
 import com.gwolf.coffeetea.presentation.screen.forgotpassword.ForgotPasswordScreen
 import com.gwolf.coffeetea.presentation.screen.home.HomeScreen
 import com.gwolf.coffeetea.presentation.screen.login.LoginScreen
+import com.gwolf.coffeetea.presentation.screen.orders.OrdersScreen
 import com.gwolf.coffeetea.presentation.screen.productinfo.ProductInfoScreen
 import com.gwolf.coffeetea.presentation.screen.profile.ProfileScreen
 import com.gwolf.coffeetea.presentation.screen.registration.RegistrationScreen
@@ -183,6 +184,17 @@ fun SetupNavGraph(
             popEnterTransition = popEnterTransition
         ) {
             AboutMeScreen(
+                navController = navController
+            )
+        }
+
+
+        composable<Screen.MyOrders>(
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            popEnterTransition = popEnterTransition
+        ) {
+            OrdersScreen(
                 navController = navController
             )
         }

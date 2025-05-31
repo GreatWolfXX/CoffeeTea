@@ -135,7 +135,7 @@
     <string name="desc_categories_empty">Наразі cписок категорій порожній.\nВ найближчий час ця сторінка буде заповнена!</string>
     <string name="quantity">Кількість: %1$d</string>
     <string name="product_list">Список товарів</string>
-    <string name="order_number">Замовлення: %1$d</string>
+    <string name="order_number">Номер замовлення: %1$d</string>
     <string name="order_address">Адреса: %1$s</string>
     <string name="order_price">Ціна: %1$.2f₴</string>
     <string name="order_date">Дата замовлення: %1$s</string>

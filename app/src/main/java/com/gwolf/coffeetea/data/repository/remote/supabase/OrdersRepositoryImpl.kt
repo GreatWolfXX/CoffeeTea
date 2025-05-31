@@ -31,7 +31,7 @@ class OrdersRepositoryImpl @Inject constructor(
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
             postgrest.from(ORDERS_TABLE)
-                .select(Columns.raw("*, order_items(*), delivery_addresses(*)")) {
+                .select(Columns.raw("*, order_items(*, products(*)), delivery_addresses(*)")) {
                     filter { eq("user_id", id) }
                 }
                 .decodeList<OrderDto>()
@@ -39,6 +39,7 @@ class OrdersRepositoryImpl @Inject constructor(
 
         val data = response.map { order ->
             val listOrderItem = order.orderItems.map { orderItem ->
+                Timber.d("LIST ORDER: ${orderItem.product?.bucketId} - ${orderItem.product?.imagePath}")
                 val imageUrl = storage.from(orderItem.product?.bucketId.orEmpty())
                     .createSignedUrl(
                         orderItem.product?.imagePath.orEmpty(),

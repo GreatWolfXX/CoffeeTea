@@ -124,7 +124,7 @@ private fun PaymentContent(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(1f),
+                    .fillMaxHeight(0.6f),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(bottom = 12.dp)
             ) {

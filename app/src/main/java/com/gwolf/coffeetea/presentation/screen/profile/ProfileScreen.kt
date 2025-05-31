@@ -22,7 +22,6 @@ import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -59,7 +58,6 @@ import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProfileMenuButton
-import com.gwolf.coffeetea.presentation.screen.favorite.FavoriteIntent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
@@ -247,7 +245,9 @@ private fun ProfileMainSection(
         ProfileMenuButton(
             icon = Icons.AutoMirrored.Outlined.ListAlt,
             text = stringResource(R.string.title_my_order)
-        ) { }
+        ) {
+            navigateToOtherScreen(Screen.MyOrders)
+        }
 //        Spacer(modifier = Modifier.size(16.dp))
 //        ProfileMenuButton(
 //            icon = Icons.Outlined.FavoriteBorder,
@@ -265,11 +265,11 @@ private fun ProfileMainSection(
 //            icon = Icons.Outlined.AccountBalanceWallet,
 //            text = R.string.title_my_cards
 //        ) { }
-        Spacer(modifier = Modifier.size(16.dp))
-        ProfileMenuButton(
-            icon = Icons.Outlined.Notifications,
-            text = stringResource(R.string.title_notifications)
-        ) { }
+//        Spacer(modifier = Modifier.size(16.dp))
+//        ProfileMenuButton(
+//            icon = Icons.Outlined.Notifications,
+//            text = stringResource(R.string.title_notifications)
+//        ) { }
         Spacer(modifier = Modifier.size(16.dp))
         ProfileMenuButton(
             icon = Icons.AutoMirrored.Outlined.Logout,

@@ -5,9 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Receipt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -27,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,6 +48,7 @@ import com.gwolf.coffeetea.domain.entities.OrderItem
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
+import com.gwolf.coffeetea.util.DateTimeUtils
 
 @Composable
 fun OrderComponent(
@@ -66,63 +73,83 @@ fun OrderComponent(
             modifier = Modifier
                 .height(120.dp)
                 .fillMaxWidth()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 8.dp)
+                .padding(top = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
+            Row(
                 modifier = Modifier
                     .wrapContentHeight()
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                Icon(
                     modifier = Modifier
-                        .fillMaxWidth(0.6f),
-                    text = stringResource(R.string.order_number, order.orderNumber),
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp,
-                    lineHeight = TextUnit(20f, TextUnitType.Sp),
-                    color = OnSurfaceColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                        .size(48.dp),
+                    imageVector = Icons.Rounded.Receipt,
+                    tint = OnSurfaceColor,
+                    contentDescription = null
                 )
-                val address = "${order.address.city}, ${order.address.address}"
-                Text(
+                Spacer(modifier = Modifier.size(8.dp))
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.6f),
-                    text = stringResource(R.string.order_address, address),
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    lineHeight = TextUnit(20f, TextUnitType.Sp),
-                    color = OnSurfaceColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth(0.6f),
-                    text = stringResource(R.string.order_price, order.totalPrice),
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    lineHeight = TextUnit(20f, TextUnitType.Sp),
-                    color = OnSurfaceColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth(0.6f),
-                    text = stringResource(R.string.order_date, order.createdAt),
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    lineHeight = TextUnit(20f, TextUnitType.Sp),
-                    color = OnSurfaceColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(0.6f),
+                        text = stringResource(R.string.order_number, order.orderNumber),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        lineHeight = TextUnit(20f, TextUnitType.Sp),
+                        color = OnSurfaceColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    val address = "${order.address.city}, ${order.address.address}"
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        text = stringResource(R.string.order_address, address),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        lineHeight = TextUnit(20f, TextUnitType.Sp),
+                        color = OnSurfaceColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        text = stringResource(R.string.order_price, order.totalPrice),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        lineHeight = TextUnit(20f, TextUnitType.Sp),
+                        color = OnSurfaceColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    val locale = LocalConfiguration.current.locales.get(0)
+                    val date = DateTimeUtils.formatDateTimeFromString(order.createdAt, locale)
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        text = stringResource(R.string.order_date, date),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        lineHeight = TextUnit(20f, TextUnitType.Sp),
+                        color = OnSurfaceColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
             val icon =
                 if (isOpened) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown
@@ -132,7 +159,7 @@ fun OrderComponent(
                 contentDescription = null
             )
         }
-        AnimatedVisibility(true) {
+        AnimatedVisibility(isOpened) {
             ListOderItem(order.orderItems)
         }
     }
@@ -144,10 +171,10 @@ private fun ListOderItem(
 ) {
     LazyColumn(
         modifier = Modifier
-            .wrapContentHeight()
+            .heightIn(max = 312.dp)
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 8.dp)
+        contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         items(list) { orderItem ->
             OrderProductCard(
