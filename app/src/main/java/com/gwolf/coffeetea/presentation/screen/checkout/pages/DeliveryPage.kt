@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gwolf.coffeetea.LocalSnackbarHostState
 import com.gwolf.coffeetea.R
+import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.presentation.component.CitySelector
 import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.CustomSearchBar
@@ -49,7 +50,7 @@ import com.gwolf.coffeetea.util.NOVA_POST_DEPARTMENT_REF
 @Composable
 fun DeliveryPage(
     viewModel: DeliveryViewModel = hiltViewModel(),
-    nextStep: () -> Unit = {}
+    nextStep: (address: Address?) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
     val event by viewModel.event.collectAsState(initial = DeliveryEvent.Idle)
@@ -58,7 +59,7 @@ fun DeliveryPage(
         when (event) {
             is DeliveryEvent.Idle -> {}
             is DeliveryEvent.Navigate -> {
-                nextStep()
+                nextStep(state.selectedAddress)
             }
         }
     }

@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 
@@ -89,11 +90,14 @@ class ProductRepositoryImpl @Inject constructor(
                 .select(Columns.raw("*, categories(*)")) {
                     limit(MAX_SEARCH_LIST_RESULT)
                     filter {
-                        textSearch(
-                            column = "product_name",
-                            query = search,
-                            textSearchType = TextSearchType.PHRASETO
-                        )
+                        or {
+                            textSearch("name", search, textSearchType = TextSearchType.PHRASETO)
+                            textSearch(
+                                "full_description",
+                                search,
+                                textSearchType = TextSearchType.PHRASETO
+                            )
+                        }
                     }
                 }
                 .decodeList<ProductDto>()
@@ -107,6 +111,19 @@ class ProductRepositoryImpl @Inject constructor(
 
         emit(data)
     }
+
+    override fun updateProductStockQuantity(productId: String, stockQuantity: Int): Flow<Unit> =
+        flow {
+            Timber.d("PRODUCT ID: $productId")
+            Timber.d("QUANTITY: $stockQuantity")
+            withContext(Dispatchers.IO) {
+                postgrest.from(PRODUCTS_TABLE)
+                    .update({ set("stock_quantity", stockQuantity) }) {
+                        filter { eq("id", productId) }
+                    }
+            }
+            emit(Unit)
+        }
 
     override fun getMinAndMaxProductPriceByCategory(categoryId: String): Flow<ClosedFloatingPointRange<Float>> =
         flow {

@@ -28,6 +28,7 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.wallet.contract.TaskResultContracts.GetPaymentDataResult
 import com.google.pay.button.PayButton
 import com.gwolf.coffeetea.R
+import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.presentation.component.OrderProductCard
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
@@ -36,7 +37,9 @@ import timber.log.Timber
 
 @Composable
 fun PaymentPage(
+    address: Address?,
     navigateToOtherScreen: (Screen) -> Unit,
+    nextStep: () -> Unit = {},
     viewModel: PaymentViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -45,6 +48,9 @@ fun PaymentPage(
     LaunchedEffect(event) {
         when (event) {
             is PaymentEvent.Idle -> {}
+            is PaymentEvent.OrderCompleted -> {
+                nextStep()
+            }
         }
     }
 
@@ -55,8 +61,8 @@ fun PaymentPage(
             CommonStatusCodes.SUCCESS -> {
                 taskResult.result!!.let {
                     Timber.d("Google Pay result: ${it.toJson()}")
-//                        model.setPaymentData(it)
                 }
+                viewModel.onIntent(PaymentIntent.CompletePayment(address = address))
             }
 
             CommonStatusCodes.CANCELED -> {
@@ -125,7 +131,8 @@ private fun PaymentContent(
                 items(state.cartProductsList) { cartProduct ->
                     OrderProductCard(
                         modifier = Modifier.animateItem(),
-                        cartItem = cartProduct,
+                        product = cartProduct.product,
+                        quantity = cartProduct.quantity,
                         onClick = {
                             navigateToOtherScreen(Screen.ProductInfo(productId = cartProduct.product.id))
                         }

@@ -6,7 +6,9 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.wallet.PaymentData
 import com.google.android.gms.wallet.PaymentDataRequest
 import com.google.android.gms.wallet.PaymentsClient
+import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.domain.entities.CartItem
+import com.gwolf.coffeetea.domain.usecase.database.add.AddOrderUseCase
 import com.gwolf.coffeetea.domain.usecase.database.get.GetCartProductsUseCase
 import com.gwolf.coffeetea.domain.usecase.googlepay.IsReadyToGPayUseCase
 import com.gwolf.coffeetea.util.DataResult
@@ -36,15 +38,20 @@ data class PaymentScreenState(
 
 sealed class PaymentIntent {
     data object RequestPayment : PaymentIntent()
+    data class CompletePayment(
+        val address: Address?
+    ) : PaymentIntent()
 }
 
 sealed class PaymentEvent {
     data object Idle : PaymentEvent()
+    data object OrderCompleted : PaymentEvent()
 }
 
 @HiltViewModel
 class PaymentViewModel @Inject constructor(
     private val getCartItemProductsListUseCase: GetCartProductsUseCase,
+    private val addOrderUseCase: AddOrderUseCase,
     private val isReadyToGPayUseCase: IsReadyToGPayUseCase,
     private val paymentsClient: PaymentsClient
 ) : ViewModel() {
@@ -63,6 +70,10 @@ class PaymentViewModel @Inject constructor(
         when (intent) {
             is PaymentIntent.RequestPayment -> {
                 getLoadPaymentDataTask()
+            }
+
+            is PaymentIntent.CompletePayment -> {
+                addOrder(intent.address)
             }
         }
     }
@@ -101,6 +112,31 @@ class PaymentViewModel @Inject constructor(
                         it.copy(
                             error = LocalizedText.DynamicString(response.exception.message.orEmpty())
                         )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addOrder(
+        address: Address?
+    ) {
+        viewModelScope.launch {
+            addOrderUseCase.invoke(
+                addressId = address?.id.orEmpty(),
+                listCartItem = _state.value.cartProductsList
+            ).collect { response ->
+                when (response) {
+                    is DataResult.Success -> {
+                        _event.send(PaymentEvent.OrderCompleted)
+                    }
+
+                    is DataResult.Error -> {
+                        _state.update {
+                            it.copy(
+                                error = LocalizedText.DynamicString(response.exception.message.orEmpty())
+                            )
+                        }
                     }
                 }
             }

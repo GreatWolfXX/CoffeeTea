@@ -8,6 +8,7 @@ interface ProductRepository {
     fun getProductById(productId: String): Flow<Product?>
     fun getProductsByCategory(categoryId: String): Flow<List<Product>>
     fun searchProducts(search: String): Flow<List<Product>>
+    fun updateProductStockQuantity(productId: String, stockQuantity: Int): Flow<Unit>
     fun getMinAndMaxProductPriceByCategory(
         categoryId: String
     ): Flow<ClosedFloatingPointRange<Float>>

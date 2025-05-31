@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
@@ -71,6 +70,9 @@ fun ProductCard(
                 AsyncImage(
                     modifier = Modifier
                         .height(130.dp)
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp))
                         .fillMaxWidth(),
                     model = product.imageUrl,
                     contentDescription = null,

@@ -40,6 +40,7 @@ import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.StepProgressBar
 import com.gwolf.coffeetea.presentation.screen.checkout.pages.DeliveryPage
 import com.gwolf.coffeetea.presentation.screen.checkout.pages.PaymentPage
+import com.gwolf.coffeetea.presentation.screen.checkout.pages.PaymentSuccessPage
 import com.gwolf.coffeetea.presentation.screen.checkout.pages.PersonalInfoPage
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
@@ -64,7 +65,8 @@ fun CheckoutScreen(
     val pages = listOf(
         CheckoutPages.Delivery,
         CheckoutPages.PersonalInfo,
-        CheckoutPages.Payment
+        CheckoutPages.Payment,
+        CheckoutPages.PaymentSuccess
     )
     val pagerState = rememberPagerState(
         pageCount = { pages.size }
@@ -122,7 +124,8 @@ private fun CheckoutContent(
                 state = state,
                 navigateBack = navigateBack,
                 onIntent = onIntent,
-                canScrollBackward = pagerState.canScrollBackward
+                canScrollBackward = pagerState.canScrollBackward,
+                canScrollForward = pagerState.canScrollForward
             )
 
             if (state.error.asString().isNotBlank() || !isNetworkConnected) {
@@ -151,6 +154,7 @@ private fun CheckoutContent(
 @Composable
 private fun TopMenu(
     canScrollBackward: Boolean,
+    canScrollForward: Boolean,
     state: CheckoutScreenState,
     navigateBack: () -> Unit,
     onIntent: (CheckoutIntent) -> Unit
@@ -172,7 +176,7 @@ private fun TopMenu(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable {
-                        if (canScrollBackward) {
+                        if (canScrollBackward && canScrollForward) {
                             onIntent(CheckoutIntent.SetStepBar(state.currentStepBar.dec()))
                         } else {
                             navigateBack()
@@ -209,10 +213,12 @@ private fun CheckoutMainSection(
             Spacer(modifier = Modifier.size(8.dp))
             StepProgressBar(
                 currentStep = state.currentStepBar,
+                stepsNumber = 4,
                 listTitles = listOf(
                     stringResource(R.string.delivery),
                     stringResource(R.string.recipient),
                     stringResource(R.string.payment),
+                    stringResource(R.string.payment_success)
                 )
             )
             Spacer(modifier = Modifier.size(16.dp))
@@ -224,8 +230,9 @@ private fun CheckoutMainSection(
             ) { position ->
                 when (position) {
                     0 -> {
-                        DeliveryPage {
+                        DeliveryPage { address ->
                             val step = state.currentStepBar.inc()
+                            onIntent(CheckoutIntent.SelectedAddress(address))
                             onIntent(CheckoutIntent.SetStepBar(step))
                         }
                     }
@@ -237,7 +244,19 @@ private fun CheckoutMainSection(
                     }
 
                     2 -> {
-                        PaymentPage(navigateToOtherScreen)
+                        PaymentPage(
+                            address = state.selectedAddress,
+                            navigateToOtherScreen = navigateToOtherScreen,
+                            nextStep = {
+                                onIntent(CheckoutIntent.SetStepBar(state.currentStepBar.inc()))
+                            }
+                        )
+                    }
+
+                    3 -> {
+                        PaymentSuccessPage(
+                            navigateToOtherScreen = navigateToOtherScreen
+                        )
                     }
                 }
             }

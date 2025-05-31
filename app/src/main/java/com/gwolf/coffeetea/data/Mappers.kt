@@ -6,6 +6,8 @@ import com.gwolf.coffeetea.data.dto.supabase.AddressDto
 import com.gwolf.coffeetea.data.dto.supabase.CartItemDto
 import com.gwolf.coffeetea.data.dto.supabase.CategoryDto
 import com.gwolf.coffeetea.data.dto.supabase.FavoriteDto
+import com.gwolf.coffeetea.data.dto.supabase.OrderDto
+import com.gwolf.coffeetea.data.dto.supabase.OrderItemDto
 import com.gwolf.coffeetea.data.dto.supabase.ProductDto
 import com.gwolf.coffeetea.data.dto.supabase.ProfileDto
 import com.gwolf.coffeetea.data.dto.supabase.PromotionDto
@@ -15,6 +17,8 @@ import com.gwolf.coffeetea.domain.entities.Category
 import com.gwolf.coffeetea.domain.entities.City
 import com.gwolf.coffeetea.domain.entities.Department
 import com.gwolf.coffeetea.domain.entities.Favorite
+import com.gwolf.coffeetea.domain.entities.Order
+import com.gwolf.coffeetea.domain.entities.OrderItem
 import com.gwolf.coffeetea.domain.entities.Product
 import com.gwolf.coffeetea.domain.entities.Profile
 import com.gwolf.coffeetea.domain.entities.Promotion
@@ -97,3 +101,21 @@ fun AddressDto.toDomain() = Address(
 )
 
 fun List<AddressDto>.toListAddressDomain() = this.map { it.toDomain() }
+
+fun OrderDto.toDomain(listOrderItem: List<OrderItem> = emptyList()) = Order(
+    id = id,
+    orderNumber = orderNumber,
+    userId = userId,
+    address = address?.toDomain()!!,
+    totalPrice = totalPrice,
+    createdAt = createdAt,
+    orderItems = listOrderItem
+)
+
+fun OrderItemDto.toDomain(imageUrl: String) = OrderItem(
+    id = id,
+    orderId = orderId,
+    productId = productId,
+    product = product?.toDomain(imageUrl)!!,
+    quantity = quantity
+)

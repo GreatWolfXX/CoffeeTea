@@ -2,6 +2,7 @@ package com.gwolf.coffeetea.presentation.screen.checkout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gwolf.coffeetea.domain.entities.Address
 import com.gwolf.coffeetea.util.LocalizedText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -16,6 +17,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 data class CheckoutScreenState(
+    val selectedAddress: Address? = null,
     val currentStepBar: Int = 0,
     val isLoading: Boolean = false,
     val error: LocalizedText = LocalizedText.DynamicString(""),
@@ -23,6 +25,7 @@ data class CheckoutScreenState(
 
 sealed class CheckoutIntent {
     data class SetStepBar(val currentStep: Int) : CheckoutIntent()
+    data class SelectedAddress(val address: Address?) : CheckoutIntent()
 }
 
 sealed class CheckoutEvent {
@@ -49,6 +52,14 @@ class CheckoutViewModel @Inject constructor() : ViewModel() {
                 _state.update { it.copy(currentStepBar = intent.currentStep) }
                 viewModelScope.launch {
                     _event.send(CheckoutEvent.StepBarChanged(intent.currentStep))
+                }
+            }
+
+            is CheckoutIntent.SelectedAddress -> {
+                viewModelScope.launch {
+                    _state.update { it.copy(
+                        selectedAddress = intent.address
+                    ) }
                 }
             }
         }

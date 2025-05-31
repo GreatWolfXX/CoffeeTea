@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.checkout.pages
 
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Address
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -33,6 +33,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 data class DeliveryScreenState(
+    val selectedAddress: Address? = null,
     val listAddresses: List<Address> = listOf(),
     val selection: DeliverySelectionState = DeliverySelectionState(),
     val search: DeliverySearchState = DeliverySearchState(),
@@ -166,57 +167,59 @@ class DeliveryViewModel @Inject constructor(
                 val selectedDepartment = _state.value.selection.selectedDepartment != null
                 if (selectedCity && selectedDepartment) {
                     viewModelScope.launch {
-                        _event.send(DeliveryEvent.Navigate)
+                        addAddress()
                     }
                 }
             }
         }
     }
 
-//    private fun addAddress() {
-//        val selectedCity = _state.value.selection.selectedCity
-//        val selectedDepartment = _state.value.selection.selectedDepartment
-//        val isDefault = _state.value.listAddresses.isEmpty()
-//        val type = when {
-//            _state.value.selection.selectedNovaPostDepartments -> {
-//                SavedDeliveryAddressType.NovaPostDepartment.value
-//            }
-//
-//            _state.value.selection.selectedNovaPostCabin -> {
-//                SavedDeliveryAddressType.NovaPostCabin.value
-//            }
-//
-//            else -> {
-//                ""
-//            }
-//        }
-//        viewModelScope.launch {
-//            addAddressUseCase.invoke(
-//                type = type,
-//                refCity = selectedCity?.ref.orEmpty(),
-//                refAddress = selectedDepartment?.ref.orEmpty(),
-//                city = selectedCity?.name.orEmpty(),
-//                address = selectedDepartment?.name.orEmpty(),
-//                isDefault = isDefault
-//            ).collect { response ->
-//                when (response) {
-//                    is DataResult.Success -> {
-//                        _event.send(DeliveryEvent.Navigate)
-//                    }
-//
-//                    is DataResult.Error -> {
-//                        Timber.d("is: ${response.exception.message}")
-//                        _state.update {
-//                            it.copy(
-//                                error = UiText.DynamicString(response.exception.message.orEmpty()),
-//                                isLoading = false
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    private fun addAddress() {
+        val selectedCity = _state.value.selection.selectedCity
+        val selectedDepartment = _state.value.selection.selectedDepartment
+        val isDefault = _state.value.listAddresses.isEmpty()
+        val type = when {
+            _state.value.selection.selectedNovaPostDepartments -> {
+                SavedDeliveryAddressType.NovaPostDepartment.value
+            }
+
+            _state.value.selection.selectedNovaPostCabin -> {
+                SavedDeliveryAddressType.NovaPostCabin.value
+            }
+
+            else -> {
+                ""
+            }
+        }
+        viewModelScope.launch {
+            addAddressUseCase.invoke(
+                type = type,
+                refCity = selectedCity?.ref.orEmpty(),
+                refAddress = selectedDepartment?.ref.orEmpty(),
+                city = selectedCity?.name.orEmpty(),
+                address = selectedDepartment?.name.orEmpty(),
+                isDefault = isDefault
+            ).collect { response ->
+                when (response) {
+                    is DataResult.Success -> {
+                        _state.update { it.copy(
+                            selectedAddress = response.data
+                        ) }
+                        _event.send(DeliveryEvent.Navigate)
+                    }
+
+                    is DataResult.Error -> {
+                        _state.update {
+                            it.copy(
+                                error = LocalizedText.DynamicString(response.exception.message.orEmpty()),
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private suspend fun getAddresses() {
         getAddressUseCase.invoke().collect { response ->
@@ -291,7 +294,8 @@ class DeliveryViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     private suspend fun setupSearchAddressDebounce() {
-        snapshotFlow { _state.value.search.searchCity }
+        _state
+            .map { it.search.searchCity }
             .debounce(500)
             .distinctUntilChanged()
             .onEach {
@@ -305,7 +309,8 @@ class DeliveryViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     private suspend fun setupSearchDepartmentDebounce() {
-        snapshotFlow { _state.value.search.searchDepartment }
+        _state
+            .map { it.search.searchDepartment }
             .debounce(500)
             .distinctUntilChanged()
             .onEach {
