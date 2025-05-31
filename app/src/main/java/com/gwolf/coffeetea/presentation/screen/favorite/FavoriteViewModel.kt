@@ -24,6 +24,10 @@ data class FavoriteScreenState(
     val error: LocalizedText = LocalizedText.DynamicString(""),
 )
 
+sealed class FavoriteIntent {
+    data object UpdateProducts : FavoriteIntent()
+}
+
 @HiltViewModel
 class FavoriteViewModel @Inject constructor(
     private val getFavoritesListUseCase: GetFavoritesUseCase
@@ -35,6 +39,17 @@ class FavoriteViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
         initialValue = FavoriteScreenState()
     )
+
+
+    fun onIntent(intent: FavoriteIntent) {
+        when (intent) {
+            is FavoriteIntent.UpdateProducts -> {
+                viewModelScope.launch {
+                    getProducts()
+                }
+            }
+        }
+    }
 
     private suspend fun getProducts() {
         getFavoritesListUseCase.invoke().collect { response ->

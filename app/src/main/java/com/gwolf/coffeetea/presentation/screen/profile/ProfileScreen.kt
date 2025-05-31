@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,6 +48,8 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -56,6 +59,7 @@ import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
 import com.gwolf.coffeetea.presentation.component.ProfileMenuButton
+import com.gwolf.coffeetea.presentation.screen.favorite.FavoriteIntent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.OutlineColor
@@ -79,12 +83,28 @@ fun ProfileScreen(
     val state by viewModel.state.collectAsState()
     val event by viewModel.event.collectAsState(initial = ProfileEvent.Idle)
 
+    val lifecycle = navController.currentBackStackEntry?.lifecycle
+
     LaunchedEffect(event) {
         when (event) {
             is ProfileEvent.Idle -> {}
             is ProfileEvent.NavigateToAuth -> {
                 navController.navigate(Screen.Auth)
             }
+        }
+    }
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(ProfileIntent.UpdateProfile)
+            }
+        }
+
+        lifecycle?.addObserver(observer)
+
+        onDispose {
+            lifecycle?.removeObserver(observer)
         }
     }
 

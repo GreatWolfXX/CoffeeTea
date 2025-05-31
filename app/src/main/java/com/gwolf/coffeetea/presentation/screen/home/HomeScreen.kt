@@ -36,6 +36,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,6 +52,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.entities.Category
@@ -70,6 +73,7 @@ import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
 import com.gwolf.coffeetea.util.ConnectionState
 import com.gwolf.coffeetea.util.connectivityState
+import timber.log.Timber
 
 @Composable
 fun HomeScreen(
@@ -84,12 +88,28 @@ fun HomeScreen(
     val state by viewModel.state.collectAsState()
     val event by viewModel.event.collectAsState(initial = HomeEvent.Idle)
 
+    val lifecycle = navController.currentBackStackEntry?.lifecycle
+
     LaunchedEffect(event) {
         when (event) {
             is HomeEvent.Idle -> {}
             is HomeEvent.NavigateToCart -> {
                 navController.navigate(Screen.Cart)
             }
+        }
+    }
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(HomeIntent.UpdateProducts)
+            }
+        }
+
+        lifecycle?.addObserver(observer)
+
+        onDispose {
+            lifecycle?.removeObserver(observer)
         }
     }
 
@@ -355,7 +375,10 @@ private fun ProductsList(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(bottom = 12.dp)
     ) {
-        items(productsList) { product ->
+        items(
+            key = { product -> product.id },
+            items = productsList
+        ) { product ->
             ProductCard(
                 context = context,
                 modifier = Modifier.animateItem(),

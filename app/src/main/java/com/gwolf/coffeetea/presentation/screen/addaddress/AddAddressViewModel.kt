@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.addaddress
 
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -215,7 +215,10 @@ class AddAddressViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     private suspend fun setupSearchAddressDebounce() {
-        snapshotFlow { _state.value.search.searchCity }
+        _state
+            .map {
+                it.search.searchCity
+            }
             .debounce(500)
             .distinctUntilChanged()
             .onEach {
@@ -231,7 +234,8 @@ class AddAddressViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     private suspend fun setupSearchDepartmentDebounce() {
-        snapshotFlow { _state.value.search.searchDepartment }
+        _state
+            .map { it.search.searchDepartment }
             .debounce(500)
             .distinctUntilChanged()
             .onEach {

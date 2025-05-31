@@ -1,7 +1,7 @@
 package com.gwolf.coffeetea.domain.entities
 
 data class Address(
-    val id: String,
+    val id: String = "",
     val userId: String,
     val deliveryType: String,
     val refCity: String,

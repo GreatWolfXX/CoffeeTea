@@ -11,8 +11,8 @@ import com.gwolf.coffeetea.domain.usecase.database.get.GetProductByIdUseCase
 import com.gwolf.coffeetea.domain.usecase.database.remove.RemoveFavoriteUseCase
 import com.gwolf.coffeetea.navigation.Screen
 import com.gwolf.coffeetea.util.DataResult
-import com.gwolf.coffeetea.util.PRODUCT_ADD_CART_QUANTITY
 import com.gwolf.coffeetea.util.LocalizedText
+import com.gwolf.coffeetea.util.PRODUCT_ADD_CART_QUANTITY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -111,10 +111,19 @@ class ProductInfoViewModel @Inject constructor(
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
-                            _state.update { it.copy(isFavorite = false) }
+                            Timber.d("REMOVE FAVORITE")
+                            _state.update {
+                                it.copy(
+                                    isFavorite = false,
+                                    product = it.product?.copy(
+                                        favoriteId = ""
+                                    )
+                                )
+                            }
                         }
 
                         is DataResult.Error -> {
+                            Timber.d("ERR REMOVE FAVORITE")
                             _state.update {
                                 it.copy(
                                     error = LocalizedText.DynamicString(response.exception.message.orEmpty()),
@@ -128,20 +137,25 @@ class ProductInfoViewModel @Inject constructor(
     }
 
     private fun addFavorite() {
+        Timber.d("ADD FAVORITE PRODUCT ${_state.value.product}")
         viewModelScope.launch {
             addFavoriteUseCase.invoke(_state.value.product?.id!!)
                 .collect { response ->
                     when (response) {
                         is DataResult.Success -> {
-                            _state.update { it.copy(
-                                isFavorite = true,
-                                product = it.product?.copy(
-                                    favoriteId = response.data.id
+                            Timber.d("ADD FAVORITE")
+                            _state.update {
+                                it.copy(
+                                    isFavorite = true,
+                                    product = it.product?.copy(
+                                        favoriteId = response.data.id
+                                    )
                                 )
-                            ) }
+                            }
                         }
 
                         is DataResult.Error -> {
+                            Timber.d("ERR ADD FAVORITE ${response.exception}")
                             _state.update {
                                 it.copy(
                                     error = LocalizedText.DynamicString(response.exception.message.orEmpty()),

@@ -4,6 +4,7 @@ import com.gwolf.coffeetea.domain.entities.Address
 import kotlinx.coroutines.flow.Flow
 
 interface AddressRepository {
+    fun getDeliveryAddress(addressRef: String): Flow<Address>
     fun getDeliveryAddresses(): Flow<List<Address>>
 
     fun addDeliveryAddress(
@@ -13,7 +14,7 @@ interface AddressRepository {
         city: String,
         address: String,
         isDefault: Boolean
-    ): Flow<Unit>
+    ): Flow<Address>
 
     fun updateDeliveryAddress(
         addressId: String,

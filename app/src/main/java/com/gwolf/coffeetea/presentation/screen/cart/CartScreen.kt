@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,6 +40,8 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.navigation.Screen
@@ -47,6 +50,7 @@ import com.gwolf.coffeetea.presentation.component.CustomButton
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyComponent
 import com.gwolf.coffeetea.presentation.component.ErrorOrEmptyStyle
 import com.gwolf.coffeetea.presentation.component.LoadingComponent
+import com.gwolf.coffeetea.presentation.screen.aboutme.AboutMeIntent
 import com.gwolf.coffeetea.ui.theme.BackgroundGradient
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.WhiteAlpha06
@@ -65,12 +69,28 @@ fun CartScreen(
     val state by viewModel.state.collectAsState()
     val event by viewModel.event.collectAsState(initial = CartEvent.Idle)
 
+    val lifecycle = navController.currentBackStackEntry?.lifecycle
+
     LaunchedEffect(event) {
         when(event) {
             is CartEvent.Idle -> {}
             is CartEvent.Navigate -> {
                 navController.navigate(Screen.Checkout)
             }
+        }
+    }
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(CartIntent.UpdateCart)
+            }
+        }
+
+        lifecycle?.addObserver(observer)
+
+        onDispose {
+            lifecycle?.removeObserver(observer)
         }
     }
 
@@ -202,7 +222,7 @@ private fun CartMainSection(
                     lineHeight = TextUnit(28f, TextUnitType.Sp),
                     color = OnSurfaceColor
                 )
-                val price = state.cartProductsList.sumOf { cart -> cart.product.price }
+                val price = state.cartProductsList.sumOf { cart -> cart.product.price * cart.quantity}
                 Text(
                     modifier = Modifier,
                     text = "$price₴",

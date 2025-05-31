@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,6 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.navigation.Screen
@@ -66,9 +69,25 @@ fun AboutMeScreen(
     val state by viewModel.state.collectAsState()
     val event by viewModel.event.collectAsState(initial = AboutMeEvent.Idle)
 
+    val lifecycle = navController.currentBackStackEntry?.lifecycle
+
     LaunchedEffect(event) {
-        when(event) {
+        when (event) {
             is AboutMeEvent.Idle -> {}
+        }
+    }
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(AboutMeIntent.UpdateProfile)
+            }
+        }
+
+        lifecycle?.addObserver(observer)
+
+        onDispose {
+            lifecycle?.removeObserver(observer)
         }
     }
 
@@ -111,7 +130,8 @@ private fun AboutMeContent(
                 navigateBack = navigateBack
             )
             if (state.error.asString().isNotBlank() || !isNetworkConnected) {
-                val style = if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val style =
+                    if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
                 val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
                 val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
@@ -250,7 +270,7 @@ private fun AboutMeForm(
             val phoneEntered = state.profile?.phone.orEmpty().isNotEmpty()
             ProfileMenuButton(
                 icon = Icons.Outlined.Phone,
-                text = if(phoneEntered) state.profile?.phone.orEmpty() else stringResource(R.string.add_phone)
+                text = if (phoneEntered) state.profile?.phone.orEmpty() else stringResource(R.string.add_phone)
             ) {
                 navigateToOtherScreen(Screen.ChangePhone(state.profile?.phone.orEmpty()))
             }

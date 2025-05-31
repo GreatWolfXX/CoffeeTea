@@ -19,6 +19,24 @@ class AddressRepositoryImpl @Inject constructor(
     private val postgrest: Postgrest,
     private val auth: Auth
 ) : AddressRepository {
+
+    override fun getDeliveryAddress(
+        addressRef: String
+    ): Flow<Address> = flow {
+        val id = auth.currentUserOrNull()?.id.orEmpty()
+        val response = withContext(Dispatchers.IO) {
+            postgrest.from(DELIVERY_ADDRESSES_TABLE)
+                .select(Columns.raw("*")) {
+                    filter {
+                        eq("user_id", id)
+                        eq("ref_address", addressRef)
+                    }
+                }
+                .decodeSingle<AddressDto>()
+        }
+        emit(response.toDomain())
+    }
+
     override fun getDeliveryAddresses(): Flow<List<Address>> = flow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
         val response = withContext(Dispatchers.IO) {
@@ -38,9 +56,9 @@ class AddressRepositoryImpl @Inject constructor(
         city: String,
         address: String,
         isDefault: Boolean
-    ): Flow<Unit> = flow {
+    ): Flow<Address> = flow {
         val id = auth.currentUserOrNull()?.id.orEmpty()
-        val cart = AddressDto(
+        val address = AddressDto(
             userId = id,
             deliveryType = type,
             refCity = refCity,
@@ -49,10 +67,12 @@ class AddressRepositoryImpl @Inject constructor(
             address = address,
             isDefault = isDefault
         )
-        withContext(Dispatchers.IO) {
-            postgrest.from(DELIVERY_ADDRESSES_TABLE).upsert(cart)
+        val response = withContext(Dispatchers.IO) {
+            postgrest.from(DELIVERY_ADDRESSES_TABLE).insert(address) {
+                select()
+            }.decodeSingle<AddressDto>()
         }
-        emit(Unit)
+        emit(response.toDomain())
     }
 
     override fun updateDeliveryAddress(
@@ -76,7 +96,7 @@ class AddressRepositoryImpl @Inject constructor(
                 }
             ) {
                 select()
-                filter { eq("address_id", addressId) }
+                filter { eq("id", addressId) }
             }.decodeSingle<AddressDto>()
         }
         emit(response.toDomain())
@@ -86,7 +106,7 @@ class AddressRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO) {
             postgrest.from(DELIVERY_ADDRESSES_TABLE)
                 .delete {
-                    filter { eq("address_id", addressId) }
+                    filter { eq("id", addressId) }
                 }
         }
         emit(Unit)

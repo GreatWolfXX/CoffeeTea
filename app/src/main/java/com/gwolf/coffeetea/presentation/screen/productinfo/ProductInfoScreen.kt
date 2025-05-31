@@ -1,8 +1,8 @@
 package com.gwolf.coffeetea.presentation.screen.productinfo
 
-import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +41,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
@@ -76,8 +75,6 @@ fun ProductInfoScreen(
     navController: NavController,
     viewModel: ProductInfoViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-
     val connection by connectivityState()
     val isNetworkConnected = connection === ConnectionState.Available
 
@@ -91,7 +88,6 @@ fun ProductInfoScreen(
     }
 
     ProductInfoContent(
-        context = context,
         state = state,
         isNetworkConnected = isNetworkConnected,
         navigateToOtherScreen = { screen ->
@@ -110,7 +106,6 @@ fun ProductInfoScreen(
 
 @Composable
 private fun ProductInfoContent(
-    context: Context,
     state: ProductInfoScreenState,
     isNetworkConnected: Boolean,
     navigateToOtherScreen: (Screen) -> Unit = {},
@@ -131,7 +126,8 @@ private fun ProductInfoContent(
             )
 
             if (state.error.asString().isNotBlank() || !isNetworkConnected) {
-                val style = if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
+                val style =
+                    if (isNetworkConnected) ErrorOrEmptyStyle.ERROR else ErrorOrEmptyStyle.NETWORK
                 val title = if (isNetworkConnected) R.string.title_error else R.string.title_network
                 val desc = if (isNetworkConnected) R.string.desc_error else R.string.desc_network
                 ErrorOrEmptyComponent(
@@ -142,7 +138,6 @@ private fun ProductInfoContent(
                 Timber.d(state.error.asString())
             } else {
                 ProductInfoMainSection(
-                    context = context,
                     state = state,
                     navigateToOtherScreen = navigateToOtherScreen,
                     onIntent = onIntent
@@ -188,7 +183,6 @@ private fun TopMenu(
 
 @Composable
 private fun ProductInfoMainSection(
-    context: Context,
     state: ProductInfoScreenState,
     navigateToOtherScreen: (Screen) -> Unit,
     onIntent: (ProductInfoIntent) -> Unit,
@@ -208,7 +202,11 @@ private fun ProductInfoMainSection(
             Box {
                 AsyncImage(
                     modifier = Modifier
-                        .height(348.dp)
+                        .height(360.dp)
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp)
+                        )
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp)),
                     model = state.product?.imageUrl,
@@ -223,6 +221,11 @@ private fun ProductInfoMainSection(
                         .clip(CircleShape)
                         .background(
                             color = Color.White
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = OnSurfaceColor,
+                            shape = CircleShape
                         )
                         .padding(4.dp)
                         .clickable {
@@ -384,10 +387,7 @@ private fun ProductInfoMainSection(
 @Preview
 @Composable
 private fun ProductInfoScreenPreview() {
-    val context = LocalContext.current
-
     ProductInfoContent(
-        context = context,
         state = ProductInfoScreenState(),
         isNetworkConnected = true
     )

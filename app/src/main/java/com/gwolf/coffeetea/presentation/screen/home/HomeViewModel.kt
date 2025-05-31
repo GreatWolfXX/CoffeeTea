@@ -1,6 +1,5 @@
 package com.gwolf.coffeetea.presentation.screen.home
 
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gwolf.coffeetea.domain.entities.Category
@@ -25,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -52,6 +52,7 @@ sealed class HomeIntent {
         data class AddToCart(val product: Product) : HomeIntent()
     }
 
+    data object UpdateProducts : HomeIntent()
     data object ClearSearch : HomeIntent()
 }
 
@@ -89,6 +90,12 @@ class HomeViewModel @Inject constructor(
                 addToCart(intent.product)
             }
 
+            is HomeIntent.UpdateProducts -> {
+                viewModelScope.launch {
+                    getProducts()
+                }
+            }
+
             is HomeIntent.ClearSearch -> {
                 _state.update { it.copy(searchText = "") }
             }
@@ -119,6 +126,7 @@ class HomeViewModel @Inject constructor(
                         }
 
                         is DataResult.Error -> {
+                            Timber.d("PRODUCT: ${response.exception}")
                             _state.update { it.copy(error = LocalizedText.DynamicString(response.exception.message.orEmpty())) }
                         }
                     }
@@ -128,13 +136,16 @@ class HomeViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     private suspend fun setupSearchDebounce() {
-        snapshotFlow { _state.value.searchText }
+         _state
+             .map { it.searchText }
             .debounce(1000)
             .distinctUntilChanged()
             .onEach {
                 _state.update { it.copy(searchProductsList = listOf()) }
             }
-            .filter { it.isNotBlank() }
+            .filter {
+                it.isNotBlank()
+            }
             .collect { query ->
                 getSearchProducts(query)
             }
@@ -217,7 +228,6 @@ class HomeViewModel @Inject constructor(
                 _state.update { it.copy(isLoading = false) }
 
                 setupSearchDebounce()
-
             } catch (e: Exception) {
                 Timber.d("Error loading home screen data: ${e.message}")
             }

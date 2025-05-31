@@ -45,6 +45,8 @@ sealed class AboutMeIntent {
     sealed class ButtonClick {
         data object Save : AboutMeIntent()
     }
+
+    data object UpdateProfile : AboutMeIntent()
 }
 
 sealed class AboutMeEvent {
@@ -88,6 +90,12 @@ class AboutMeViewModel @Inject constructor(
             is AboutMeIntent.ButtonClick.Save -> {
                 if (validateFirstName() && validateLastName() && validatePatronymic()) {
                     updateNameInfo()
+                }
+            }
+
+            is AboutMeIntent.UpdateProfile -> {
+                viewModelScope.launch {
+                    getProfile()
                 }
             }
         }

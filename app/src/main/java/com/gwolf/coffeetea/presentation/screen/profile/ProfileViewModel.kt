@@ -33,6 +33,7 @@ data class ProfileScreenState(
 
 sealed class ProfileIntent {
     data class LoadImage(val bitmap: Bitmap?) : ProfileIntent()
+    data object UpdateProfile : ProfileIntent()
     data object Exit : ProfileIntent()
 }
 
@@ -66,6 +67,12 @@ class ProfileViewModel @Inject constructor(
                 viewModelScope.launch {
                     _state.update { it.copy(isLoading = true) }
                     loadProfileImage(intent.bitmap)
+                }
+            }
+
+            is ProfileIntent.UpdateProfile -> {
+                viewModelScope.launch {
+                    getProfile()
                 }
             }
 

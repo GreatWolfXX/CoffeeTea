@@ -40,6 +40,7 @@ sealed class SearchProductIntent {
     data class EnterTextHigh(val textHigh: String) : SearchProductIntent()
     data class ChangeSort(val isDescending: Boolean) : SearchProductIntent()
     data class ChangePriceRangeState(val priceRangeState: ClosedFloatingPointRange<Float>) : SearchProductIntent()
+    data object UpdateProducts : SearchProductIntent()
 }
 
 @HiltViewModel
@@ -76,6 +77,12 @@ class SearchProductViewModel @Inject constructor(
             is SearchProductIntent.ChangePriceRangeState -> {
                 _state.update { it.copy(priceRangeState = intent.priceRangeState) }
 
+                viewModelScope.launch {
+                    getProducts(_state.value.priceRangeState)
+                }
+            }
+
+            is SearchProductIntent.UpdateProducts -> {
                 viewModelScope.launch {
                     getProducts(_state.value.priceRangeState)
                 }

@@ -31,6 +31,7 @@ data class CartScreenState(
 sealed class CartIntent {
     data class RemoveFromCart(val cartItemId: String) : CartIntent()
     data class UpdateProductQuantity(val cartItemId: String, val quantity: Int) : CartIntent()
+    data object UpdateCart : CartIntent()
     data object Submit : CartIntent()
 }
 
@@ -64,6 +65,12 @@ class CartViewModel @Inject constructor(
 
             is CartIntent.UpdateProductQuantity -> {
                 updateCartItemProductQuantity(intent.cartItemId, intent.quantity)
+            }
+
+            is CartIntent.UpdateCart -> {
+                viewModelScope.launch {
+                    getProducts()
+                }
             }
 
             is CartIntent.Submit -> {
