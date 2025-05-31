@@ -1,6 +1,7 @@
 package com.gwolf.coffeetea.presentation.component
 
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.gwolf.coffeetea.domain.entities.Category
 import com.gwolf.coffeetea.ui.theme.OnSurfaceColor
 import com.gwolf.coffeetea.ui.theme.robotoFontFamily
@@ -57,6 +57,10 @@ fun CategoryFullCard(
             AsyncImage(
                 modifier = Modifier
                     .height(116.dp)
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(8.dp)
+                    )
                     .fillMaxWidth(),
                 model = category.imageUrl,
                 contentDescription = null,

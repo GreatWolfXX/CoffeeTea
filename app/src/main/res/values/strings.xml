@@ -15,7 +15,7 @@
     <string name="title_continue_google">Продовжити з Google</string>
     <string name="title_create_account">Створити обліковий запис</string>
     <string name="already_have">Вже маєте обліковий запис?\u0020</string>
-    <string name="login">Увійдіть</string>
+    <string name="login">Увійти</string>
     <string name="login_title">З поверненням!</string>
     <string name="login_desc">Увійдіть до свого облікового запису</string>
     <string name="remember_me">Запам\'ятати мене</string>
@@ -95,6 +95,7 @@
     <string name="delivery">Доставка</string>
     <string name="recipient">Отримувач</string>
     <string name="payment">Оплата</string>
+    <string name="payment_success">Успіх</string>
     <string name="nova_post_departments">Нова Пошта - Відділення</string>
     <string name="nova_post_departments_desc">Замовлення буде доставлено до відділення, на протязі 1–2 днів.</string>
     <string name="nova_post_departments_price">від 60₴</string>
@@ -134,6 +135,12 @@
     <string name="desc_categories_empty">Наразі cписок категорій порожній.\nВ найближчий час ця сторінка буде заповнена!</string>
     <string name="quantity">Кількість: %1$d</string>
     <string name="product_list">Список товарів</string>
+    <string name="order_number">Замовлення: %1$d</string>
+    <string name="order_address">Адреса: %1$s</string>
+    <string name="order_price">Ціна: %1$.2f₴</string>
+    <string name="order_date">Дата замовлення: %1$s</string>
+    <string name="finish">Завершити</string>
+    <string name="payment_finish">Замовлення успішно оплачене!</string>
 
     <string name="err_field_empty">Поле не повинно бути порожнім!</string>
     <string name="err_field_must_contains_letters">Поле має містити лише літери!</string>

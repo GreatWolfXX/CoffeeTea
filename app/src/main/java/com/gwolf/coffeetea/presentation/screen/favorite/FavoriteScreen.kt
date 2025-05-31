@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,6 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.gwolf.coffeetea.R
 import com.gwolf.coffeetea.domain.entities.Favorite
@@ -59,6 +62,22 @@ fun FavoriteScreen(
     val isNetworkConnected = connection === ConnectionState.Available
 
     val state by viewModel.state.collectAsState()
+
+    val lifecycle = navController.currentBackStackEntry?.lifecycle
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(FavoriteIntent.UpdateProducts)
+            }
+        }
+
+        lifecycle?.addObserver(observer)
+
+        onDispose {
+            lifecycle?.removeObserver(observer)
+        }
+    }
 
     FavoriteContent(
         context = context,

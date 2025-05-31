@@ -127,7 +127,7 @@ fun OtpBottomSheet(
             }
             Spacer(modifier = Modifier.size(16.dp))
             CustomButton(
-                text = R.string.btn_save,
+                text = R.string.btn_confirm,
                 isEnabled = otpValue.isNotBlank(),
                 onClick = {
                     onClickConfirm(otpValue)

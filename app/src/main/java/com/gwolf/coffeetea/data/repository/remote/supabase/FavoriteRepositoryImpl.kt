@@ -49,12 +49,12 @@ class FavoriteRepositoryImpl @Inject constructor(
         )
         val response = withContext(Dispatchers.IO) {
             postgrest.from(FAVORITES_TABLE).insert(favorite) {
-                select()
+                select(Columns.raw("*, products(*)"))
             }
         }.decodeSingle<FavoriteDto>()
 
-        val imageUrl = storage.from(favorite.product?.bucketId!!)
-            .createSignedUrl(favorite.product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
+        val imageUrl = storage.from(response.product?.bucketId!!)
+            .createSignedUrl(response.product.imagePath, HOURS_EXPIRES_IMAGE_URL.hours)
 
         emit(response.toDomain(imageUrl))
     }
