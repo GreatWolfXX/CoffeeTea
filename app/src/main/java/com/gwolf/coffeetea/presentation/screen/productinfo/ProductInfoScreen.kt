@@ -295,7 +295,7 @@ private fun ProductInfoMainSection(
 //                }
 //            }
             Spacer(modifier = Modifier.size(8.dp))
-            val minimumLineLength = 6
+            val minimumLineLength = 5
             var expandedState by remember { mutableStateOf(false) }
             var showReadMoreButtonState by remember { mutableStateOf(true) }
             val maxLines = if (expandedState) 200 else minimumLineLength
@@ -311,9 +311,12 @@ private fun ProductInfoMainSection(
                 lineHeight = TextUnit(20f, TextUnitType.Sp),
                 color = OutlineColor,
                 onTextLayout = { textLayoutResult: TextLayoutResult ->
-                    if (textLayoutResult.lineCount > minimumLineLength - 1) {           //Adding this check to avoid ArrayIndexOutOfBounds Exception
-                        if (textLayoutResult.isLineEllipsized(minimumLineLength - 1)) showReadMoreButtonState =
-                            true
+                    if (textLayoutResult.lineCount > minimumLineLength - 1) {
+                        if (textLayoutResult.isLineEllipsized(minimumLineLength - 1)) {
+                            showReadMoreButtonState = true
+                        }
+                    } else {
+                        showReadMoreButtonState = false
                     }
                 }
             )
