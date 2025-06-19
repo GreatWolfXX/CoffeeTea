@@ -40,7 +40,8 @@ class NotificationsViewModel @Inject constructor(
         getNotificationsUseCase.invoke().collect { response ->
             when (response) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(notificationList = response.data) }
+                    val list = response.data.reversed()
+                    _state.update { it.copy(notificationList = list) }
                 }
 
                 is DataResult.Error -> {
